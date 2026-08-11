@@ -1,0 +1,36 @@
+{
+  "name": "leanchem-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "db:seed-passwords": "tsx src/scripts/seedPasswords.ts",
+    "db:migrate": "tsx src/scripts/migrate.ts",
+    "db:start": "tsx src/scripts/startDb.ts",
+    "db:create": "tsx src/scripts/createDb.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.1",
+    "pg": "^8.16.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^1.4.13",
+    "@types/node": "^22.15.32",
+    "@types/pg": "^8.15.4",
+    "embedded-postgres": "^18.4.0-beta.17",
+    "tsx": "^4.20.3",
+    "typescript": "~5.8.3"
+  }
+}

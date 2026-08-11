@@ -1,0 +1,126 @@
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  height: var(--header-height);
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.app-header__inner {
+  max-width: var(--content-max);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+
+.app-header__logo {
+  font-size: 20px;
+  font-weight: var(--font-bold);
+  color: var(--color-florentine-lapis);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.app-header__logo:hover {
+  text-decoration: none;
+  color: var(--color-adamantine-blue);
+}
+
+.app-header__site {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: var(--font-regular);
+  color: var(--color-black-velvet);
+  opacity: 0.5;
+  user-select: none;
+}
+
+.app-header__site-chevron {
+  opacity: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.app-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.app-header__nav a {
+  padding: 8px 12px;
+  color: var(--color-black-velvet);
+  text-decoration: none;
+  font-weight: var(--font-regular);
+  border-bottom: 2px solid transparent;
+}
+
+.app-header__nav a:hover,
+.app-header__nav a.is-active {
+  color: var(--color-adamantine-blue);
+  text-decoration: none;
+}
+
+.app-header__nav a.is-active {
+  border-bottom-color: var(--color-adamantine-blue);
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header__role {
+  font-size: 13px;
+  font-weight: var(--font-regular);
+  color: var(--color-black-velvet);
+}
+
+.app-header__cart {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-florentine-lapis);
+  cursor: pointer;
+}
+
+.app-header__cart[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  color: var(--color-disabled);
+}
+
+@media (max-width: 767px) {
+  .app-header__role {
+    display: none;
+  }
+
+  .app-header__nav {
+    gap: 0;
+  }
+
+  .app-header__nav a {
+    padding: 8px 8px;
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,215 @@
+.qv-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-drawer);
+  pointer-events: none;
+}
+
+.qv-root.is-open {
+  pointer-events: auto;
+}
+
+.qv-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(34, 34, 53, 0.42);
+  opacity: 0;
+  transition: opacity var(--motion-duration) var(--motion-easing);
+}
+
+.qv-root.is-open .qv-backdrop {
+  opacity: 1;
+}
+
+.qv-panel {
+  position: absolute;
+  background: var(--color-white);
+  color: var(--color-black-velvet);
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  will-change: transform, opacity;
+  transition: transform var(--motion-duration) var(--motion-easing),
+    opacity var(--motion-duration) var(--motion-easing);
+}
+
+.qv-panel--drawer {
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(40vw, var(--drawer-max-width));
+  min-width: min(100%, 360px);
+  max-width: var(--drawer-max-width);
+  border-left: 1px solid var(--color-border-subtle);
+  transform: translateX(100%);
+  opacity: 1;
+}
+
+.qv-panel--sheet {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
+  max-width: none;
+  transform: translateY(100%);
+  border-radius: 0;
+}
+
+.qv-root.is-open .qv-panel--drawer {
+  transform: translateX(0);
+}
+
+.qv-root.is-open .qv-panel--sheet {
+  transform: translateY(0);
+}
+
+.qv-panel__chrome {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 8px 0;
+  flex-shrink: 0;
+}
+
+.qv-close {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-black-velvet);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.qv-content {
+  overflow: auto;
+  padding: 0 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.qv-identity {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.qv-identity__name {
+  font-size: 20px;
+  font-weight: var(--font-bold);
+  line-height: 1.3;
+}
+
+.qv-identity__cas {
+  margin-top: 6px;
+  font-weight: var(--font-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.qv-action-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.qv-label {
+  display: block;
+  font-size: 11px;
+  font-weight: var(--font-regular);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--color-black-velvet) 60%, white);
+}
+
+.qv-value {
+  display: block;
+  margin-top: 2px;
+  font-weight: var(--font-regular);
+}
+
+.qv-section__title {
+  font-size: 16px;
+  font-weight: var(--font-bold);
+  margin-bottom: 12px;
+}
+
+.qv-specs {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.qv-specs th,
+.qv-specs td {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: left;
+  font-weight: var(--font-regular);
+  vertical-align: top;
+}
+
+.qv-specs th {
+  width: 42%;
+  color: color-mix(in srgb, var(--color-black-velvet) 72%, white);
+  font-weight: var(--font-regular);
+}
+
+.qv-sds {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.qv-sds__updated {
+  font-size: 12px;
+  font-weight: var(--font-light);
+}
+
+.qv-skeleton {
+  padding: 8px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qv-skel-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.skel-title { width: 70%; height: 28px; }
+.skel-picto { width: 40px; height: 40px; border-radius: 4px; flex-shrink: 0; }
+.skel-cas-line { width: 120px; height: 16px; }
+.skel-action { width: 100%; height: 160px; }
+.skel-table { width: 100%; height: 120px; }
+.skel-vault { width: 100%; height: 80px; }
+
+.skel {
+  display: block;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-skeleton) 0%,
+    var(--color-skeleton-shine) 50%,
+    var(--color-skeleton) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skel {
+    animation: skel-shine 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes skel-shine {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}

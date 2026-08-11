@@ -1,0 +1,96 @@
+.timeline-node {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 12px;
+  list-style: none;
+}
+
+.timeline-node__rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timeline-node__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--color-organza-violet);
+  background: var(--color-white);
+  flex-shrink: 0;
+  margin-top: 4px;
+  z-index: 1;
+}
+
+.timeline-node__line {
+  flex: 1;
+  width: 2px;
+  min-height: 24px;
+  background: var(--color-organza-violet);
+  margin-top: 4px;
+}
+
+.timeline-node--complete .timeline-node__dot {
+  background: var(--color-florentine-lapis);
+  border-color: var(--color-florentine-lapis);
+}
+
+.timeline-node--active .timeline-node__dot {
+  background: var(--color-white);
+  border-color: var(--color-florentine-lapis);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-florentine-lapis) 25%, transparent);
+}
+
+.timeline-node--action-required .timeline-node__dot {
+  background: var(--color-adamantine-blue);
+  border-color: var(--color-adamantine-blue);
+}
+
+.timeline-node__body {
+  padding-bottom: 20px;
+  min-width: 0;
+}
+
+.timeline-node:last-child .timeline-node__body {
+  padding-bottom: 0;
+}
+
+.timeline-node__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+}
+
+.timeline-node__label {
+  font-weight: var(--font-semibold);
+}
+
+.timeline-node--pending .timeline-node__label {
+  font-weight: var(--font-regular);
+  color: color-mix(in srgb, var(--color-black-velvet) 65%, white);
+}
+
+.timeline-node__time {
+  font-size: 12px;
+  font-weight: var(--font-light);
+  color: color-mix(in srgb, var(--color-black-velvet) 65%, white);
+}
+
+.timeline-node__hub {
+  margin-top: 12px;
+  margin-left: -40px;
+  padding-left: 40px;
+  position: relative;
+}
+
+.timeline-node__hub::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-organza-violet);
+}

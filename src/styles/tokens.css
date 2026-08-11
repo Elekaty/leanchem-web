@@ -1,0 +1,39 @@
+:root {
+  --color-florentine-lapis: #1e5897;
+  --color-adamantine-blue: #45abef;
+  --color-black-velvet: #222235;
+  --color-organza-violet: #7b8dc6;
+  --color-white: #ffffff;
+  --color-surface: #f5f7fb;
+  --color-surface-elevated: #ffffff;
+  --color-error: #c62828;
+  --color-error-bg: #fdecea;
+  --color-skeleton: #e4e8f2;
+  --color-skeleton-shine: #eef1f8;
+  --color-border-subtle: color-mix(in srgb, var(--color-organza-violet) 45%, transparent);
+  --color-disabled: #9aa3b8;
+
+  --font-family: "Montserrat", sans-serif;
+  --font-light: 300;
+  --font-regular: 400;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  --motion-duration: 280ms;
+  --motion-easing: ease-in-out;
+
+  --header-height: 64px;
+  --banner-height: 44px;
+  --drawer-max-width: 640px;
+  --content-max: 1280px;
+  --z-header: 100;
+  --z-banner: 90;
+  --z-drawer: 200;
+  --z-tooltip: 300;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration: 0ms;
+  }
+}

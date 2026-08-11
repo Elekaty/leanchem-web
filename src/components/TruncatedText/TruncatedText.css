@@ -1,0 +1,30 @@
+.truncated-wrap {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.truncated-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.truncated-tooltip {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: var(--z-tooltip);
+  max-width: min(420px, 80vw);
+  padding: 8px 12px;
+  background: var(--color-black-velvet);
+  color: var(--color-white);
+  font-size: 12px;
+  font-weight: var(--font-regular);
+  line-height: 1.4;
+  white-space: normal;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(34, 34, 53, 0.25);
+  pointer-events: none;
+}

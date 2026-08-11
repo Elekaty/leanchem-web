@@ -1,0 +1,20 @@
+.verification-banner {
+  position: sticky;
+  top: var(--header-height);
+  z-index: var(--z-banner);
+  min-height: var(--banner-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background: color-mix(in srgb, var(--color-florentine-lapis) 12%, white);
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-black-velvet);
+  text-align: center;
+}
+
+.verification-banner p {
+  font-size: 13px;
+  font-weight: var(--font-regular);
+  max-width: var(--content-max);
+}

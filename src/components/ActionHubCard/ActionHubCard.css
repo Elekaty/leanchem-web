@@ -1,0 +1,34 @@
+.action-hub {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  will-change: max-height, opacity;
+  transition: max-height var(--motion-duration) var(--motion-easing),
+    opacity var(--motion-duration) var(--motion-easing);
+}
+
+.action-hub.is-expanded {
+  max-height: 480px;
+  opacity: 1;
+}
+
+.action-hub__inner {
+  padding: 16px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 3px solid var(--color-florentine-lapis);
+}
+
+.action-hub__title {
+  font-size: 15px;
+  font-weight: var(--font-bold);
+  margin-bottom: 6px;
+}
+
+.action-hub__body {
+  font-weight: var(--font-regular);
+  margin-bottom: 14px;
+  color: color-mix(in srgb, var(--color-black-velvet) 78%, white);
+}
+
+.action-hub__status { margin-top: 10px; font-size: 13px; }
