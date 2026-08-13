@@ -66,12 +66,19 @@ CREATE TABLE products (
     estimated_price NUMERIC(10, 2),
     price_currency VARCHAR(10) DEFAULT 'USD',
     packaging_volumes VARCHAR(255),
+    slug VARCHAR(160),
+    seo_description TEXT,
+    hs_chapter VARCHAR(10),
+    packaging_options VARCHAR(255),
+    industry_tags VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_products_cas ON products(cas_number);
 CREATE INDEX idx_products_sku ON products(sku);
 CREATE INDEX idx_products_name ON products(name);
+CREATE UNIQUE INDEX idx_products_slug_unique ON products(slug);
+CREATE INDEX idx_products_hs_chapter ON products(hs_chapter);
 
 CREATE TABLE product_documents (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -235,6 +242,26 @@ CREATE POLICY view_own_samples ON sample_requests FOR SELECT
 
 CREATE POLICY insert_own_samples ON sample_requests FOR INSERT
     WITH CHECK (user_id = current_setting('request.jwt.claim.sub', true)::uuid);
+
+CREATE TABLE rfq_requests (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_name VARCHAR(255) NOT NULL,
+    contact_name VARCHAR(255),
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+    product_slug VARCHAR(160),
+    product_name VARCHAR(255),
+    cas_number VARCHAR(50),
+    volume_text TEXT,
+    delivery_terms VARCHAR(100),
+    market VARCHAR(100),
+    intent VARCHAR(50) DEFAULT 'quote',
+    notes TEXT,
+    status VARCHAR(50) DEFAULT 'request_submitted'
+        CHECK (status IN ('draft', 'request_submitted', 'closed')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Application roles (optional hardening for local/dev)
 DO $$

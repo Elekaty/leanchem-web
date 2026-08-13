@@ -3,9 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/Breadcrumbs/Breadcrumbs'
 import { AlertIcon, SearchIcon } from '../components/Icons'
 import { ProductCard, ProductCardSkeleton } from '../components/ProductCard/ProductCard'
-import { QuickViewDrawer } from '../components/QuickViewDrawer/QuickViewDrawer'
 import { useAuth } from '../context/AuthContext'
-import { ApiClientError } from '../api/client'
 import { fetchProducts } from '../api/leanchem'
 import { HS_CHAPTERS, INDUSTRIES, PACKAGING_OPTIONS } from '../data/marketing'
 import { mapCatalogItem } from '../data/mapCatalogItem'
@@ -31,8 +29,6 @@ export function CatalogPage() {
   const [errorMessage, setErrorMessage] = useState(
     'Unable to retrieve catalog data. Please check your connection.',
   )
-  const [activeProductId, setActiveProductId] = useState<string | null>(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQuery(query.trim()), 250)
@@ -52,31 +48,28 @@ export function CatalogPage() {
     try {
       const data = await fetchProducts({
         search: debouncedQuery || undefined,
+        industry: market || undefined,
         page: 1,
         limit: 50,
         sort: 'name_asc',
       })
       const mapped = data.items.map(mapCatalogItem)
       if (mapped.length === 0) {
-        const fallback = filterMock(MOCK_PRODUCTS, debouncedQuery)
+        const fallback = filterMock(MOCK_PRODUCTS, debouncedQuery, market)
         setProducts(fallback)
         setState(fallback.length ? 'ready' : 'empty')
         return
       }
       setProducts(mapped)
       setState('ready')
-    } catch (err) {
-      const fallback = filterMock(MOCK_PRODUCTS, debouncedQuery)
+    } catch {
+      const fallback = filterMock(MOCK_PRODUCTS, debouncedQuery, market)
       if (fallback.length) {
         setProducts(fallback)
         setState('ready')
         return
       }
-      const message =
-        err instanceof ApiClientError
-          ? err.message
-          : 'Unable to retrieve catalog data. Please check your connection.'
-      setErrorMessage(message)
+      setErrorMessage('Unable to retrieve catalog data. Please check your connection.')
       setProducts([])
       setState('error')
     }
@@ -85,13 +78,12 @@ export function CatalogPage() {
   useEffect(() => {
     void loadCatalog()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, session.tier, session.isLoggedIn])
+  }, [debouncedQuery, market, session.tier, session.isLoggedIn])
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
       if (hsSelected.length && !hsSelected.includes(p.hsChapter)) return false
-      if (packSelected.length && !packSelected.some((pack) => p.packaging.includes(pack.replace(/^\d+\s*/, '').split(' ')[0]) || p.packaging.includes(pack))) {
-        // Match loosely on packaging tokens
+      if (packSelected.length) {
         const ok = packSelected.some((pack) =>
           p.packaging.toLowerCase().includes(pack.toLowerCase().split(' ').slice(-1)[0] ?? ''),
         )
@@ -103,21 +95,6 @@ export function CatalogPage() {
 
   const viewState: CatalogState =
     state === 'ready' && filtered.length === 0 ? 'empty' : state
-
-  const openQuickView = (product: Product) => {
-    setActiveProductId(product.id)
-    setDrawerOpen(true)
-  }
-
-  const closeQuickView = () => {
-    setDrawerOpen(false)
-    window.setTimeout(() => setActiveProductId(null), 220)
-  }
-
-  const activeListProduct = useMemo(
-    () => products.find((p) => p.id === activeProductId) ?? null,
-    [products, activeProductId],
-  )
 
   const toggleValue = (list: string[], value: string, setter: (v: string[]) => void) => {
     setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value])
@@ -138,8 +115,8 @@ export function CatalogPage() {
           <div>
             <h1 className="page-title">Chemical Catalog</h1>
             <p className="page-subtitle">
-              Browse industrial grades for Ethiopian procurement — expand specs, open TDS/SDS, and
-              send an RFQ without leaving the buying flow.
+              Public discovery grid for SEO and mobile buyers. Open a product page for specs and
+              route RFQs to /contact — dense procurement lives in the Client Portal.
             </p>
           </div>
           <div className="catalog-toolbar">
@@ -247,7 +224,7 @@ export function CatalogPage() {
             {viewState === 'ready' ? (
               <div className="catalog-grid">
                 {filtered.map((product) => (
-                  <ProductCard key={product.id} product={product} onQuickView={openQuickView} />
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             ) : null}
@@ -260,25 +237,22 @@ export function CatalogPage() {
           Request Quote
         </Link>
       </div>
-
-      <QuickViewDrawer
-        isOpen={drawerOpen}
-        productId={activeProductId}
-        listProduct={activeListProduct}
-        userTier={session.tier}
-        onClose={closeQuickView}
-      />
     </div>
   )
 }
 
-function filterMock(products: Product[], query: string) {
-  if (!query) return products
+function filterMock(products: Product[], query: string, market: string | null) {
+  let list = products
+  if (market) {
+    list = list.filter((p) => p.industryTags.includes(market))
+  }
+  if (!query) return list
   const q = query.toLowerCase()
-  return products.filter(
+  return list.filter(
     (p) =>
       p.name.toLowerCase().includes(q) ||
       p.casNumber.toLowerCase().includes(q) ||
-      p.purity.toLowerCase().includes(q),
+      p.purity.toLowerCase().includes(q) ||
+      p.slug.includes(q),
   )
 }

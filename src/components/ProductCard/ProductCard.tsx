@@ -5,19 +5,16 @@ import './ProductCard.css'
 
 interface ProductCardProps {
   product: Product
-  onQuickView?: (product: Product) => void
 }
 
-export function ProductCard({ product, onQuickView }: ProductCardProps) {
+export function ProductCard({ product }: ProductCardProps) {
   return (
     <article className="product-card">
       <div className="product-card__top">
         <span className="product-card__glyph" aria-hidden="true">
           <CategoryGlyph category={product.category || product.physicalState} />
         </span>
-        <span
-          className={`product-card__stock ${product.inStock ? 'is-in' : 'is-out'}`}
-        >
+        <span className={`product-card__stock ${product.inStock ? 'is-in' : 'is-out'}`}>
           {product.inStock ? 'In stock' : 'Made to order'}
         </span>
       </div>
@@ -36,17 +33,11 @@ export function ProductCard({ product, onQuickView }: ProductCardProps) {
         <Link to={`/catalog/${product.slug}`} className="btn btn-secondary product-card__btn">
           View specs
         </Link>
-        {onQuickView ? (
-          <button
-            type="button"
-            className="btn btn-ghost product-card__btn"
-            onClick={() => onQuickView(product)}
-          >
-            Quick view
-          </button>
-        ) : null}
+        <a className="btn btn-ghost product-card__btn" href={product.sdsUrl}>
+          SDS / TDS
+        </a>
         <Link
-          to={`/contact?product=${encodeURIComponent(product.name)}`}
+          to={`/contact?product=${encodeURIComponent(product.slug)}`}
           className="btn btn-primary product-card__btn"
         >
           Request quote

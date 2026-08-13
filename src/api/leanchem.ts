@@ -24,6 +24,7 @@ export interface CompanyStatus {
 
 export interface CatalogItem {
   id: string
+  slug?: string
   cas_number: string
   name: string
   purity_grade: string
@@ -37,6 +38,10 @@ export interface CatalogItem {
   hazard?: string
   category?: string
   packaging?: string
+  packaging_options?: string
+  hs_chapter?: string
+  industry_tags?: string
+  seo_description?: string
 }
 
 export interface CatalogResponse {
@@ -50,12 +55,17 @@ export interface CatalogResponse {
 
 export interface ProductDetail {
   id: string
+  slug?: string
   cas_number: string
   name: string
   description?: string
+  seo_description?: string
   primary_hazard_code: string
   hazard: string
   packaging?: string
+  packaging_options?: string
+  hs_chapter?: string
+  industry_tags?: string
   pricing: { estimated_price: number | null; currency: string } | null
   specs: {
     moq: number
@@ -121,18 +131,22 @@ export async function fetchProducts(params: {
   page?: number
   limit?: number
   sort?: string
+  industry?: string
+  hs_chapter?: string
 }) {
   const q = new URLSearchParams()
   if (params.search) q.set('search', params.search)
   if (params.page) q.set('page', String(params.page))
   if (params.limit) q.set('limit', String(params.limit))
   if (params.sort) q.set('sort', params.sort)
+  if (params.industry) q.set('industry', params.industry)
+  if (params.hs_chapter) q.set('hs_chapter', params.hs_chapter)
   const qs = q.toString()
   return apiRequest<CatalogResponse>(`/products${qs ? `?${qs}` : ''}`)
 }
 
-export async function fetchProduct(id: string) {
-  return apiRequest<ProductDetail>(`/products/${id}`)
+export async function fetchProduct(idOrSlug: string) {
+  return apiRequest<ProductDetail>(`/products/${encodeURIComponent(idOrSlug)}`)
 }
 
 export async function requestSample(productId: string) {
@@ -152,6 +166,27 @@ export async function createOrder(payload: {
   internal_notes?: string
 }) {
   return apiRequest<{ id: string; status: string; message: string }>('/orders', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function submitRfq(payload: {
+  company_name: string
+  contact_name: string
+  email: string
+  phone?: string
+  product_slug?: string
+  product_id?: string
+  product_name?: string
+  cas_number?: string
+  volume_text: string
+  delivery_terms: string
+  market?: string
+  intent?: 'quote' | 'sample'
+  notes?: string
+}) {
+  return apiRequest<{ id: string; status: string; message: string }>('/rfq', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

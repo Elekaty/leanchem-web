@@ -37,7 +37,10 @@ export function Header() {
         </div>
 
         <nav className="app-header__nav" aria-label="Primary">
-          <NavLink to="/catalog" className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
+          <NavLink
+            to="/portal/catalog"
+            className={({ isActive }) => (isActive ? 'is-active' : undefined)}
+          >
             Catalog
           </NavLink>
           <NavLink

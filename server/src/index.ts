@@ -8,6 +8,7 @@ import { companyRouter } from './routes/company.js'
 import { documentsRouter } from './routes/documents.js'
 import { ordersRouter } from './routes/orders.js'
 import { productsRouter } from './routes/products.js'
+import { rfqRouter } from './routes/rfq.js'
 import { ok, fail } from './utils/response.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -34,6 +35,7 @@ app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/company', companyRouter)
 app.use('/api/v1/products', productsRouter)
 app.use('/api/v1/orders', ordersRouter)
+app.use('/api/v1/rfq', rfqRouter)
 app.use('/api/v1/documents', documentsRouter)
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

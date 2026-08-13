@@ -3,16 +3,12 @@ import { hsChapterForCategory } from './marketing'
 import type { HazardPictogram, Product } from '../types'
 import { productSlug } from '../utils/slug'
 
-export function mapCatalogItem(item: CatalogItem & {
-  physical_state?: string
-  hazard?: string
-  category?: string
-  packaging?: string
-}): Product {
+export function mapCatalogItem(item: CatalogItem): Product {
   const physicalState = item.physical_state ?? '—'
   const category =
     item.category ?? (physicalState.toLowerCase().includes('solid') ? 'Inorganics' : 'Solvents')
-  const packaging = item.packaging ?? inferPackaging(item.moq_unit)
+  const packaging =
+    item.packaging_options ?? item.packaging ?? inferPackaging(item.moq_unit)
   return {
     id: item.id,
     name: item.name,
@@ -27,9 +23,11 @@ export function mapCatalogItem(item: CatalogItem & {
     sdsUrl: '#',
     sdsUpdatedAt: '—',
     category,
-    slug: productSlug({ id: item.id, name: item.name }),
+    slug: item.slug || productSlug({ id: item.id, name: item.name }),
     inStock: item.in_stock !== false,
-    hsChapter: hsChapterForCategory(category),
+    hsChapter: item.hs_chapter || hsChapterForCategory(category),
+    industryTags: item.industry_tags ?? '',
+    seoDescription: item.seo_description,
   }
 }
 

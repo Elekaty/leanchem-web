@@ -27,6 +27,8 @@ export interface Product {
   slug: string;
   inStock: boolean;
   hsChapter: string;
+  industryTags: string;
+  seoDescription?: string;
 }
 
 export interface OrderTimelineStep {

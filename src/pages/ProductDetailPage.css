@@ -97,6 +97,13 @@
   margin-top: 12px;
 }
 
+.pdp__public-cta {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
 .pdp__slug-note {
   margin-top: 12px;
   font-size: 0.75rem;

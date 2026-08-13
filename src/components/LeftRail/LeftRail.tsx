@@ -35,7 +35,7 @@ export function LeftRail() {
   } = useShell()
   const compact = useMediaQuery('(max-width: 1279px)')
   const location = useLocation()
-  const showCatalogFacets = location.pathname.startsWith('/catalog')
+  const showCatalogFacets = location.pathname === '/portal/catalog'
   const closeIfCompact = () => {
     if (compact) setRailOpen(false)
   }
@@ -54,7 +54,7 @@ export function LeftRail() {
         <p className="app-rail__label">Workspace</p>
         <nav className="app-rail__nav">
           <NavLink
-            to="/catalog"
+            to="/portal/catalog"
             className={({ isActive }) => (isActive ? 'active' : undefined)}
             onClick={closeIfCompact}
           >

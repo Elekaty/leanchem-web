@@ -7,6 +7,7 @@ import { CatalogPage } from './pages/CatalogPage'
 import { ContactPage } from './pages/ContactPage'
 import { HomePage } from './pages/HomePage'
 import { NewsArticlePage, NewsPage } from './pages/NewsPage'
+import { PortalCatalogPage } from './pages/PortalCatalogPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { TrackingPage } from './pages/TrackingPage'
@@ -28,11 +29,11 @@ export default function App() {
 
           <Route path="portal" element={<PortalLayout />}>
             <Route index element={<PortalIndexRedirect />} />
+            <Route path="catalog" element={<PortalCatalogPage />} />
             <Route path="orders" element={<TrackingPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
 
-          {/* Back-compat for the previous app shell routes */}
           <Route path="tracking" element={<Navigate to="/portal/orders" replace />} />
           <Route path="settings" element={<Navigate to="/portal/settings" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />

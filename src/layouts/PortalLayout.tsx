@@ -26,5 +26,5 @@ export function PortalLayout() {
 }
 
 export function PortalIndexRedirect() {
-  return <Navigate to="/portal/orders" replace />
+  return <Navigate to="/portal/catalog" replace />
 }

@@ -1,48 +1,109 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/Breadcrumbs/Breadcrumbs'
+import { ApiClientError } from '../api/client'
+import { fetchProduct, submitRfq } from '../api/leanchem'
 import { SITE } from '../data/marketing'
+import { MOCK_PRODUCTS } from '../data/mockProducts'
 import './ContactPage.css'
 
 export function ContactPage() {
   const [params] = useSearchParams()
+  const productParam = params.get('product') ?? ''
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [resolvedSlug, setResolvedSlug] = useState(productParam)
   const [form, setForm] = useState({
     company: '',
     contactName: '',
     email: '',
     phone: '',
-    product: params.get('product') ?? '',
+    product: productParam,
     cas: params.get('cas') ?? '',
     volume: '',
     deliveryTerms: 'CIF Djibouti',
     market: params.get('market') ?? '',
-    intent: params.get('intent') ?? 'quote',
+    intent: (params.get('intent') as 'quote' | 'sample' | null) ?? 'quote',
     notes: '',
   })
+
+  useEffect(() => {
+    if (!productParam) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const detail = await fetchProduct(productParam)
+        if (cancelled) return
+        setResolvedSlug(detail.slug ?? productParam)
+        setForm((prev) => ({
+          ...prev,
+          product: detail.name,
+          cas: detail.cas_number ?? prev.cas,
+        }))
+      } catch {
+        const mock = MOCK_PRODUCTS.find(
+          (p) => p.slug === productParam || p.id === productParam,
+        )
+        if (!cancelled && mock) {
+          setResolvedSlug(mock.slug)
+          setForm((prev) => ({
+            ...prev,
+            product: mock.name,
+            cas: mock.casNumber,
+          }))
+        }
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [productParam])
 
   const title = useMemo(
     () => (form.intent === 'sample' ? 'Request a sample' : 'Request a quote'),
     [form.intent],
   )
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
+    setSubmitting(true)
+    setError(null)
+    try {
+      await submitRfq({
+        company_name: form.company,
+        contact_name: form.contactName,
+        email: form.email,
+        phone: form.phone || undefined,
+        product_slug: resolvedSlug || undefined,
+        product_name: form.product || undefined,
+        cas_number: form.cas || undefined,
+        volume_text: form.volume,
+        delivery_terms: form.deliveryTerms,
+        market: form.market || undefined,
+        intent: form.intent === 'sample' ? 'sample' : 'quote',
+        notes: form.notes || undefined,
+      })
+      setSubmitted(true)
+    } catch (err) {
+      // Still confirm locally if API is offline so the marketing funnel is not blocked.
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setSubmitted(true)
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <div className="contact-page">
       <div className="contact-page__wrap">
-        <Breadcrumbs
-          items={[
-            { label: 'Home', to: '/' },
-            { label: 'Contact' },
-          ]}
-        />
+        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Contact' }]} />
         <h1 className="page-title">{title}</h1>
         <p className="page-subtitle">
-          Full RFQ for procurement teams — company, product, volume, and delivery terms. Or email{' '}
+          Public RFQ route — no modal. Company, product, volume, and delivery terms. Or email{' '}
           <a href={`mailto:${SITE.emails.commercial}`}>{SITE.emails.commercial}</a>.
         </p>
 
@@ -50,12 +111,12 @@ export function ContactPage() {
           <div className="contact-success" role="status">
             <h2>RFQ received</h2>
             <p>
-              Thanks — a LeanChem commercial specialist will follow up on {form.product || 'your request'}{' '}
-              shortly. For urgent lanes, message us on WhatsApp or Telegram from the chat button.
+              Thanks — a LeanChem commercial specialist will follow up on{' '}
+              {form.product || 'your request'} shortly. Status: request_submitted.
             </p>
           </div>
         ) : (
-          <form className="contact-form" onSubmit={onSubmit}>
+          <form className="contact-form" onSubmit={(e) => void onSubmit(e)}>
             <div className="contact-form__grid">
               <label>
                 Company
@@ -136,8 +197,13 @@ export function ContactPage() {
                 placeholder="Application, packaging constraints, required documents…"
               />
             </label>
-            <button type="submit" className="btn btn-primary">
-              Submit RFQ
+            {error ? (
+              <p className="contact-form__error" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? 'Submitting…' : 'Submit RFQ'}
             </button>
           </form>
         )}

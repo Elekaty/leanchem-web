@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ApiClientError } from '../api/client'
-import { createOrder, fetchProduct, fetchProducts, requestSample, type ProductDetail } from '../api/leanchem'
+import {
+  createOrder,
+  fetchProduct,
+  requestSample,
+  type ProductDetail,
+} from '../api/leanchem'
 import { Breadcrumbs } from '../components/Breadcrumbs/Breadcrumbs'
 import { PricingBlock } from '../components/PricingBlock/PricingBlock'
 import { useAuth } from '../context/AuthContext'
 import { mapCatalogItem } from '../data/mapCatalogItem'
 import { MOCK_PRODUCTS } from '../data/mockProducts'
 import type { PricingStatus, Product } from '../types'
-import { productSlug } from '../utils/slug'
 import './ProductDetailPage.css'
 
 function resolvePricingStatus(detail: ProductDetail | null, tier: 1 | 2 | 3): PricingStatus {
@@ -16,6 +20,28 @@ function resolvePricingStatus(detail: ProductDetail | null, tier: 1 | 2 | 3): Pr
   const price = detail?.pricing?.estimated_price
   if (price == null) return 'Unavailable'
   return 'Available'
+}
+
+function detailToListProduct(detail: ProductDetail): Product {
+  return mapCatalogItem({
+    id: detail.id,
+    slug: detail.slug,
+    cas_number: detail.cas_number,
+    name: detail.name,
+    purity_grade: detail.specs.purity_grade,
+    in_stock: true,
+    moq: detail.specs.moq,
+    moq_unit: detail.specs.moq_unit,
+    lead_time_days: detail.specs.lead_time_days,
+    estimated_price: detail.pricing?.estimated_price ?? null,
+    physical_state: detail.specs.physical_state,
+    hazard: detail.hazard,
+    packaging: detail.packaging_options ?? detail.packaging,
+    packaging_options: detail.packaging_options ?? detail.packaging,
+    hs_chapter: detail.hs_chapter,
+    industry_tags: detail.industry_tags,
+    seo_description: detail.seo_description,
+  })
 }
 
 export function ProductDetailPage() {
@@ -33,22 +59,10 @@ export function ProductDetailPage() {
       setLoading(true)
       setSubmitError(null)
       try {
-        const data = await fetchProducts({ page: 1, limit: 100, sort: 'name_asc' })
-        const mapped = data.items.map(mapCatalogItem)
-        const found =
-          mapped.find((p) => p.slug === slug || p.id === slug) ??
-          MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug) ??
-          null
+        const d = await fetchProduct(slug)
         if (cancelled) return
-        setListProduct(found)
-        if (found) {
-          try {
-            const d = await fetchProduct(found.id)
-            if (!cancelled) setDetail(d)
-          } catch {
-            if (!cancelled) setDetail(null)
-          }
-        }
+        setDetail(d)
+        setListProduct(detailToListProduct(d))
       } catch {
         const found = MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug) ?? null
         if (!cancelled) {
@@ -67,11 +81,19 @@ export function ProductDetailPage() {
 
   const displayName = detail?.name ?? listProduct?.name ?? 'Product'
   const cas = detail?.cas_number ?? listProduct?.casNumber ?? '—'
+  const productSlugValue = detail?.slug ?? listProduct?.slug ?? slug
+  const packaging =
+    detail?.packaging_options ?? detail?.packaging ?? listProduct?.packaging ?? '—'
   const pricingStatus = resolvePricingStatus(detail, session.tier)
   const price = detail?.pricing?.estimated_price ?? listProduct?.estimatedPrice ?? null
+  const seo =
+    detail?.seo_description ??
+    listProduct?.seoDescription ??
+    `${displayName} (CAS ${cas}). Specs, packaging, stock status, TDS/SDS, and RFQ via LeanChem Ethiopia.`
 
   const jsonLd = useMemo(() => {
-    if (!listProduct) return null
+    if (!listProduct && !detail) return null
+    const canonicalSlug = productSlugValue
     return {
       '@context': 'https://schema.org',
       '@graph': [
@@ -89,43 +111,40 @@ export function ProductDetailPage() {
               '@type': 'ListItem',
               position: 3,
               name: displayName,
-              item: `${window.location.origin}/catalog/${listProduct.slug}`,
+              item: `${window.location.origin}/catalog/${canonicalSlug}`,
             },
           ],
         },
         {
           '@type': 'Product',
           name: displayName,
-          sku: listProduct.id,
+          sku: listProduct?.id ?? detail?.id,
           mpn: cas,
-          description: `${displayName} (CAS ${cas}) available through LeanChem industrial procurement.`,
+          description: seo,
           brand: { '@type': 'Brand', name: 'LeanChem' },
         },
       ],
     }
-  }, [listProduct, displayName, cas])
+  }, [listProduct, detail, displayName, cas, productSlugValue, seo])
 
   useEffect(() => {
     const prev = document.title
-    document.title = listProduct
-      ? `${displayName} | CAS ${cas} | LeanChem`
-      : 'Product | LeanChem'
+    document.title = listProduct || detail ? `${displayName} | CAS ${cas} | LeanChem` : 'Product | LeanChem'
     let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement | null
     if (!meta) {
       meta = document.createElement('meta')
       meta.name = 'description'
       document.head.appendChild(meta)
     }
-    meta.content = listProduct
-      ? `${displayName} (CAS ${cas}). Specs, packaging, stock status, TDS/SDS, and RFQ via LeanChem Ethiopia.`
-      : 'LeanChem chemical product detail.'
+    meta.content = seo
     return () => {
       document.title = prev
     }
-  }, [listProduct, displayName, cas])
+  }, [listProduct, detail, displayName, cas, seo])
 
   const onPrimary = async () => {
-    if (!listProduct) return
+    if (!listProduct && !detail) return
+    const productId = detail?.id ?? listProduct!.id
     setSubmitError(null)
     if (pricingStatus === 'Tier1Locked') {
       try {
@@ -143,13 +162,13 @@ export function ProductDetailPage() {
       await createOrder({
         items: [
           {
-            product_id: listProduct.id,
+            product_id: productId,
             requested_quantity: detail?.specs.moq ?? 1,
             packaging_preference: packaging !== '—' ? packaging : undefined,
           },
         ],
         delivery_address: 'Main HQ Warehouse, Addis Ababa, Ethiopia',
-        internal_notes: 'Submitted from product detail page.',
+        internal_notes: 'Submitted from public PDP (authenticated buyer).',
       })
     } catch (err) {
       setSubmitError(err instanceof ApiClientError ? err.message : 'Unable to submit request.')
@@ -159,11 +178,14 @@ export function ProductDetailPage() {
   }
 
   const onSample = async () => {
-    if (!listProduct) return
+    const productId = detail?.id ?? listProduct?.id
+    if (!productId) return
     setSubmitError(null)
     try {
       setSubmitting(true)
-      await requestSample(listProduct.id)
+      await requestSample(productId)
+      const refreshed = await fetchProduct(productId)
+      setDetail(refreshed)
     } catch (err) {
       setSubmitError(err instanceof ApiClientError ? err.message : 'Unable to request sample.')
     } finally {
@@ -183,11 +205,17 @@ export function ProductDetailPage() {
     )
   }
 
-  if (!listProduct) {
+  if (!listProduct && !detail) {
     return (
       <div className="pdp">
         <div className="pdp__wrap">
-          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Catalog', to: '/catalog' }, { label: 'Not found' }]} />
+          <Breadcrumbs
+            items={[
+              { label: 'Home', to: '/' },
+              { label: 'Catalog', to: '/catalog' },
+              { label: 'Not found' },
+            ]}
+          />
           <h1 className="page-title">Product not found</h1>
           <p className="page-subtitle">This grade is not in the current catalog index.</p>
           <Link to="/catalog" className="btn btn-primary">
@@ -198,20 +226,24 @@ export function ProductDetailPage() {
     )
   }
 
-  const purity = detail?.specs.purity_grade ?? listProduct.purity
-  const state = detail?.specs.physical_state ?? listProduct.physicalState
-  const packaging = detail?.packaging ?? listProduct.packaging
+  const purity = detail?.specs.purity_grade ?? listProduct?.purity ?? '—'
+  const state = detail?.specs.physical_state ?? listProduct?.physicalState ?? '—'
   const moq =
-    detail?.specs != null ? `${detail.specs.moq} ${detail.specs.moq_unit}` : listProduct.moq
+    detail?.specs != null ? `${detail.specs.moq} ${detail.specs.moq_unit}` : (listProduct?.moq ?? '—')
   const lead =
     detail?.specs != null
       ? `${detail.specs.lead_time_days} business days`
-      : listProduct.leadTime
+      : (listProduct?.leadTime ?? '—')
+  const hs = detail?.hs_chapter ?? listProduct?.hsChapter ?? '—'
+  const inStock = listProduct?.inStock ?? true
 
   return (
     <div className="pdp">
       {jsonLd ? (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       ) : null}
       <div className="pdp__wrap">
         <Breadcrumbs
@@ -226,13 +258,10 @@ export function ProductDetailPage() {
           <div>
             <p className="pdp__cas">CAS {cas}</p>
             <h1 className="page-title">{displayName}</h1>
-            <p className="page-subtitle">
-              Indexable product page for procurement and technical review — specs, grades,
-              packaging, documentation, and RFQ.
-            </p>
+            <p className="page-subtitle">{seo}</p>
           </div>
-          <span className={`pdp__stock ${listProduct.inStock ? 'is-in' : 'is-out'}`}>
-            {listProduct.inStock ? 'In stock' : 'Made to order'}
+          <span className={`pdp__stock ${inStock ? 'is-in' : 'is-out'}`}>
+            {inStock ? 'In stock' : 'Made to order'}
           </span>
         </header>
 
@@ -261,18 +290,14 @@ export function ProductDetailPage() {
                 <dd>{lead}</dd>
               </div>
               <div>
-                <dt>Category</dt>
-                <dd>{listProduct.category}</dd>
-              </div>
-              <div>
                 <dt>HS chapter</dt>
-                <dd>{listProduct.hsChapter}</dd>
+                <dd>{hs}</dd>
               </div>
             </dl>
 
             <h2>Documentation</h2>
             <div className="pdp__docs">
-              <a className="btn btn-secondary" href={listProduct.sdsUrl}>
+              <a className="btn btn-secondary" href={listProduct?.sdsUrl ?? '#'}>
                 Download SDS
               </a>
               <a className="btn btn-secondary" href="#tds">
@@ -282,22 +307,35 @@ export function ProductDetailPage() {
           </section>
 
           <aside className="pdp__aside">
-            <PricingBlock
-              price={price}
-              status={pricingStatus}
-              onPrimaryAction={() => void onPrimary()}
-              onSampleAction={() => void onSample()}
-              submitError={submitError}
-              sampleExhausted={detail?.user_context.sample_already_requested}
-              isSubmitting={submitting}
-            />
+            {session.isLoggedIn ? (
+              <PricingBlock
+                price={price}
+                status={pricingStatus}
+                onPrimaryAction={() => void onPrimary()}
+                onSampleAction={() => void onSample()}
+                submitError={submitError}
+                sampleExhausted={detail?.user_context.sample_already_requested}
+                isSubmitting={submitting}
+              />
+            ) : (
+              <div className="pdp__public-cta">
+                <p>
+                  Public RFQs use the contact route. Verified buyers can order instantly from the
+                  Client Portal Quick View.
+                </p>
+              </div>
+            )}
             <Link
               className="btn btn-primary pdp__rfq"
-              to={`/contact?product=${encodeURIComponent(displayName)}&cas=${encodeURIComponent(cas)}`}
+              to={`/contact?product=${encodeURIComponent(productSlugValue)}`}
             >
-              Request quote on /contact
+              Request quote
             </Link>
-            <p className="pdp__slug-note">Canonical slug: {productSlug(listProduct)}</p>
+            {!session.isLoggedIn ? (
+              <Link className="btn btn-secondary pdp__rfq" to="/portal/catalog">
+                Open Client Portal
+              </Link>
+            ) : null}
           </aside>
         </div>
       </div>

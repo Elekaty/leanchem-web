@@ -46,11 +46,11 @@ export function SiteHeader() {
             </NavLink>
           ))}
           <NavLink
-            to="/portal/orders"
+            to="/portal/catalog"
             className={({ isActive }) => `site-header__portal ${isActive ? 'is-active' : ''}`}
             onClick={() => setOpen(false)}
           >
-            {session.isLoggedIn ? 'Client portal' : 'Sign in'}
+            {session.isLoggedIn ? 'Client portal' : 'Sign in / Portal'}
           </NavLink>
         </nav>
       </div>
