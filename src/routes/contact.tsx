@@ -2,80 +2,97 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 
 type ContactSearch = {
   product?: string
+  market?: string
+  intent?: string
+  cas?: string
 }
 
 export const Route = createFileRoute('/contact')({
   validateSearch: (search: Record<string, unknown>): ContactSearch => ({
     product: typeof search.product === 'string' ? search.product : undefined,
+    market: typeof search.market === 'string' ? search.market : undefined,
+    intent: typeof search.intent === 'string' ? search.intent : undefined,
+    cas: typeof search.cas === 'string' ? search.cas : undefined,
   }),
   head: () => ({
-    meta: [{ title: 'Request Quote | LeanChems' }],
+    meta: [{ title: 'Request Quote | LeanChem' }],
   }),
   component: ContactPage,
 })
 
 function ContactPage() {
-  const { product } = Route.useSearch()
+  const { product, market, intent, cas } = Route.useSearch()
+  const title = intent === 'sample' ? 'Request a sample' : 'Request a quote'
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-organza">
-        <Link to="/" className="text-lapis">
+    <div className="mx-auto max-w-2xl px-4 py-8 md:px-6">
+      <nav aria-label="Breadcrumb" className="mb-4 text-sm text-organza">
+        <Link to="/" className="text-lapis no-underline hover:underline">
           Home
         </Link>
         <span className="mx-2">→</span>
         <span className="font-semibold text-velvet">Contact</span>
       </nav>
-      <h1 className="text-3xl font-bold tracking-tight text-velvet">B2B Request for Quote</h1>
-      <p className="text-velvet/70">
-        Phase 1 form shell. Phase 3 will insert submissions into Supabase{' '}
-        <code className="text-lapis">contact_submissions</code>.
+      <h1 className="text-3xl font-bold tracking-tight text-velvet">{title}</h1>
+      <p className="mt-2 text-velvet/65">
+        Public RFQ route — company, product, volume, and delivery terms. Supabase insert wires in
+        Phase 3.
       </p>
       <form
-        className="space-y-4 rounded-lg border border-organza/30 bg-white p-6"
+        className="mt-8 space-y-4 rounded-lg border border-organza/30 bg-white p-6"
         onSubmit={(e) => e.preventDefault()}
       >
         <label className="block text-sm font-semibold">
           Company
           <input
             required
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2 font-normal"
             name="company"
+            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
           />
         </label>
-        <label className="block text-sm font-semibold">
-          Product
-          <input
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2 font-normal"
-            name="product"
-            defaultValue={product ?? ''}
-          />
-        </label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block text-sm font-semibold">
+            Product
+            <input
+              name="product"
+              defaultValue={product ?? ''}
+              className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+            />
+          </label>
+          <label className="block text-sm font-semibold">
+            CAS
+            <input
+              name="cas"
+              defaultValue={cas ?? ''}
+              className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+            />
+          </label>
+        </div>
         <label className="block text-sm font-semibold">
           Volume
           <input
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2 font-normal"
             name="volume"
             placeholder="e.g. 4 × 200 L drums / month"
+            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
           />
         </label>
         <label className="block text-sm font-semibold">
           Delivery terms
           <select
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2 font-normal"
             name="deliveryTerms"
             defaultValue="CIF Djibouti"
+            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
           >
             <option>CIF Djibouti</option>
             <option>DAP Addis Ababa</option>
             <option>Ex Works</option>
           </select>
         </label>
-        <button
-          type="submit"
-          className="rounded bg-lapis px-4 py-2 text-sm font-semibold text-white"
-        >
-          Submit RFQ (Phase 3 wiring)
+        {market ? (
+          <input type="hidden" name="market" value={market} />
+        ) : null}
+        <button type="submit" className="btn btn-primary">
+          Submit RFQ
         </button>
       </form>
     </div>

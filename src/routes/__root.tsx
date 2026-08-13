@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import {
   HeadContent,
   Link,
@@ -6,6 +6,7 @@ import {
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
+import { SITE } from '../data/marketing'
 import appCss from '../styles/app.css?url'
 
 export const Route = createRootRoute({
@@ -14,12 +15,12 @@ export const Route = createRootRoute({
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       {
-        title: 'LeanChems — Chemicals You Trust, Values You Deserve',
+        title: 'LeanChem — Chemicals You Trust, Values You Deserve',
       },
       {
         name: 'description',
         content:
-          'Enterprise B2B chemical procurement for Ethiopian industry — catalog, RFQ, and logistics.',
+          'Enterprise B2B chemical procurement for Ethiopian industry — catalog, RFQ, and corridor-aware logistics.',
       },
     ],
     links: [
@@ -39,10 +40,11 @@ function RootComponent() {
   return (
     <RootDocument>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 pb-24 md:pb-8">
+      <main className="w-full flex-1 pb-24 md:pb-0">
         <Outlet />
       </main>
       <SiteFooter />
+      <FloatingChat />
       <StickyMobileCta />
     </RootDocument>
   )
@@ -65,38 +67,61 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 const NAV = [
   { to: '/catalog', label: 'Catalog' },
   { to: '/about', label: 'About' },
-  { to: '/news/welcome', label: 'News' },
+  { to: '/news', label: 'News' },
   { to: '/contact', label: 'Request Quote' },
-  { to: '/portal', label: 'Client Portal' },
 ] as const
 
 function SiteHeader() {
+  const [open, setOpen] = useState(false)
+
   return (
-    <header className="sticky top-0 z-50 border-b border-organza/30 bg-white/95 shadow-sm backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
-        <Link to="/" className="no-underline hover:no-underline">
-          <span className="block text-xl font-bold tracking-tight text-lapis">LeanChems</span>
+    <header className="sticky top-0 z-50 border-b border-organza/40 bg-white/95 shadow-[0_1px_3px_rgba(34,34,53,0.05)] backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:px-6">
+        <Link to="/" className="no-underline hover:no-underline" onClick={() => setOpen(false)}>
+          <span className="block text-[1.35rem] font-bold tracking-tight text-lapis">
+            {SITE.brand}
+          </span>
           <span className="block text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-organza">
-            Chemicals You Trust
+            Industrial Procurement
           </span>
         </Link>
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+
+        <button
+          type="button"
+          className="inline-flex h-11 w-11 items-center justify-center rounded border border-organza/40 text-velvet md:hidden"
+          aria-expanded={open}
+          aria-controls="site-nav"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span aria-hidden="true">{open ? '✕' : '☰'}</span>
+        </button>
+
+        <nav
+          id="site-nav"
+          className={`${
+            open ? 'flex' : 'hidden'
+          } absolute left-0 right-0 top-16 flex-col gap-1 border-b border-organza/30 bg-white px-4 py-3 shadow-md md:static md:flex md:flex-row md:items-center md:gap-1 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
+          aria-label="Primary"
+        >
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               className="rounded px-3 py-2 text-sm font-semibold text-velvet no-underline hover:bg-canvas hover:text-lapis hover:no-underline"
+              onClick={() => setOpen(false)}
             >
               {item.label}
             </Link>
           ))}
+          <Link
+            to="/portal"
+            className="mt-1 rounded border border-organza px-3 py-2 text-center text-sm font-semibold text-lapis no-underline hover:border-adamantine hover:no-underline md:mt-0 md:ml-2"
+            onClick={() => setOpen(false)}
+          >
+            Sign in / Portal
+          </Link>
         </nav>
-        <Link
-          to="/contact"
-          className="rounded bg-lapis px-3 py-2 text-sm font-semibold text-white no-underline hover:bg-lapis/90 hover:no-underline md:hidden"
-        >
-          Quote
-        </Link>
       </div>
     </header>
   )
@@ -104,32 +129,68 @@ function SiteHeader() {
 
 function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-organza/20 bg-velvet text-white">
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 md:grid-cols-3">
+    <footer className="mt-auto bg-velvet text-white">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-4 md:px-6">
         <div>
-          <p className="text-lg font-bold">LeanChems</p>
-          <p className="mt-2 max-w-sm text-sm text-white/70">
-            Chemicals You Trust, Values You Deserve — B2B procurement for Ethiopian industry.
+          <p className="text-lg font-bold">{SITE.brand}</p>
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">
+            Enterprise B2B chemical procurement for Ethiopian industry — catalog, RFQ, and
+            corridor-aware logistics.
           </p>
         </div>
         <div className="flex flex-col gap-2 text-sm">
-          <Link to="/catalog" className="text-adamantine hover:underline">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-organza">
+            Explore
+          </p>
+          <Link to="/catalog" className="text-adamantine no-underline hover:underline">
             Catalog
           </Link>
-          <Link to="/contact" className="text-adamantine hover:underline">
+          <Link to="/about" className="text-adamantine no-underline hover:underline">
+            About
+          </Link>
+          <Link to="/news" className="text-adamantine no-underline hover:underline">
+            News
+          </Link>
+          <Link to="/contact" className="text-adamantine no-underline hover:underline">
             Request Quote
           </Link>
-          <Link to="/portal" className="text-adamantine hover:underline">
-            Client Portal
-          </Link>
-          <Link to="/admin/documents" className="text-adamantine hover:underline">
-            Admin Documents
+          <Link to="/portal" className="text-adamantine no-underline hover:underline">
+            Client portal
           </Link>
         </div>
-        <div className="text-sm text-white/70">
-          <p>Phase 1 foundation scaffold</p>
-          <p className="mt-1">TanStack Start · Tailwind v4 · Supabase-ready</p>
+        <div className="flex flex-col gap-2 text-sm">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-organza">
+            Contact
+          </p>
+          <a
+            href={`mailto:${SITE.emails.commercial}`}
+            className="text-adamantine no-underline hover:underline"
+          >
+            {SITE.emails.commercial}
+          </a>
+          <a
+            href={`mailto:${SITE.emails.compliance}`}
+            className="text-adamantine no-underline hover:underline"
+          >
+            {SITE.emails.compliance}
+          </a>
+          <p className="mt-1 text-white/55">{SITE.location}</p>
         </div>
+        <div className="flex flex-col gap-2 text-sm">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-organza">Legal</p>
+          <a href="#privacy" className="text-adamantine no-underline hover:underline">
+            Privacy
+          </a>
+          <a href="#terms" className="text-adamantine no-underline hover:underline">
+            Terms
+          </a>
+          <a href="#cookies" className="text-adamantine no-underline hover:underline">
+            Cookies
+          </a>
+        </div>
+      </div>
+      <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-white/50">
+        © {new Date().getFullYear()} LeanChem. All rights reserved.
       </div>
     </footer>
   )
@@ -140,10 +201,51 @@ function StickyMobileCta() {
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-organza/30 bg-white/95 p-3 backdrop-blur md:hidden">
       <Link
         to="/contact"
-        className="flex min-h-12 w-full items-center justify-center rounded bg-lapis text-sm font-semibold text-white no-underline hover:no-underline"
+        className="btn btn-primary flex w-full no-underline hover:no-underline"
       >
         Request Quote
       </Link>
+    </div>
+  )
+}
+
+function FloatingChat() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="fixed bottom-24 right-5 z-50 flex flex-col items-end gap-2 md:bottom-6">
+      {open ? (
+        <div
+          className="flex w-52 flex-col gap-2 rounded-lg border border-organza/30 bg-white p-3 shadow-xl"
+          role="dialog"
+          aria-label="Chat with LeanChem"
+        >
+          <p className="text-sm font-semibold text-velvet">Talk to LeanChem</p>
+          <a
+            href={SITE.chat.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded bg-canvas px-3 py-2 text-sm font-semibold text-lapis no-underline hover:bg-adamantine/15 hover:no-underline"
+          >
+            WhatsApp
+          </a>
+          <a
+            href={SITE.chat.telegram}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded bg-canvas px-3 py-2 text-sm font-semibold text-lapis no-underline hover:bg-adamantine/15 hover:no-underline"
+          >
+            Telegram
+          </a>
+        </div>
+      ) : null}
+      <button
+        type="button"
+        className="min-h-12 rounded-full bg-lapis px-5 text-sm font-semibold text-white shadow-lg shadow-lapis/30"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? 'Close' : 'Chat'}
+      </button>
     </div>
   )
 }

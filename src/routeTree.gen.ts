@@ -15,6 +15,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AdminDocumentsRouteImport } from './routes/admin/documents'
 import { Route as CatalogIndexRouteImport } from './routes/catalog/index'
 import { Route as CatalogSlugRouteImport } from './routes/catalog/$slug'
+import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
 
@@ -48,6 +49,11 @@ const CatalogSlugRoute = CatalogSlugRouteImport.update({
   path: '/catalog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NewsIndexRoute = NewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NewsSlugRoute = NewsSlugRouteImport.update({
   id: '/news/$slug',
   path: '/news/$slug',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/catalog/$slug': typeof CatalogSlugRoute
   '/news/$slug': typeof NewsSlugRoute
   '/catalog/': typeof CatalogIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/portal/': typeof PortalIndexRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/catalog/$slug': typeof CatalogSlugRoute
   '/news/$slug': typeof NewsSlugRoute
   '/catalog': typeof CatalogIndexRoute
+  '/news': typeof NewsIndexRoute
   '/portal': typeof PortalIndexRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/catalog/$slug': typeof CatalogSlugRoute
   '/news/$slug': typeof NewsSlugRoute
   '/catalog/': typeof CatalogIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/portal/': typeof PortalIndexRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/catalog/$slug'
     | '/news/$slug'
     | '/catalog/'
+    | '/news/'
     | '/portal/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/catalog/$slug'
     | '/news/$slug'
     | '/catalog'
+    | '/news'
     | '/portal'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/catalog/$slug'
     | '/news/$slug'
     | '/catalog/'
+    | '/news/'
     | '/portal/'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   CatalogSlugRoute: typeof CatalogSlugRoute
   NewsSlugRoute: typeof NewsSlugRoute
   CatalogIndexRoute: typeof CatalogIndexRoute
+  NewsIndexRoute: typeof NewsIndexRoute
   PortalIndexRoute: typeof PortalIndexRoute
 }
 
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/news/': {
+      id: '/news/'
+      path: '/news'
+      fullPath: '/news/'
+      preLoaderRoute: typeof NewsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/news/$slug': {
       id: '/news/$slug'
       path: '/news/$slug'
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogSlugRoute: CatalogSlugRoute,
   NewsSlugRoute: NewsSlugRoute,
   CatalogIndexRoute: CatalogIndexRoute,
+  NewsIndexRoute: NewsIndexRoute,
   PortalIndexRoute: PortalIndexRoute,
 }
 export const routeTree = rootRouteImport
