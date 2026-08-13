@@ -3,6 +3,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { nitro } from 'nitro/vite'
 
 export default defineConfig({
   server: {
@@ -11,8 +12,8 @@ export default defineConfig({
   plugins: [
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
-    // Start plugin must come before React plugin
     tanstackStart(),
+    nitro(),
     viteReact(),
   ],
 })

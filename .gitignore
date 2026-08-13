@@ -24,3 +24,4 @@ server/dist/
 # _legacy/ is kept in git for reference until Phase 2+ cutover is complete
 
 .vite/
+.output/
