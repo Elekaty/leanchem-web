@@ -1,43 +1,42 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { Header } from './components/Header/Header'
-import { LeftRail } from './components/LeftRail/LeftRail'
-import { VerificationBanner } from './components/VerificationBanner/VerificationBanner'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import { ShellProvider } from './context/ShellContext'
+import { AuthProvider } from './context/AuthContext'
+import { PortalIndexRedirect, PortalLayout } from './layouts/PortalLayout'
+import { SiteLayout } from './layouts/SiteLayout'
+import { AboutPage } from './pages/AboutPage'
 import { CatalogPage } from './pages/CatalogPage'
+import { ContactPage } from './pages/ContactPage'
+import { HomePage } from './pages/HomePage'
+import { NewsArticlePage, NewsPage } from './pages/NewsPage'
+import { ProductDetailPage } from './pages/ProductDetailPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { TrackingPage } from './pages/TrackingPage'
-
-function Shell() {
-  const { session } = useAuth()
-  const hasBanner = session.verificationStatus === 'pending'
-
-  return (
-    <div className={`app-shell ${hasBanner ? 'has-banner' : ''}`}>
-      <Header />
-      <VerificationBanner verificationStatus={session.verificationStatus} />
-      <div className="app-body">
-        <LeftRail />
-        <main className="app-main">
-          <Routes>
-            <Route path="/" element={<CatalogPage />} />
-            <Route path="/tracking" element={<TrackingPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-      </div>
-    </div>
-  )
-}
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <ShellProvider>
-          <Shell />
-        </ShellProvider>
+        <Routes>
+          <Route element={<SiteLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="catalog" element={<CatalogPage />} />
+            <Route path="catalog/:slug" element={<ProductDetailPage />} />
+            <Route path="contact" element={<ContactPage />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="news" element={<NewsPage />} />
+            <Route path="news/:slug" element={<NewsArticlePage />} />
+          </Route>
+
+          <Route path="portal" element={<PortalLayout />}>
+            <Route index element={<PortalIndexRedirect />} />
+            <Route path="orders" element={<TrackingPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+
+          {/* Back-compat for the previous app shell routes */}
+          <Route path="tracking" element={<Navigate to="/portal/orders" replace />} />
+          <Route path="settings" element={<Navigate to="/portal/settings" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   )

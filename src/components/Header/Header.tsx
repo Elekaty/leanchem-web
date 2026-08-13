@@ -31,23 +31,23 @@ export function Header() {
             LeanChem
           </NavLink>
           <span className="app-header__site" aria-hidden="true">
-            {session.siteLabel}
+            Portal
             <ChevronIcon className="app-header__site-chevron" />
           </span>
         </div>
 
         <nav className="app-header__nav" aria-label="Primary">
-          <NavLink to="/" end className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
+          <NavLink to="/catalog" className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
             Catalog
           </NavLink>
           <NavLink
-            to="/tracking"
+            to="/portal/orders"
             className={({ isActive }) => (isActive ? 'is-active' : undefined)}
           >
             Orders
           </NavLink>
           <NavLink
-            to="/settings"
+            to="/portal/settings"
             className={({ isActive }) => (isActive ? 'is-active' : undefined)}
           >
             Settings

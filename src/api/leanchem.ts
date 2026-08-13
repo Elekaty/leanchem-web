@@ -35,6 +35,8 @@ export interface CatalogItem {
   physical_state?: string
   primary_hazard_code?: string
   hazard?: string
+  category?: string
+  packaging?: string
 }
 
 export interface CatalogResponse {

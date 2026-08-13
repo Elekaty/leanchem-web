@@ -24,6 +24,9 @@ export interface Product {
   sdsUrl: string;
   sdsUpdatedAt: string;
   category: string;
+  slug: string;
+  inStock: boolean;
+  hsChapter: string;
 }
 
 export interface OrderTimelineStep {

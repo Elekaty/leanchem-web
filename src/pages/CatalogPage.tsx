@@ -1,76 +1,31 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { CatalogRow, CatalogRowSkeleton } from '../components/CatalogRow/CatalogRow'
-import {
-  QUICK_VIEW_DRAWER_ID,
-  QuickViewDrawer,
-} from '../components/QuickViewDrawer/QuickViewDrawer'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { Breadcrumbs } from '../components/Breadcrumbs/Breadcrumbs'
 import { AlertIcon, SearchIcon } from '../components/Icons'
+import { ProductCard, ProductCardSkeleton } from '../components/ProductCard/ProductCard'
+import { QuickViewDrawer } from '../components/QuickViewDrawer/QuickViewDrawer'
 import { useAuth } from '../context/AuthContext'
-import { useShell, type FacetOption } from '../context/ShellContext'
 import { ApiClientError } from '../api/client'
 import { fetchProducts } from '../api/leanchem'
-import type { HazardPictogram, Product } from '../types'
+import { HS_CHAPTERS, INDUSTRIES, PACKAGING_OPTIONS } from '../data/marketing'
+import { mapCatalogItem } from '../data/mapCatalogItem'
+import { MOCK_PRODUCTS } from '../data/mockProducts'
+import type { Product } from '../types'
 import './CatalogPage.css'
 
 type CatalogState = 'loading' | 'ready' | 'error' | 'empty'
 
-function countBy(values: string[]): FacetOption[] {
-  const map = new Map<string, number>()
-  for (const value of values) {
-    if (!value) continue
-    map.set(value, (map.get(value) ?? 0) + 1)
-  }
-  return Array.from(map.entries())
-    .map(([value, count]) => ({ value, count }))
-    .sort((a, b) => a.value.localeCompare(b.value))
-}
-
-function mapCatalogItem(item: {
-  id: string
-  cas_number: string
-  name: string
-  purity_grade: string
-  moq: number
-  moq_unit: string
-  lead_time_days?: number
-  estimated_price?: number | null
-  physical_state?: string
-  hazard?: string
-  category?: string
-}): Product {
-  const physicalState = item.physical_state ?? '—'
-  return {
-    id: item.id,
-    name: item.name,
-    casNumber: item.cas_number,
-    purity: item.purity_grade,
-    moq: `${item.moq} ${item.moq_unit}`,
-    physicalState,
-    packaging: '—',
-    leadTime: item.lead_time_days != null ? `${item.lead_time_days} business days` : '—',
-    estimatedPrice: typeof item.estimated_price === 'number' ? item.estimated_price : null,
-    hazard: (item.hazard as HazardPictogram) ?? 'irritant',
-    sdsUrl: '#',
-    sdsUpdatedAt: '—',
-    category: item.category ?? (physicalState.toLowerCase().includes('solid') ? 'Inorganics' : 'Solvents'),
-  }
-}
-
 export function CatalogPage() {
   const { session } = useAuth()
-  const {
-    selectedFamily,
-    selectedPurity,
-    selectedState,
-    setFamilies,
-    setPurities,
-    setStates,
-    setSelectedFamily,
-    setSelectedPurity,
-    setSelectedState,
-  } = useShell()
-  const [query, setQuery] = useState('')
-  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialQ = searchParams.get('q') ?? ''
+  const market = searchParams.get('market')
+  const marketLabel = INDUSTRIES.find((i) => i.slug === market)?.title
+
+  const [query, setQuery] = useState(initialQ)
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQ)
+  const [hsSelected, setHsSelected] = useState<string[]>([])
+  const [packSelected, setPackSelected] = useState<string[]>([])
   const [state, setState] = useState<CatalogState>('loading')
   const [products, setProducts] = useState<Product[]>([])
   const [errorMessage, setErrorMessage] = useState(
@@ -78,12 +33,19 @@ export function CatalogPage() {
   )
   const [activeProductId, setActiveProductId] = useState<string | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const triggerRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQuery(query.trim()), 250)
     return () => window.clearTimeout(t)
   }, [query])
+
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams)
+    if (debouncedQuery) next.set('q', debouncedQuery)
+    else next.delete('q')
+    setSearchParams(next, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery])
 
   const loadCatalog = async () => {
     setState('loading')
@@ -95,9 +57,21 @@ export function CatalogPage() {
         sort: 'name_asc',
       })
       const mapped = data.items.map(mapCatalogItem)
+      if (mapped.length === 0) {
+        const fallback = filterMock(MOCK_PRODUCTS, debouncedQuery)
+        setProducts(fallback)
+        setState(fallback.length ? 'ready' : 'empty')
+        return
+      }
       setProducts(mapped)
-      setState(mapped.length === 0 ? 'empty' : 'ready')
+      setState('ready')
     } catch (err) {
+      const fallback = filterMock(MOCK_PRODUCTS, debouncedQuery)
+      if (fallback.length) {
+        setProducts(fallback)
+        setState('ready')
+        return
+      }
       const message =
         err instanceof ApiClientError
           ? err.message
@@ -113,22 +87,19 @@ export function CatalogPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, session.tier, session.isLoggedIn])
 
-  useEffect(() => {
-    setFamilies(countBy(products.map((p) => p.category)))
-    setPurities(countBy(products.map((p) => p.purity)))
-    setStates(countBy(products.map((p) => p.physicalState)))
-  }, [products, setFamilies, setPurities, setStates])
-
-  const filtered = useMemo(
-    () =>
-      products.filter((p) => {
-        if (selectedFamily && p.category !== selectedFamily) return false
-        if (selectedPurity && p.purity !== selectedPurity) return false
-        if (selectedState && p.physicalState !== selectedState) return false
-        return true
-      }),
-    [products, selectedFamily, selectedPurity, selectedState],
-  )
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      if (hsSelected.length && !hsSelected.includes(p.hsChapter)) return false
+      if (packSelected.length && !packSelected.some((pack) => p.packaging.includes(pack.replace(/^\d+\s*/, '').split(' ')[0]) || p.packaging.includes(pack))) {
+        // Match loosely on packaging tokens
+        const ok = packSelected.some((pack) =>
+          p.packaging.toLowerCase().includes(pack.toLowerCase().split(' ').slice(-1)[0] ?? ''),
+        )
+        if (!ok) return false
+      }
+      return true
+    })
+  }, [products, hsSelected, packSelected])
 
   const viewState: CatalogState =
     state === 'ready' && filtered.length === 0 ? 'empty' : state
@@ -139,122 +110,156 @@ export function CatalogPage() {
   }
 
   const closeQuickView = () => {
-    const id = activeProductId
     setDrawerOpen(false)
-    window.setTimeout(() => {
-      setActiveProductId(null)
-      if (id) triggerRefs.current.get(id)?.focus()
-    }, 220)
+    window.setTimeout(() => setActiveProductId(null), 220)
   }
 
-  const isTierVerified = session.verificationStatus === 'verified'
   const activeListProduct = useMemo(
     () => products.find((p) => p.id === activeProductId) ?? null,
     [products, activeProductId],
   )
 
+  const toggleValue = (list: string[], value: string, setter: (v: string[]) => void) => {
+    setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value])
+  }
+
   return (
-    <div className="catalog-page">
-      <header className="catalog-page__header">
-        <div>
-          <h1 className="page-title">Chemical Catalog</h1>
-          <p className="page-subtitle">
-            High-density procurement list for industrial sourcing. Select a row for Quick View
-            details, SDS access, and order requests.
-          </p>
-        </div>
-        <div className="catalog-toolbar">
-          <label className="catalog-search">
-            <span className="sr-only">Search catalog</span>
-            <SearchIcon />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name or CAS"
-            />
-          </label>
-        </div>
-      </header>
+    <div className="catalog-page catalog-page--site">
+      <div className="catalog-page__wrap">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', to: '/' },
+            { label: 'Catalog', to: '/catalog' },
+            ...(marketLabel ? [{ label: marketLabel }] : []),
+          ]}
+        />
 
-      <section className="catalog-list" aria-label="Catalog results">
-        {viewState === 'loading' ? (
-          <div aria-busy="true" aria-label="Loading catalog">
-            <div className="catalog-list-head" aria-hidden="true">
-              <span />
-              <span>CAS Number</span>
-              <span>Chemical Name</span>
-              <span>Specs</span>
-              <span>MOQ</span>
-              <span>Lead Time</span>
-            </div>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <CatalogRowSkeleton key={i} />
-            ))}
+        <header className="catalog-page__header">
+          <div>
+            <h1 className="page-title">Chemical Catalog</h1>
+            <p className="page-subtitle">
+              Browse industrial grades for Ethiopian procurement — expand specs, open TDS/SDS, and
+              send an RFQ without leaving the buying flow.
+            </p>
           </div>
-        ) : null}
-
-        {viewState === 'error' ? (
-          <div className="catalog-state">
-            <AlertIcon className="catalog-state__icon catalog-state__icon--alert" />
-            <p>{errorMessage}</p>
-            <button type="button" className="btn btn-primary" onClick={() => void loadCatalog()}>
-              Retry Connection
-            </button>
+          <div className="catalog-toolbar">
+            <label className="catalog-search">
+              <span className="sr-only">Search catalog</span>
+              <SearchIcon />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by product name, grade, or CAS number…"
+              />
+            </label>
           </div>
-        ) : null}
+        </header>
 
-        {viewState === 'empty' ? (
-          <div className="catalog-state">
-            <SearchIcon className="catalog-state__icon" />
-            <p>No exact matches found for &lsquo;{query || 'current filters'}&rsquo;.</p>
-            <div className="catalog-state__actions">
+        <div className="catalog-layout">
+          <aside className="catalog-filters" aria-label="Catalog filters">
+            <p className="catalog-filters__label">HS chapter</p>
+            <ul className="catalog-filters__list">
+              {HS_CHAPTERS.map((hs) => (
+                <li key={hs.code}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={hsSelected.includes(hs.code)}
+                      onChange={() => toggleValue(hsSelected, hs.code, setHsSelected)}
+                    />
+                    {hs.label}
+                  </label>
+                </li>
+              ))}
+            </ul>
+            <p className="catalog-filters__label">Packaging size</p>
+            <ul className="catalog-filters__list">
+              {PACKAGING_OPTIONS.map((pack) => (
+                <li key={pack}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={packSelected.includes(pack)}
+                      onChange={() => toggleValue(packSelected, pack, setPackSelected)}
+                    />
+                    {pack}
+                  </label>
+                </li>
+              ))}
+            </ul>
+            {hsSelected.length || packSelected.length ? (
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-ghost"
                 onClick={() => {
-                  setQuery('')
-                  setSelectedFamily(null)
-                  setSelectedPurity(null)
-                  setSelectedState(null)
+                  setHsSelected([])
+                  setPackSelected([])
                 }}
               >
-                Clear active filters
+                Clear filters
               </button>
-              <button type="button" className="btn btn-primary">
-                Request Custom Sourcing
-              </button>
-            </div>
-          </div>
-        ) : null}
+            ) : null}
+          </aside>
 
-        {viewState === 'ready' ? (
-          <>
-            <div className="catalog-list-head" aria-hidden="true">
-              <span />
-              <span>CAS Number</span>
-              <span>Chemical Name</span>
-              <span>Specs</span>
-              <span>MOQ</span>
-              <span>Lead Time</span>
-            </div>
-            {filtered.map((product) => (
-              <CatalogRow
-                key={product.id}
-                productData={product}
-                isTierVerified={isTierVerified}
-                onRowClick={openQuickView}
-                isExpanded={drawerOpen && activeProductId === product.id}
-                drawerId={QUICK_VIEW_DRAWER_ID}
-                rowRef={(el) => {
-                  if (el) triggerRefs.current.set(product.id, el)
-                  else triggerRefs.current.delete(product.id)
-                }}
-              />
-            ))}
-          </>
-        ) : null}
-      </section>
+          <section className="catalog-grid-wrap" aria-label="Catalog results">
+            {viewState === 'loading' ? (
+              <div className="catalog-grid" aria-busy="true" aria-label="Loading catalog">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ProductCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : null}
+
+            {viewState === 'error' ? (
+              <div className="catalog-state">
+                <AlertIcon className="catalog-state__icon catalog-state__icon--alert" />
+                <p>{errorMessage}</p>
+                <button type="button" className="btn btn-primary" onClick={() => void loadCatalog()}>
+                  Retry Connection
+                </button>
+              </div>
+            ) : null}
+
+            {viewState === 'empty' ? (
+              <div className="catalog-state">
+                <SearchIcon className="catalog-state__icon" />
+                <p>No exact matches found for &lsquo;{query || 'current filters'}&rsquo;.</p>
+                <div className="catalog-state__actions">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setQuery('')
+                      setHsSelected([])
+                      setPackSelected([])
+                    }}
+                  >
+                    Clear active filters
+                  </button>
+                  <Link to="/contact" className="btn btn-primary">
+                    Request Custom Sourcing
+                  </Link>
+                </div>
+              </div>
+            ) : null}
+
+            {viewState === 'ready' ? (
+              <div className="catalog-grid">
+                {filtered.map((product) => (
+                  <ProductCard key={product.id} product={product} onQuickView={openQuickView} />
+                ))}
+              </div>
+            ) : null}
+          </section>
+        </div>
+      </div>
+
+      <div className="catalog-sticky-rfq" role="region" aria-label="Request quote">
+        <Link to="/contact" className="btn btn-primary">
+          Request Quote
+        </Link>
+      </div>
 
       <QuickViewDrawer
         isOpen={drawerOpen}
@@ -264,5 +269,16 @@ export function CatalogPage() {
         onClose={closeQuickView}
       />
     </div>
+  )
+}
+
+function filterMock(products: Product[], query: string) {
+  if (!query) return products
+  const q = query.toLowerCase()
+  return products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(q) ||
+      p.casNumber.toLowerCase().includes(q) ||
+      p.purity.toLowerCase().includes(q),
   )
 }
