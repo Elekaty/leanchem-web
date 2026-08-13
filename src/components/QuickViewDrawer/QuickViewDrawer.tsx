@@ -12,6 +12,8 @@ import './QuickViewDrawer.css'
 
 export const QUICK_VIEW_DRAWER_ID = 'quick-view-drawer'
 
+type DrawerTab = 'overview' | 'properties' | 'safety'
+
 interface QuickViewDrawerProps {
   isOpen: boolean
   productId: string | null
@@ -20,16 +22,24 @@ interface QuickViewDrawerProps {
   onClose: () => void
 }
 
-function resolvePricingStatus(
-  detail: ProductDetail | null,
-  userTier: UserTier,
-): PricingStatus {
-  if (userTier === 1 || detail?.user_context.price_locked) {
-    if (userTier === 1) return 'Tier1Locked'
-  }
+function resolvePricingStatus(detail: ProductDetail | null, userTier: UserTier): PricingStatus {
+  if (userTier === 1) return 'Tier1Locked'
   const price = detail?.pricing?.estimated_price
   if (price == null) return 'Unavailable'
   return 'Available'
+}
+
+function Ledger({ rows }: { rows: Array<[string, string]> }) {
+  return (
+    <dl className="qv-ledger">
+      {rows.map(([key, value]) => (
+        <div key={key} className="qv-ledger__row">
+          <dt>{key}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  )
 }
 
 export function QuickViewDrawer({
@@ -47,6 +57,7 @@ export function QuickViewDrawer({
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [tab, setTab] = useState<DrawerTab>('overview')
 
   useFocusTrap(panelRef, isOpen)
 
@@ -55,6 +66,7 @@ export function QuickViewDrawer({
       setSubmitError(null)
       setSubmitting(false)
       setDetail(null)
+      setTab('overview')
       return
     }
     const onKey = (e: KeyboardEvent) => {
@@ -93,14 +105,9 @@ export function QuickViewDrawer({
   const title = detail?.name ?? listProduct?.name ?? 'Product'
   const cas = detail?.cas_number ?? listProduct?.casNumber ?? ''
   const hazard = (detail?.hazard ?? listProduct?.hazard ?? 'irritant') as HazardPictogram
-  const moq =
-    detail != null
-      ? `${detail.specs.moq} ${detail.specs.moq_unit}`
-      : (listProduct?.moq ?? '—')
+  const moq = detail != null ? `${detail.specs.moq} ${detail.specs.moq_unit}` : (listProduct?.moq ?? '—')
   const leadTime =
-    detail != null
-      ? `${detail.specs.lead_time_days} business days`
-      : (listProduct?.leadTime ?? '—')
+    detail != null ? `${detail.specs.lead_time_days} business days` : (listProduct?.leadTime ?? '—')
   const purity = detail?.specs.purity_grade ?? listProduct?.purity ?? '—'
   const physicalState = detail?.specs.physical_state ?? listProduct?.physicalState ?? '—'
   const packaging = detail?.packaging ?? listProduct?.packaging ?? '—'
@@ -165,7 +172,16 @@ export function QuickViewDrawer({
         aria-labelledby={titleId}
         tabIndex={-1}
       >
-        <div className="qv-panel__chrome">
+        <header className="qv-header">
+          <div className="qv-identity">
+            <div className="qv-identity__text">
+              <h2 id={titleId} className="qv-identity__name">
+                {title}
+              </h2>
+              <p className="qv-identity__cas">{cas}</p>
+            </div>
+            <HazardPictogramIcon type={hazard} />
+          </div>
           <button
             type="button"
             className="qv-close btn-ghost"
@@ -174,82 +190,93 @@ export function QuickViewDrawer({
           >
             <CloseIcon />
           </button>
-        </div>
+        </header>
 
         {loading || !detail ? (
           <QuickViewSkeleton />
         ) : (
-          <div className="qv-content">
-            <header className="qv-identity">
-              <div className="qv-identity__text">
-                <h2 id={titleId} className="qv-identity__name">
-                  {title}
-                </h2>
-                <p className="qv-identity__cas">{cas}</p>
-              </div>
-              <HazardPictogramIcon type={hazard} />
-            </header>
+          <>
+            <div className="qv-tabs" role="tablist" aria-label="Technical data sheet">
+              {(
+                [
+                  ['overview', 'Overview'],
+                  ['properties', 'Properties'],
+                  ['safety', 'Safety (SDS)'],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === id}
+                  className={tab === id ? 'is-active' : undefined}
+                  onClick={() => setTab(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
 
-            <section className="qv-action-box" aria-label="Pricing and order actions">
-              <div className="qv-action-meta">
-                <div>
-                  <span className="qv-label">MOQ</span>
-                  <span className="qv-value">{moq}</span>
-                </div>
-                <div>
-                  <span className="qv-label">Lead Time</span>
-                  <span className="qv-value">{leadTime}</span>
-                </div>
-              </div>
-              <PricingBlock
-                price={price}
-                status={status}
-                onPrimaryAction={handlePrimary}
-                onSampleAction={handleSample}
-                submitError={submitError}
-                sampleExhausted={sampleExhausted}
-                isSubmitting={submitting}
-              />
-            </section>
+            <div className="qv-body">
+              {tab === 'overview' ? (
+                <section>
+                  <p className="qv-overview">
+                    {detail.description ??
+                      'Industrial procurement grade material for qualified buyers. Review properties and SDS before submitting an order request.'}
+                  </p>
+                  <Ledger
+                    rows={[
+                      ['MOQ', moq],
+                      ['Lead Time', leadTime],
+                      ['Physical State', physicalState],
+                    ]}
+                  />
+                </section>
+              ) : null}
 
-            <section className="qv-section" aria-labelledby="qv-specs-title">
-              <h3 id="qv-specs-title" className="qv-section__title">
-                Technical Specifications
-              </h3>
-              <table className="qv-specs">
-                <tbody>
-                  <tr>
-                    <th scope="row">Purity Grade</th>
-                    <td>{purity}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Physical State</th>
-                    <td>{physicalState}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Standard Packaging</th>
-                    <td>{packaging}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </section>
+              {tab === 'properties' ? (
+                <Ledger
+                  rows={[
+                    ['Purity Grade', purity],
+                    ['Physical State', physicalState],
+                    ['Standard Packaging', packaging],
+                    ['MOQ', moq],
+                    ['Lead Time', leadTime],
+                  ]}
+                />
+              ) : null}
 
-            <section className="qv-section" aria-labelledby="qv-vault-title">
-              <h3 id="qv-vault-title" className="qv-section__title">
-                Compliance Vault
-              </h3>
-              {sds ? (
-                <div className="qv-sds">
-                  <a href={sds.url}>Safety Data Sheet (SDS)</a>
-                  <span className="qv-sds__updated">Last Updated: {sds.last_updated}</span>
-                </div>
-              ) : (
-                <EmptyDocumentVault />
-              )}
-              {!sds ? null : <EmptyDocumentVault />}
-            </section>
-          </div>
+              {tab === 'safety' ? (
+                <section>
+                  {sds ? (
+                    <div className="qv-sds">
+                      <a href={sds.url}>Safety Data Sheet (SDS)</a>
+                      <span className="qv-sds__updated">Last Updated: {sds.last_updated}</span>
+                    </div>
+                  ) : (
+                    <EmptyDocumentVault />
+                  )}
+                </section>
+              ) : null}
+            </div>
+          </>
         )}
+
+        <footer className="qv-footer">
+          {loading || !detail ? (
+            <div className="skel skel-action-footer" />
+          ) : (
+            <PricingBlock
+              price={price}
+              status={status}
+              onPrimaryAction={handlePrimary}
+              onSampleAction={handleSample}
+              submitError={submitError}
+              sampleExhausted={sampleExhausted}
+              isSubmitting={submitting}
+            />
+          )}
+        </footer>
       </div>
     </div>
   )
@@ -258,14 +285,10 @@ export function QuickViewDrawer({
 function QuickViewSkeleton() {
   return (
     <div className="qv-skeleton" aria-hidden="true">
-      <div className="qv-skel-row">
-        <div className="skel skel-title" />
-        <div className="skel skel-picto" />
-      </div>
-      <div className="skel skel-cas-line" />
-      <div className="skel skel-action" />
-      <div className="skel skel-table" />
-      <div className="skel skel-vault" />
+      <div className="skel skel-tab" />
+      <div className="skel skel-line" />
+      <div className="skel skel-line" />
+      <div className="skel skel-ledger" />
     </div>
   )
 }

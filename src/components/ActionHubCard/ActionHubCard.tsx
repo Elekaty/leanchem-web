@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import type { ActionTaskType } from '../../types'
 import { DocumentDropzone } from '../DocumentDropzone/DocumentDropzone'
 import { uploadDocument } from '../../api/leanchem'
 import { ApiClientError } from '../../api/client'
+import { useState } from 'react'
 import './ActionHubCard.css'
 
 interface ActionHubCardProps {
@@ -24,7 +24,7 @@ const TASK_COPY: Record<ActionTaskType, { title: string; body: string }> = {
 
 export function ActionHubCard({ taskType, isExpanded, orderId }: ActionHubCardProps) {
   const copy = TASK_COPY[taskType]
-  const [uploadMessage, setUploadMessage] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   return (
     <div className={`action-hub ${isExpanded ? 'is-expanded' : ''}`} aria-hidden={!isExpanded}>
@@ -35,11 +35,10 @@ export function ActionHubCard({ taskType, isExpanded, orderId }: ActionHubCardPr
           <DocumentDropzone
             acceptedFileTypes={['application/pdf', 'image/jpeg', 'image/png']}
             maxSizeMB={5}
-            onError={(message) => setUploadMessage(message)}
+            onError={setError}
             onSuccess={async (file) => {
               if (!orderId) {
-                setUploadMessage('Order context missing.')
-                return
+                throw new Error('Order context missing.')
               }
               const form = new FormData()
               form.append('file', file)
@@ -48,11 +47,8 @@ export function ActionHubCard({ taskType, isExpanded, orderId }: ActionHubCardPr
               form.append('document_type', 'payment_receipt')
               try {
                 await uploadDocument(form)
-                setUploadMessage('Receipt uploaded successfully.')
               } catch (err) {
-                setUploadMessage(
-                  err instanceof ApiClientError ? err.message : 'Upload failed.',
-                )
+                throw new Error(err instanceof ApiClientError ? err.message : 'Upload failed.')
               }
             }}
           />
@@ -61,7 +57,7 @@ export function ActionHubCard({ taskType, isExpanded, orderId }: ActionHubCardPr
             Open Document to Sign
           </button>
         )}
-        {uploadMessage ? <p className="action-hub__status">{uploadMessage}</p> : null}
+        {error ? <p className="action-hub__status">{error}</p> : null}
       </div>
     </div>
   )

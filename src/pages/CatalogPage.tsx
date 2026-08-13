@@ -6,12 +6,24 @@ import {
 } from '../components/QuickViewDrawer/QuickViewDrawer'
 import { AlertIcon, SearchIcon } from '../components/Icons'
 import { useAuth } from '../context/AuthContext'
+import { useShell, type FacetOption } from '../context/ShellContext'
 import { ApiClientError } from '../api/client'
 import { fetchProducts } from '../api/leanchem'
 import type { HazardPictogram, Product } from '../types'
 import './CatalogPage.css'
 
 type CatalogState = 'loading' | 'ready' | 'error' | 'empty'
+
+function countBy(values: string[]): FacetOption[] {
+  const map = new Map<string, number>()
+  for (const value of values) {
+    if (!value) continue
+    map.set(value, (map.get(value) ?? 0) + 1)
+  }
+  return Array.from(map.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => a.value.localeCompare(b.value))
+}
 
 function mapCatalogItem(item: {
   id: string
@@ -24,28 +36,39 @@ function mapCatalogItem(item: {
   estimated_price?: number | null
   physical_state?: string
   hazard?: string
+  category?: string
 }): Product {
+  const physicalState = item.physical_state ?? '—'
   return {
     id: item.id,
     name: item.name,
     casNumber: item.cas_number,
     purity: item.purity_grade,
     moq: `${item.moq} ${item.moq_unit}`,
-    physicalState: item.physical_state ?? '—',
+    physicalState,
     packaging: '—',
-    leadTime:
-      item.lead_time_days != null ? `${item.lead_time_days} business days` : '—',
-    estimatedPrice:
-      typeof item.estimated_price === 'number' ? item.estimated_price : null,
+    leadTime: item.lead_time_days != null ? `${item.lead_time_days} business days` : '—',
+    estimatedPrice: typeof item.estimated_price === 'number' ? item.estimated_price : null,
     hazard: (item.hazard as HazardPictogram) ?? 'irritant',
     sdsUrl: '#',
     sdsUpdatedAt: '—',
-    category: 'Catalog',
+    category: item.category ?? (physicalState.toLowerCase().includes('solid') ? 'Inorganics' : 'Solvents'),
   }
 }
 
 export function CatalogPage() {
   const { session } = useAuth()
+  const {
+    selectedFamily,
+    selectedPurity,
+    selectedState,
+    setFamilies,
+    setPurities,
+    setStates,
+    setSelectedFamily,
+    setSelectedPurity,
+    setSelectedState,
+  } = useShell()
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [state, setState] = useState<CatalogState>('loading')
@@ -55,7 +78,6 @@ export function CatalogPage() {
   )
   const [activeProductId, setActiveProductId] = useState<string | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [filtersOpen, setFiltersOpen] = useState(false)
   const triggerRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
 
   useEffect(() => {
@@ -91,7 +113,25 @@ export function CatalogPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, session.tier, session.isLoggedIn])
 
-  const viewState: CatalogState = state
+  useEffect(() => {
+    setFamilies(countBy(products.map((p) => p.category)))
+    setPurities(countBy(products.map((p) => p.purity)))
+    setStates(countBy(products.map((p) => p.physicalState)))
+  }, [products, setFamilies, setPurities, setStates])
+
+  const filtered = useMemo(
+    () =>
+      products.filter((p) => {
+        if (selectedFamily && p.category !== selectedFamily) return false
+        if (selectedPurity && p.purity !== selectedPurity) return false
+        if (selectedState && p.physicalState !== selectedState) return false
+        return true
+      }),
+    [products, selectedFamily, selectedPurity, selectedState],
+  )
+
+  const viewState: CatalogState =
+    state === 'ready' && filtered.length === 0 ? 'empty' : state
 
   const openQuickView = (product: Product) => {
     setActiveProductId(product.id)
@@ -104,7 +144,7 @@ export function CatalogPage() {
     window.setTimeout(() => {
       setActiveProductId(null)
       if (id) triggerRefs.current.get(id)?.focus()
-    }, 280)
+    }, 220)
   }
 
   const isTierVerified = session.verificationStatus === 'verified'
@@ -134,105 +174,87 @@ export function CatalogPage() {
               placeholder="Search by name or CAS"
             />
           </label>
-          <button
-            type="button"
-            className={`btn btn-secondary catalog-filter-toggle ${filtersOpen ? 'is-active' : ''}`}
-            aria-expanded={filtersOpen}
-            aria-controls="catalog-filter-drawer"
-            onClick={() => setFiltersOpen((v) => !v)}
-          >
-            Filters
-          </button>
         </div>
       </header>
 
-      <div className="catalog-layout">
-        <aside
-          id="catalog-filter-drawer"
-          className={`catalog-filters ${filtersOpen ? 'is-open' : ''}`}
-        >
-          <h2 className="catalog-filters__title">Browse</h2>
-          <ul>
-            <li>
-              <button type="button" className="is-active">
-                All products
+      <section className="catalog-list" aria-label="Catalog results">
+        {viewState === 'loading' ? (
+          <div aria-busy="true" aria-label="Loading catalog">
+            <div className="catalog-list-head" aria-hidden="true">
+              <span />
+              <span>CAS Number</span>
+              <span>Chemical Name</span>
+              <span>Specs</span>
+              <span>MOQ</span>
+              <span>Lead Time</span>
+            </div>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <CatalogRowSkeleton key={i} />
+            ))}
+          </div>
+        ) : null}
+
+        {viewState === 'error' ? (
+          <div className="catalog-state">
+            <AlertIcon className="catalog-state__icon catalog-state__icon--alert" />
+            <p>{errorMessage}</p>
+            <button type="button" className="btn btn-primary" onClick={() => void loadCatalog()}>
+              Retry Connection
+            </button>
+          </div>
+        ) : null}
+
+        {viewState === 'empty' ? (
+          <div className="catalog-state">
+            <SearchIcon className="catalog-state__icon" />
+            <p>No exact matches found for &lsquo;{query || 'current filters'}&rsquo;.</p>
+            <div className="catalog-state__actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  setQuery('')
+                  setSelectedFamily(null)
+                  setSelectedPurity(null)
+                  setSelectedState(null)
+                }}
+              >
+                Clear active filters
               </button>
-            </li>
-          </ul>
-        </aside>
-
-        <section className="catalog-list" aria-label="Catalog results">
-          {viewState === 'loading' ? (
-            <div aria-busy="true" aria-label="Loading catalog">
-              <div className="catalog-list-head" aria-hidden="true">
-                <span>CAS Number</span>
-                <span>Chemical Name</span>
-                <span>Purity</span>
-                <span>MOQ</span>
-                <span>Lead Time</span>
-              </div>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <CatalogRowSkeleton key={i} />
-              ))}
-            </div>
-          ) : null}
-
-          {viewState === 'error' ? (
-            <div className="catalog-state">
-              <AlertIcon className="catalog-state__icon catalog-state__icon--alert" />
-              <p>{errorMessage}</p>
-              <button type="button" className="btn btn-primary" onClick={() => void loadCatalog()}>
-                Retry Connection
+              <button type="button" className="btn btn-primary">
+                Request Custom Sourcing
               </button>
             </div>
-          ) : null}
+          </div>
+        ) : null}
 
-          {viewState === 'empty' ? (
-            <div className="catalog-state">
-              <SearchIcon className="catalog-state__icon" />
-              <p>No exact matches found for &lsquo;{query || 'current filters'}&rsquo;.</p>
-              <div className="catalog-state__actions">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setQuery('')}
-                >
-                  Clear active filters
-                </button>
-                <button type="button" className="btn btn-primary">
-                  Request Custom Sourcing
-                </button>
-              </div>
+        {viewState === 'ready' ? (
+          <>
+            <div className="catalog-list-head" aria-hidden="true">
+              <span />
+              <span>CAS Number</span>
+              <span>Chemical Name</span>
+              <span>Specs</span>
+              <span>MOQ</span>
+              <span>Lead Time</span>
             </div>
-          ) : null}
-
-          {viewState === 'ready' ? (
-            <>
-              <div className="catalog-list-head" aria-hidden="true">
-                <span>CAS Number</span>
-                <span>Chemical Name</span>
-                <span>Purity</span>
-                <span>MOQ</span>
-                <span>Lead Time</span>
-              </div>
-              {products.map((product) => (
-                <CatalogRow
-                  key={product.id}
-                  productData={product}
-                  isTierVerified={isTierVerified}
-                  onRowClick={openQuickView}
-                  isExpanded={drawerOpen && activeProductId === product.id}
-                  drawerId={QUICK_VIEW_DRAWER_ID}
-                  rowRef={(el) => {
-                    if (el) triggerRefs.current.set(product.id, el)
-                    else triggerRefs.current.delete(product.id)
-                  }}
-                />
-              ))}
-            </>
-          ) : null}
-        </section>
-      </div>
+            {filtered.map((product) => (
+              <CatalogRow
+                key={product.id}
+                productData={product}
+                isTierVerified={isTierVerified}
+                onRowClick={openQuickView}
+                isExpanded={drawerOpen && activeProductId === product.id}
+                drawerId={QUICK_VIEW_DRAWER_ID}
+                rowRef={(el) => {
+                  if (el) triggerRefs.current.set(product.id, el)
+                  else triggerRefs.current.delete(product.id)
+                }}
+              />
+            ))}
+          </>
+        ) : null}
+      </section>
 
       <QuickViewDrawer
         isOpen={drawerOpen}

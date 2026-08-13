@@ -1,13 +1,14 @@
-import type { ReactNode } from 'react';
-import type { TimelineStatus } from '../../types';
-import './TimelineNode.css';
+import type { ReactNode } from 'react'
+import type { TimelineStatus } from '../../types'
+import { CheckIcon } from '../Icons'
+import './TimelineNode.css'
 
 interface TimelineNodeProps {
-  status: TimelineStatus;
-  timestamp?: string;
-  label: string;
-  isLast?: boolean;
-  children?: ReactNode;
+  status: TimelineStatus
+  timestamp?: string
+  label: string
+  isLast?: boolean
+  children?: ReactNode
 }
 
 export function TimelineNode({
@@ -17,12 +18,14 @@ export function TimelineNode({
   isLast = false,
   children,
 }: TimelineNodeProps) {
-  const statusClass = status.toLowerCase().replace('_', '-');
+  const statusClass = status.toLowerCase().replace('_', '-')
 
   return (
     <li className={`timeline-node timeline-node--${statusClass}`}>
       <div className="timeline-node__rail" aria-hidden="true">
-        <span className="timeline-node__dot" />
+        <span className="timeline-node__dot">
+          {status === 'Complete' ? <CheckIcon /> : null}
+        </span>
         {!isLast ? <span className="timeline-node__line" /> : null}
       </div>
       <div className="timeline-node__body">
@@ -35,5 +38,5 @@ export function TimelineNode({
         ) : null}
       </div>
     </li>
-  );
+  )
 }

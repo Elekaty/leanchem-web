@@ -8,6 +8,9 @@ _gen*.js
 .vscode/*
 !.vscode/extensions.json
 
+.env
+.env.local
+.env.*.local
 server/.env
 server/uploads/*
 !server/uploads/.gitkeep

@@ -10,7 +10,8 @@
     "db:seed-passwords": "tsx src/scripts/seedPasswords.ts",
     "db:migrate": "tsx src/scripts/migrate.ts",
     "db:start": "tsx src/scripts/startDb.ts",
-    "db:create": "tsx src/scripts/createDb.ts"
+    "db:create": "tsx src/scripts/createDb.ts",
+    "db:supabase": "tsx src/scripts/pushSupabase.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

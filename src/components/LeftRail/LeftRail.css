@@ -1,0 +1,118 @@
+.app-rail {
+  width: var(--rail-width);
+  flex-shrink: 0;
+  background: var(--color-white);
+  border-right: 1px solid var(--color-border-subtle);
+  padding: 20px 16px 32px;
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+  overflow: auto;
+  z-index: var(--z-rail);
+}
+
+.app-shell.has-banner .app-rail {
+  top: calc(var(--header-height) + var(--banner-height));
+  height: calc(100vh - var(--header-height) - var(--banner-height));
+}
+
+.app-rail__label {
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 10px;
+}
+
+.app-rail__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 24px;
+}
+
+.app-rail__nav a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 4px;
+  color: var(--color-black-velvet);
+  text-decoration: none;
+  font-weight: var(--font-regular);
+}
+
+.app-rail__nav a:hover,
+.app-rail__nav a.active {
+  background: color-mix(in srgb, var(--color-adamantine-blue) 10%, white);
+  color: var(--color-adamantine-blue);
+  text-decoration: none;
+}
+
+.app-rail-backdrop {
+  display: none;
+}
+
+.rail-accordion {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.rail-accordion summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: var(--font-semibold);
+  font-size: 13px;
+  padding: 10px 0;
+}
+
+.rail-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.rail-accordion__body {
+  padding-bottom: 10px;
+}
+
+.rail-facet {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rail-facet label {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.rail-facet__count {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+@media (max-width: 1279px) {
+  .app-rail {
+    position: fixed;
+    left: 0;
+    transform: translateX(-100%);
+    transition: transform var(--motion-duration) var(--motion-easing);
+    box-shadow: none;
+  }
+
+  .app-rail.is-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .app-rail-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    border: none;
+    background: rgba(34, 34, 53, 0.32);
+    z-index: calc(var(--z-rail) - 1);
+  }
+}

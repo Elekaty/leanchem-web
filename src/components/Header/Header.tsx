@@ -1,16 +1,31 @@
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { CartIcon, ChevronIcon } from '../Icons';
-import { VERIFICATION_BANNER_ID } from '../VerificationBanner/VerificationBanner';
-import './Header.css';
+import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import { useShell } from '../../context/ShellContext'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { CartIcon, ChevronIcon, MenuIcon } from '../Icons'
+import { VERIFICATION_BANNER_ID } from '../VerificationBanner/VerificationBanner'
+import './Header.css'
 
 export function Header() {
-  const { session } = useAuth();
-  const cartRestricted = session.verificationStatus === 'pending';
+  const { session } = useAuth()
+  const { toggleRail, railOpen } = useShell()
+  const compact = useMediaQuery('(max-width: 1279px)')
+  const cartRestricted = session.verificationStatus === 'pending'
 
   return (
     <header className="app-header">
       <div className="app-header__inner">
+        {compact ? (
+          <button
+            type="button"
+            className="app-header__menu"
+            aria-label="Open workspace navigation"
+            aria-expanded={railOpen}
+            onClick={toggleRail}
+          >
+            <MenuIcon />
+          </button>
+        ) : null}
         <div className="app-header__brand">
           <NavLink to="/" className="app-header__logo">
             LeanChem
@@ -50,7 +65,7 @@ export function Header() {
             aria-disabled={cartRestricted ? true : undefined}
             aria-describedby={cartRestricted ? VERIFICATION_BANNER_ID : undefined}
             onClick={(e) => {
-              if (cartRestricted) e.preventDefault();
+              if (cartRestricted) e.preventDefault()
             }}
           >
             <CartIcon />
@@ -58,5 +73,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  );
+  )
 }

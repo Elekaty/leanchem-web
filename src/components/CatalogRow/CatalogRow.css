@@ -1,10 +1,10 @@
 .catalog-row {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr) 90px 90px 150px;
+  grid-template-columns: 64px 132px minmax(0, 1fr) auto 90px 150px;
   gap: 16px;
   align-items: center;
   width: 100%;
-  padding: 14px 16px;
+  padding: 12px 16px;
   border: none;
   border-bottom: 1px solid var(--color-border-subtle);
   background: var(--color-white);
@@ -12,10 +12,27 @@
   cursor: pointer;
   color: inherit;
   font: inherit;
+  transition: box-shadow var(--hover-duration) var(--motion-easing),
+    background-color var(--hover-duration) var(--motion-easing);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .catalog-row {
+    transition: transform var(--hover-duration) var(--motion-easing),
+      box-shadow var(--hover-duration) var(--motion-easing),
+      background-color var(--hover-duration) var(--motion-easing);
+  }
+
+  .catalog-row:hover {
+    transform: translateY(-2px);
+  }
 }
 
 .catalog-row:hover {
-  background: color-mix(in srgb, var(--color-adamantine-blue) 6%, white);
+  background: var(--color-white);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  position: relative;
 }
 
 .catalog-row:focus-visible {
@@ -24,10 +41,22 @@
   z-index: 1;
 }
 
+.catalog-row__glyph {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.catalog-row__glyph svg {
+  display: block;
+}
+
 .catalog-row__cas {
   font-weight: var(--font-semibold);
   font-variant-numeric: tabular-nums;
   color: var(--color-black-velvet);
+  white-space: nowrap;
+  overflow: visible;
 }
 
 .catalog-row__main {
@@ -40,20 +69,24 @@
 
 .catalog-row__meta {
   display: none;
-  margin-top: 4px;
+  margin-top: 8px;
   gap: 6px;
   flex-wrap: wrap;
-  font-size: 12px;
-  font-weight: var(--font-light);
-  color: color-mix(in srgb, var(--color-black-velvet) 70%, white);
 }
 
 .catalog-row__locked {
   font-weight: var(--font-semibold);
   color: var(--color-florentine-lapis);
+  font-size: 12px;
 }
 
-.catalog-row__purity,
+.catalog-row__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
 .catalog-row__moq,
 .catalog-row__lead {
   font-weight: var(--font-regular);
@@ -62,13 +95,13 @@
 
 .catalog-list-head {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr) 90px 90px 150px;
+  grid-template-columns: 64px 132px minmax(0, 1fr) auto 90px 150px;
   gap: 16px;
   padding: 10px 16px;
   border-bottom: 1px solid var(--color-organza-violet);
   font-size: 12px;
   font-weight: var(--font-regular);
-  color: color-mix(in srgb, var(--color-black-velvet) 65%, white);
+  color: var(--color-muted);
   background: color-mix(in srgb, var(--color-organza-violet) 8%, white);
 }
 
@@ -77,34 +110,42 @@
   cursor: default;
 }
 
-.skel {
-  display: block;
+.catalog-row--skeleton:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.skel-glyph {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+}
+
+.skel-cas {
+  width: 96px;
   height: 14px;
-  border-radius: 3px;
-  background: linear-gradient(
-    90deg,
-    var(--color-skeleton) 0%,
-    var(--color-skeleton-shine) 50%,
-    var(--color-skeleton) 100%
-  );
-  background-size: 200% 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .skel {
-    animation: skel-shine 1.2s ease-in-out infinite;
-  }
+.skel-name {
+  width: 85%;
+  height: 14px;
 }
 
-@keyframes skel-shine {
-  0% { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
+.skel-pill {
+  width: 88px;
+  height: 22px;
+  border-radius: 999px;
 }
 
-.skel-cas { width: 88px; }
-.skel-name { width: 85%; }
-.skel-sm { width: 48px; }
-.skel-md { width: 96px; }
+.skel-sm {
+  width: 48px;
+  height: 14px;
+}
+
+.skel-md {
+  width: 96px;
+  height: 14px;
+}
 
 @media (max-width: 767px) {
   .catalog-list-head {
@@ -112,15 +153,30 @@
   }
 
   .catalog-row {
-    grid-template-columns: 1fr;
-    gap: 6px;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
     padding: 16px;
     border: 1px solid var(--color-border-subtle);
-    border-radius: 4px;
+    border-radius: 6px;
     margin-bottom: 10px;
   }
 
-  .catalog-row__purity,
+  .catalog-row__cas {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .catalog-row__glyph {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .catalog-row__main {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .catalog-row__pills,
   .catalog-row__moq,
   .catalog-row__lead {
     display: none;
@@ -131,13 +187,6 @@
   }
 
   .catalog-row--skeleton {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .catalog-row--skeleton .skel-sm,
-  .catalog-row--skeleton .skel-md {
-    display: none;
+    display: grid;
   }
 }

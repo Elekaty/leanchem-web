@@ -115,6 +115,52 @@ const HAZARD_LABELS: Record<HazardPictogram, string> = {
   environment: 'Environmental hazard',
 };
 
+export function MenuIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true" {...props}>
+      <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function CheckIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" aria-hidden="true" {...props}>
+      <path d="m5 12 5 5 9-9" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function CategoryGlyph({
+  category,
+  ...props
+}: IconProps & { category: string }) {
+  const family = category.toLowerCase();
+  return (
+    <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true" {...props}>
+      <rect width="64" height="64" rx="6" fill="#EEF4FA" stroke="#7B8DC6" strokeWidth="1" />
+      {family.includes('solvent') || family.includes('liquid') ? (
+        <>
+          <path d="M22 18h20v28H22z" fill="#1E5897" opacity="0.15" />
+          <path d="M24 22h16v20H24z" stroke="#1E5897" strokeWidth="1.75" fill="none" />
+          <path d="M24 34h16" stroke="#45ABEF" strokeWidth="8" opacity="0.5" />
+        </>
+      ) : family.includes('acid') ? (
+        <>
+          <path d="M32 16 44 44H20z" fill="#1E5897" opacity="0.12" />
+          <path d="M32 18 42 42H22z" stroke="#1E5897" strokeWidth="1.75" fill="none" />
+        </>
+      ) : (
+        <>
+          <rect x="20" y="22" width="24" height="22" rx="2" stroke="#1E5897" strokeWidth="1.75" fill="none" />
+          <path d="M24 22v-4h16v4" stroke="#1E5897" strokeWidth="1.75" />
+          <path d="M28 30h8M28 36h8" stroke="#45ABEF" strokeWidth="1.75" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export function HazardPictogramIcon({
   type,
   ...props
