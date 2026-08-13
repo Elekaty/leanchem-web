@@ -19,3 +19,8 @@ server/uploads/*
 
 server/node_modules/
 server/dist/
+
+# Legacy Express/Vite SPA archived during TanStack Start rebuild
+# _legacy/ is kept in git for reference until Phase 2+ cutover is complete
+
+.vite/

@@ -1,53 +1,35 @@
-# LeanChem — Phase 1 Front Engine
+# LeanChems Phase 1 — TanStack Start foundation
 
-Industrial chemical procurement UI + PostgreSQL/API backend aligned to the Phase 1 design manuals.
+Enterprise B2B marketing + procurement platform scaffold.
 
-## Stack
+## Stack (approved)
 
-- React 19 + TypeScript + Vite (Montserrat brand UI)
-- Express `/api/v1` API (JWT, bcrypt, multer uploads, Zod validation)
-- PostgreSQL schema with RLS, indexes, and order status enum
-- Embedded Postgres fallback for local Windows development (`npm run db:create`)
+- TanStack Start (Vite + React 19 + SSR)
+- TanStack Router (file-based)
+- Tailwind CSS v4
+- Supabase (Phases 3-4)
+- Vercel (Nitro adapter deferred to Phase 4)
 
-## Quick start
+## Phase 1 status
 
-### 1. Database
+Foundation complete:
 
-```bash
-npm --prefix server install
-npm run db:create
-```
+- Brand tokens + Montserrat in root layout
+- Routes: /, /catalog, /catalog/, /contact, /about, /news/, /portal, /admin/documents
+- Sticky header + mobile Request Quote CTA
+- .env.example for Vite + server-only secrets
 
-Keep that process running. Demo users (password `DemoPass123!`):
+**Do not start Phase 2 until Phase 1 is confirmed.**
 
-- `buyer@leanchem.demo` — verified (Tier 3)
-- `pending@leanchem.demo` — pending (Tier 2)
+## Develop
 
-Or with Docker: `docker compose up -d` then `npm run db:migrate`.
-
-### 2. API
-
-```bash
-npm run dev:api
-```
-
-Health: http://localhost:4000/api/v1/health
-
-### 3. Web
-
-```bash
+`ash
 npm install
 npm run dev
-```
+`
 
-Vite proxies `/api` and `/uploads` to the API.
+App runs at http://localhost:3000
 
-## Schema and contract
+## Legacy
 
-- SQL: `db/001_schema.sql`, seed: `db/002_seed.sql`
-- API routes: `server/src/routes/*`
-- Contract summary: `docs/API.md`
-
-## Core UI components
-
-CatalogRow, QuickViewDrawer, PricingBlock, VerificationBanner, TimelineNode, ActionHubCard, DocumentDropzone
+Previous Vite + Express SPA is archived under _legacy/ for reference.

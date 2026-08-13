@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+
+  --color-lapis: #1e5897;
+  --color-adamantine: #45abef;
+  --color-velvet: #222235;
+  --color-organza: #7b8dc6;
+  --color-canvas: #f8fafc;
+  --color-white: #ffffff;
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply m-0 min-h-dvh bg-canvas font-sans text-velvet;
+  }
+
+  a {
+    @apply text-adamantine no-underline;
+  }
+
+  a:hover {
+    @apply underline;
+  }
+}
