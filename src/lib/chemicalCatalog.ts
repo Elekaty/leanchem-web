@@ -188,6 +188,17 @@ async function fetchChemicalRows(): Promise<ChemicalMasterDataRow[]> {
   return rows.filter((r) => Boolean(r.Product_Name?.trim() || r.Generic_Name?.trim()))
 }
 
+async function fetchChemicalByRowNo(rowNo: number): Promise<ChemicalMasterDataRow | null> {
+  const supabase = getSupabaseBrowser()
+  if (!supabase) return null
+  const { data, error } = await supabase.from(TABLE).select('*').eq('Row_No', rowNo).maybeSingle()
+  if (error) {
+    console.error('[catalog] Row_No lookup failed', error.message)
+    return null
+  }
+  return (data as ChemicalMasterDataRow | null) ?? null
+}
+
 export async function loadCatalogProducts(opts?: { force?: boolean }): Promise<Product[]> {
   if (!opts?.force && cache && Date.now() - cache.fetchedAt < CACHE_MS) {
     return cache.products
@@ -196,7 +207,12 @@ export async function loadCatalogProducts(opts?: { force?: boolean }): Promise<P
   if (isSupabaseConfigured()) {
     const rows = await fetchChemicalRows()
     if (rows.length > 0) {
-      const products = rows.map(mapChemicalRowToProduct)
+      const fromDb = rows.map(mapChemicalRowToProduct)
+      // Keep demo grades available alongside live Chemical Master Data.
+      const demoExtras = MOCK_PRODUCTS.filter(
+        (m) => !fromDb.some((p) => p.slug === m.slug || p.id === m.id),
+      )
+      const products = [...demoExtras, ...fromDb]
       cache = { products, fetchedAt: Date.now() }
       return products
     }
@@ -207,18 +223,40 @@ export async function loadCatalogProducts(opts?: { force?: boolean }): Promise<P
 }
 
 export async function getProductBySlugAsync(slug: string): Promise<Product | undefined> {
-  const products = await loadCatalogProducts()
-  const exact = products.find((p) => p.slug === slug)
-  if (exact) return exact
+  const decoded = decodeURIComponent(slug).trim()
+  if (!decoded) return undefined
 
-  // Allow lookup by trailing Row_No: name-1001
-  const m = slug.match(/-(\d+)$/)
-  if (m) {
-    const rowNo = Number(m[1])
-    return products.find((p) => p.slug.endsWith(`-${rowNo}`) || p.properties.some((x) => x.key === 'Ref #' && x.value === String(rowNo)))
+  // Demo products always resolve (even when live catalog is loaded).
+  const mockHit = MOCK_PRODUCTS.find((p) => p.slug === decoded)
+  if (mockHit) return mockHit
+
+  // Fast path: Chemical Master Ref # in slug suffix (e.g. accurate-5010n-1001).
+  const rowNo = parseRowNoFromSlug(decoded)
+  if (rowNo != null) {
+    const row = await fetchChemicalByRowNo(rowNo)
+    if (row) return mapChemicalRowToProduct(row)
   }
 
-  return MOCK_PRODUCTS.find((p) => p.slug === slug)
+  const products = await loadCatalogProducts()
+  const exact = products.find((p) => p.slug === decoded)
+  if (exact) return exact
+
+  if (rowNo != null) {
+    return products.find(
+      (p) =>
+        p.slug.endsWith(`-${rowNo}`) ||
+        p.properties.some((x) => x.key === 'Ref #' && x.value === String(rowNo)),
+    )
+  }
+
+  // Soft match: slug without trailing id, or name slugify match
+  const loose = products.find(
+    (p) =>
+      p.slug === decoded ||
+      slugify(p.name) === decoded ||
+      p.slug.startsWith(`${decoded}-`),
+  )
+  return loose
 }
 
 export async function getRelatedProducts(

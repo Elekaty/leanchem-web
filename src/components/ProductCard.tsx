@@ -16,17 +16,19 @@ export function ProductCard({ product }: ProductCardProps) {
   const stockLabel = product.inStock ? 'In stock' : 'Made to order'
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-lg border border-organza/35 bg-white">
-      <div className="relative flex h-[120px] items-center justify-between gap-3 bg-[linear-gradient(135deg,#EEF4FA_0%,#F8FAFC_100%)] px-4">
-        <CategoryGlyph category={product.category || product.physicalState} width={56} height={56} />
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded bg-white shadow-sm ring-1 ring-black/10">
-          <HazardPictogramIcon type={product.hazard} width={24} height={24} />
+    <article className="flex flex-col overflow-hidden rounded-lg border border-organza/30 bg-white transition hover:border-organza/55">
+      <div className="relative flex h-[100px] items-center justify-between gap-3 bg-[linear-gradient(135deg,#EEF4FA_0%,#F8FAFC_100%)] px-4">
+        <CategoryGlyph category={product.category || product.physicalState} width={48} height={48} />
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded bg-white shadow-sm ring-1 ring-black/8">
+          <HazardPictogramIcon type={product.hazard} width={22} height={22} />
         </span>
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <p className="text-xs font-semibold text-organza">CAS {product.casNumber}</p>
-        <h3 className="mt-1 text-base font-bold leading-snug text-velvet">
+        <p className="text-[0.7rem] font-semibold tracking-wide text-organza uppercase">
+          {/^\d/.test(product.casNumber) ? `CAS ${product.casNumber}` : product.casNumber}
+        </p>
+        <h3 className="mt-1 line-clamp-2 text-[0.95rem] font-bold leading-snug text-velvet">
           <Link
             to="/catalog/$slug"
             params={{ slug: product.slug }}
@@ -35,7 +37,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </Link>
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-velvet/65">
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-velvet/60">
           {product.description}
         </p>
 
@@ -50,7 +52,7 @@ export function ProductCard({ product }: ProductCardProps) {
           >
             {stockLabel}
           </span>
-          <span className="spec-pill" aria-label={`Purity grade: ${product.purity}`}>
+          <span className="spec-pill max-w-[9rem] truncate" aria-label={`Grade: ${product.purity}`}>
             {product.purity}
           </span>
         </div>
@@ -58,17 +60,19 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="mt-auto flex flex-wrap gap-2 pt-4">
           <button
             type="button"
-            className="btn btn-primary min-h-10 flex-1 px-3 text-xs"
+            className={`btn min-h-10 flex-1 px-3 text-xs ${
+              inRfq ? 'btn-secondary' : 'btn-primary'
+            }`}
             onClick={() => {
               addProduct(product)
               announce(
                 inRfq
-                  ? `${product.name} already in RFQ — drawer opened.`
-                  : `${product.name} added to RFQ.`,
+                  ? `${product.name} is in your RFQ.`
+                  : `Added ${product.name} to RFQ.`,
               )
             }}
           >
-            {inRfq ? 'In RFQ' : 'Add to RFQ'}
+            {inRfq ? 'In RFQ ✓' : 'Add to RFQ'}
           </button>
           <Link
             to="/catalog/$slug"
@@ -86,7 +90,7 @@ export function ProductCard({ product }: ProductCardProps) {
 export function ProductCardSkeleton() {
   return (
     <div className="overflow-hidden rounded-lg border border-organza/30 bg-white" aria-hidden="true">
-      <div className="skel h-[120px] rounded-none" />
+      <div className="skel h-[100px] rounded-none" />
       <div className="space-y-3 p-4">
         <div className="skel h-3 w-24" />
         <div className="skel h-5 w-11/12" />

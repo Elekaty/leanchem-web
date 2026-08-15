@@ -134,37 +134,37 @@ function ProductDetailPage() {
 
       <ProductBreadcrumbs category={product.category} productName={product.name} />
 
-      <div className="grid gap-6 lg:grid-cols-[68fr_32fr]">
+      <div className="grid gap-8 lg:grid-cols-[7fr_3fr]">
         <section className="min-w-0 space-y-6">
           <header>
             <p className="text-sm font-semibold text-lapis">
               {formatProductIdLabel(product.casNumber)}
             </p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-velvet md:text-4xl">
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-velvet md:text-[2.15rem]">
               {product.name}
             </h1>
-            <p className="mt-2 text-sm font-semibold text-velvet/70">
+            <p className="mt-2 text-sm font-semibold text-velvet/65">
               Grade: <span className="text-velvet">{product.purity}</span>
             </p>
-            <div className="mt-4">
+            <div className="mt-5">
               <HazardIcons hazards={product.hazards} />
             </div>
           </header>
 
-          <div className="rounded-lg border border-organza/35 bg-white p-6">
-            <h2 className="text-lg font-bold text-lapis">Technical description</h2>
-            <p className="mt-3 leading-relaxed text-velvet/75">{product.description}</p>
+          <div className="rounded-lg border border-organza/30 bg-white p-5 md:p-6">
+            <h2 className="text-base font-bold text-lapis md:text-lg">Technical description</h2>
+            <p className="mt-3 leading-relaxed text-velvet/70">{product.description}</p>
 
-            <h2 className="mt-8 text-lg font-bold text-lapis">
-              Technical specifications / physical properties
+            <h2 className="mt-8 text-base font-bold text-lapis md:text-lg">
+              Technical specifications
             </h2>
             <SpecsTable rows={specRows} />
 
-            <h2 className="mt-8 text-lg font-bold text-lapis">Typical applications</h2>
-            <p className="mt-2 leading-relaxed text-velvet/75">{product.applications}</p>
+            <h2 className="mt-8 text-base font-bold text-lapis md:text-lg">Typical applications</h2>
+            <p className="mt-2 leading-relaxed text-velvet/70">{product.applications}</p>
 
-            <h2 className="mt-8 text-lg font-bold text-lapis">Handling &amp; storage</h2>
-            <p className="mt-2 leading-relaxed text-velvet/75">{product.handlingNotes}</p>
+            <h2 className="mt-8 text-base font-bold text-lapis md:text-lg">Handling &amp; storage</h2>
+            <p className="mt-2 leading-relaxed text-velvet/70">{product.handlingNotes}</p>
           </div>
 
           <RelatedProducts products={related} />
@@ -180,10 +180,14 @@ function ProductDetailPage() {
         </aside>
       </div>
 
-      {/* Mobile sticky Add to RFQ */}
-      <div className="fixed inset-x-0 bottom-[4.25rem] z-30 border-t border-organza/30 bg-white/95 p-3 backdrop-blur md:bottom-0 lg:hidden">
-        <button type="button" className="btn btn-primary w-full min-h-12" onClick={onAdd}>
-          {inRfq ? 'Update in RFQ' : 'Add to RFQ'}
+      {/* Mobile sticky Add to RFQ — sits above site mobile CTA bar */}
+      <div className="fixed inset-x-0 bottom-[4.5rem] z-30 border-t border-organza/25 bg-white/95 p-3 backdrop-blur md:bottom-0 lg:hidden">
+        <button
+          type="button"
+          className="btn btn-primary w-full min-h-12 text-base"
+          onClick={onAdd}
+        >
+          {inRfq ? 'In RFQ — tap to update' : 'Add to RFQ'}
         </button>
       </div>
     </div>

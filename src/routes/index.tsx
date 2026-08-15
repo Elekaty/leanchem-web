@@ -51,12 +51,9 @@ function HomePage() {
           className="absolute inset-0 bg-[linear-gradient(90deg,rgba(34,34,53,0.88)_0%,rgba(34,34,53,0.55)_55%,rgba(30,88,151,0.35)_100%),linear-gradient(0deg,rgba(34,34,53,0.75)_0%,transparent_45%)]"
           aria-hidden="true"
         />
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 pt-24 md:px-6 md:pb-16 md:pt-28">
-          <p className="mb-4 inline-flex min-h-8 items-center border border-adamantine/55 bg-velvet/45 px-3 text-[0.78rem] font-semibold uppercase tracking-[0.04em] text-adamantine">
-            {SITE.location}
-          </p>
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-28 md:px-6 md:pb-20 md:pt-32">
           <h1>
-            <span className="mb-3 block text-[clamp(2.6rem,6vw,4.2rem)] font-bold leading-none tracking-[-0.03em] text-white">
+            <span className="mb-4 block text-[clamp(2.75rem,6.5vw,4.4rem)] font-bold leading-none tracking-[-0.03em] text-white">
               {SITE.brand}
             </span>
             <span className="block max-w-[18ch] text-[clamp(1.35rem,3vw,2rem)] font-semibold leading-snug text-[#9fd0f5]">
@@ -65,11 +62,11 @@ function HomePage() {
               {SITE.taglineLine2}
             </span>
           </h1>
-          <p className="mt-4 max-w-[48ch] text-[1.05rem] leading-relaxed text-white/85">
+          <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-white/80 md:text-[1.05rem]">
             {SITE.valueProp}
           </p>
 
-          <div className="mt-7 max-w-xl rounded-md bg-white/95 p-2" role="search">
+          <div className="mt-8 max-w-xl rounded-md bg-white/95 p-2 shadow-lg shadow-velvet/20" role="search">
             <CatalogTypeahead
               id="home-search"
               navigateOnSelect
@@ -77,7 +74,7 @@ function HomePage() {
             />
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2.5">
+          <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/contact" className="btn btn-primary no-underline hover:no-underline">
               Request Quote
             </Link>
@@ -86,11 +83,11 @@ function HomePage() {
             </Link>
           </div>
 
-          <dl className="mt-9 grid max-w-md grid-cols-3 gap-4">
+          <dl className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-white/15 pt-8">
             {SITE.stats.map((stat) => (
               <div key={stat.label}>
                 <dt className="text-2xl font-bold text-adamantine">{stat.value}</dt>
-                <dd className="m-0 text-sm text-white/70">{stat.label}</dd>
+                <dd className="m-0 text-sm text-white/65">{stat.label}</dd>
               </div>
             ))}
           </dl>

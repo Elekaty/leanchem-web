@@ -52,7 +52,7 @@
   }
 
   .spec-pill {
-    @apply inline-flex items-center rounded-full border border-organza/45 bg-canvas px-2.5 py-0.5 text-[0.72rem] font-semibold text-velvet;
+    @apply inline-flex items-center rounded border border-organza/35 bg-canvas px-2 py-0.5 text-[0.7rem] font-semibold text-velvet;
   }
 
   .status-chip {

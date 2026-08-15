@@ -4,6 +4,9 @@ export const SITE = {
   taglineLine2: 'Values You Deserve',
   valueProp:
     'Enterprise chemical procurement for Ethiopian industry — verified sourcing, technical support, and corridor-aware logistics.',
+  /** Short market line for sparse UI surfaces (not the street address). */
+  marketLine: 'Addis Ababa · Serving Ethiopia',
+  /** Full physical address — footer only. */
   location: 'Dimple Mall & Apartments, Office 217 · Bulgaria, Addis Ababa',
   stats: [
     { value: '500+', label: 'SKUs sourced' },

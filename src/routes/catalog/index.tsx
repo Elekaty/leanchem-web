@@ -163,17 +163,14 @@ function CatalogPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-velvet">Chemical Catalog</h1>
-          <p className="mt-2 max-w-2xl text-velvet/65">
-            Live grades from Chemical Master Data — search, filter, open specs, and add to RFQ.
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-velvet/60 md:text-base">
+            Industrial grades for Ethiopian procurement — filter, open specs, and build a multi-line
+            RFQ.
             {source === 'supabase' ? (
-              <span className="mt-1 block text-xs font-semibold text-success">
-                Connected · {allProducts.length} products
-              </span>
-            ) : (
               <span className="mt-1 block text-xs font-semibold text-velvet/45">
-                Showing demo catalog (Supabase unavailable)
+                {allProducts.length} grades available
               </span>
-            )}
+            ) : null}
           </p>
         </div>
         <CatalogTypeahead

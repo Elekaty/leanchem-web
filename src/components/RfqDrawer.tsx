@@ -57,13 +57,14 @@ export function RfqDrawer() {
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
           {items.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-organza/40 bg-canvas p-6 text-center">
-              <p className="text-sm text-velvet/65">
-                Add grades from the catalog or product pages, then submit one multi-line RFQ.
+            <div className="rounded-lg border border-dashed border-organza/35 bg-canvas px-5 py-10 text-center">
+              <p className="text-sm font-semibold text-velvet">Your RFQ is empty</p>
+              <p className="mt-2 text-sm leading-relaxed text-velvet/60">
+                Add grades from the catalog or a product page, then submit one multi-line request.
               </p>
               <Link
                 to="/catalog"
-                className="btn btn-secondary mt-4 no-underline hover:no-underline"
+                className="btn btn-secondary mt-5 no-underline hover:no-underline"
                 onClick={closeDrawer}
               >
                 Browse catalog
@@ -171,7 +172,11 @@ export function RfqHeaderButton() {
   return (
     <button
       type="button"
-      className="relative inline-flex h-10 items-center gap-2 rounded border border-organza/40 px-3 text-sm font-semibold text-lapis hover:border-adamantine"
+      className={`relative inline-flex h-10 items-center gap-2 rounded border px-3 text-sm font-semibold transition ${
+        itemCount > 0
+          ? 'border-lapis/40 bg-lapis/5 text-lapis'
+          : 'border-organza/40 text-lapis hover:border-adamantine'
+      }`}
       onClick={openDrawer}
       aria-label={
         itemCount > 0 ? `Review RFQ, ${itemCount} items` : 'Review RFQ'
@@ -179,7 +184,7 @@ export function RfqHeaderButton() {
     >
       Review RFQ
       {itemCount > 0 ? (
-        <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-lapis px-1.5 text-[0.65rem] font-bold text-white">
+        <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-lapis px-1.5 text-[0.65rem] font-bold leading-none text-white">
           {itemCount}
           <span className="sr-only"> items in RFQ</span>
         </span>
