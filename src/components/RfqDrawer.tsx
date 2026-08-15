@@ -161,7 +161,7 @@ export function RfqDrawer() {
             disabled={items.length === 0}
             onClick={openCheckout}
           >
-            Proceed to Quote
+            Proceed to Request Quote
           </button>
           <Link
             to="/catalog"

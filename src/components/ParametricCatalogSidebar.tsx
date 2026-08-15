@@ -23,6 +23,7 @@ function toggleValue<T extends string>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value]
 }
 
+/** Sticky left filter rail — Search CAS or Name, Market, Grade. */
 export function ParametricCatalogSidebar({
   value,
   onChange,
@@ -42,7 +43,7 @@ export function ParametricCatalogSidebar({
 
       <label className="mt-4 block">
         <span className="text-xs font-semibold tracking-wide text-organza uppercase">
-          CAS Number or Chemical Name
+          Search CAS or Name
         </span>
         <span className="relative mt-1.5 block">
           <Search
@@ -53,7 +54,7 @@ export function ParametricCatalogSidebar({
             type="search"
             value={value.query}
             onChange={(e) => onChange({ ...value, query: e.target.value })}
-            placeholder="e.g. 67-63-0 or toluene"
+            placeholder="CAS number or chemical name"
             className="h-11 w-full rounded border border-organza/40 bg-canvas py-2 pr-3 pl-10 text-sm outline-none focus:border-adamantine"
           />
         </span>
@@ -61,7 +62,7 @@ export function ParametricCatalogSidebar({
 
       <fieldset className="mt-5">
         <legend className="text-xs font-semibold tracking-wide text-organza uppercase">
-          Market Application
+          Market
         </legend>
         <ul className="mt-2 space-y-2">
           {MARKET_APPLICATIONS.map((market) => (

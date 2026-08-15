@@ -1,7 +1,4 @@
 import { Outlet, createFileRoute, Navigate, useRouterState } from '@tanstack/react-router'
-import { RfqCheckoutModal } from '../components/RfqCheckoutModal'
-import { RfqDrawer } from '../components/RfqDrawer'
-import { RfqFloatingCart } from '../components/RfqFloatingCart'
 import {
   PortalCommandBar,
   PortalLeftRail,
@@ -47,9 +44,6 @@ function PortalLayoutRoute() {
             <Outlet />
           </main>
         </div>
-        <RfqFloatingCart />
-        <RfqDrawer />
-        <RfqCheckoutModal />
       </div>
     </ShellProvider>
   )

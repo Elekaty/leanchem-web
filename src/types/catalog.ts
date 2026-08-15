@@ -61,21 +61,16 @@ export interface RfqLineItem {
 
 export type RfqVolumeUnit = 'MT' | 'L' | 'kg'
 
-export type RfqPreferredPackaging =
-  | '200L Drums'
-  | 'IBC Totes'
-  | '25kg Bags'
-  | 'Bulk Tanker'
+export type RfqPreferredPackaging = 'Drums' | 'IBCs' | 'Bags'
 
-export type RfqIncoterm = 'FOB' | 'CIF' | 'DDP' | 'Ex-Works'
+export type RfqIncoterm = 'FOB' | 'DDP'
 
 /** Batch-level fields applied to the whole RFQ cart at checkout. */
 export interface RfqBatchDetails {
   expectedVolume: number
-  volumeUnit: RfqVolumeUnit
-  preferredPackaging: RfqPreferredPackaging
+  unit: RfqVolumeUnit
+  packaging: RfqPreferredPackaging
   incoterms: RfqIncoterm
-  targetDeliveryWindow: string
 }
 
 /** Structured payload ready for the quote API. */

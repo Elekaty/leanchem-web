@@ -3,10 +3,9 @@
 export const CORRIDOR_STEPS = [
   { id: 'origin-port', label: 'Origin Port' },
   { id: 'ocean-transit', label: 'Ocean Transit' },
-  { id: 'djibouti-port', label: 'Djibouti Port' },
-  { id: 'customs-clearance', label: 'Customs Clearance' },
+  { id: 'djibouti-customs', label: 'Djibouti Customs' },
   { id: 'modjo-dry-port', label: 'Modjo Dry Port' },
-  { id: 'final-delivery', label: 'Final Delivery' },
+  { id: 'addis-delivery', label: 'Addis Delivery' },
 ] as const
 
 export type CorridorStepId = (typeof CORRIDOR_STEPS)[number]['id']
@@ -33,7 +32,6 @@ export interface CorridorPurchaseOrder {
   /** Buyer account this PO belongs to — never shown across accounts. */
   accountId: string
   productSummary: string
-  /** Individual chemical lines on this PO (a buyer may have several concurrent). */
   chemicals: CorridorChemicalLine[]
   lifecycle: CorridorOrderLifecycle
   /** Index into CORRIDOR_STEPS for the current stage (0-based). Closed POs use the last step. */
@@ -45,12 +43,12 @@ export interface CorridorPurchaseOrder {
 export const DEMO_BUYER_ACCOUNT_ID = 'demo-buyer'
 
 /**
- * Orders belonging to the demo buyer only.
+ * Active (and a few closed) POs for the demo buyer.
  * Other accounts' shipments must never appear in this list.
  */
 export const CUSTOMER_CORRIDOR_ORDERS: CorridorPurchaseOrder[] = [
   {
-    poNumber: 'PO-2026-1142',
+    poNumber: 'PO-1042',
     accountId: DEMO_BUYER_ACCOUNT_ID,
     productSummary: 'Isopropyl Alcohol · Toluene · 18 MT',
     chemicals: [
@@ -58,135 +56,148 @@ export const CUSTOMER_CORRIDOR_ORDERS: CorridorPurchaseOrder[] = [
       { name: 'Toluene', casNumber: '108-88-3', quantity: '10 MT' },
     ],
     lifecycle: 'open',
-    activeStepIndex: 3, // Customs Clearance
+    activeStepIndex: 2, // Djibouti Customs
     logs: [
       {
-        id: '1142-1',
-        poNumber: 'PO-2026-1142',
+        id: '1042-1',
+        poNumber: 'PO-1042',
         stepId: 'origin-port',
         timestamp: '2026-07-12T08:15:00.000Z',
-        message: 'Your containers gated out at Shanghai — 2 × 20ft DG-rated units sealed.',
+        message: 'Containers gated out at Shanghai — 2 × 20ft DG-rated units sealed.',
       },
       {
-        id: '1142-2',
-        poNumber: 'PO-2026-1142',
+        id: '1042-2',
+        poNumber: 'PO-1042',
         stepId: 'ocean-transit',
         timestamp: '2026-07-14T06:05:00.000Z',
         message: 'Vessel departed. Ocean transit on schedule (ETA Djibouti +11 days).',
       },
       {
-        id: '1142-3',
-        poNumber: 'PO-2026-1142',
-        stepId: 'djibouti-port',
+        id: '1042-3',
+        poNumber: 'PO-1042',
+        stepId: 'djibouti-customs',
         timestamp: '2026-07-25T09:10:00.000Z',
-        message: 'Vessel berthed at Doraleh. Discharge window allocated for your cargo.',
+        message: 'Vessel berthed at Doraleh. Ethiopian Customs file opened.',
       },
       {
-        id: '1142-4',
-        poNumber: 'PO-2026-1142',
-        stepId: 'customs-clearance',
-        timestamp: '2026-07-28T07:30:00.000Z',
-        message: 'Customs declaration lodged. SDS pack and commercial invoice under review.',
-      },
-      {
-        id: '1142-5',
-        poNumber: 'PO-2026-1142',
-        stepId: 'customs-clearance',
+        id: '1042-4',
+        poNumber: 'PO-1042',
+        stepId: 'djibouti-customs',
         timestamp: '2026-08-05T13:18:00.000Z',
-        message:
-          'Live: IPA line cleared by examiner; toluene DG paperwork pending final stamp.',
+        message: 'IPA line cleared by examiner; toluene DG paperwork pending final stamp.',
+      },
+      {
+        id: '1042-5',
+        poNumber: 'PO-1042',
+        stepId: 'djibouti-customs',
+        timestamp: '2026-08-15T07:00:00.000Z',
+        message: 'Container dwell within SLA.',
       },
     ],
   },
   {
-    poNumber: 'PO-2026-1098',
+    poNumber: 'PO-1045',
     accountId: DEMO_BUYER_ACCOUNT_ID,
     productSummary: 'Sodium Hydroxide (Pellets) · 12 MT',
     chemicals: [
       { name: 'Sodium Hydroxide (Pellets)', casNumber: '1310-73-2', quantity: '12 MT' },
     ],
     lifecycle: 'open',
-    activeStepIndex: 4, // Modjo Dry Port
+    activeStepIndex: 3, // Modjo Dry Port
     logs: [
       {
-        id: '1098-1',
-        poNumber: 'PO-2026-1098',
+        id: '1045-1',
+        poNumber: 'PO-1045',
         stepId: 'origin-port',
         timestamp: '2026-06-20T10:00:00.000Z',
-        message: 'Bags loaded and sealed at origin warehouse for your NaOH order.',
+        message: 'Bags loaded and sealed at origin warehouse.',
       },
       {
-        id: '1098-2',
-        poNumber: 'PO-2026-1098',
+        id: '1045-2',
+        poNumber: 'PO-1045',
         stepId: 'ocean-transit',
         timestamp: '2026-06-22T07:30:00.000Z',
         message: 'Ocean transit underway — ETA Djibouti confirmed.',
       },
       {
-        id: '1098-3',
-        poNumber: 'PO-2026-1098',
-        stepId: 'djibouti-port',
-        timestamp: '2026-07-02T11:15:00.000Z',
-        message: 'Discharged at Djibouti and handed to Ethiopian Customs file.',
-      },
-      {
-        id: '1098-4',
-        poNumber: 'PO-2026-1098',
-        stepId: 'customs-clearance',
+        id: '1045-3',
+        poNumber: 'PO-1045',
+        stepId: 'djibouti-customs',
         timestamp: '2026-07-08T09:40:00.000Z',
         message: 'Customs release issued. Inland transfer to Modjo booked.',
       },
       {
-        id: '1098-5',
-        poNumber: 'PO-2026-1098',
+        id: '1045-4',
+        poNumber: 'PO-1045',
         stepId: 'modjo-dry-port',
         timestamp: '2026-07-18T08:00:00.000Z',
-        message: 'Your cargo arrived at Modjo Dry Port. Yard slot assigned — awaiting plant delivery booking.',
+        message: 'Arrived at Modjo Dry Port. Yard slot assigned — awaiting plant delivery booking.',
+      },
+      {
+        id: '1045-5',
+        poNumber: 'PO-1045',
+        stepId: 'modjo-dry-port',
+        timestamp: '2026-08-14T11:20:00.000Z',
+        message: 'Inland rail transfer complete. Container dwell within SLA.',
       },
     ],
   },
   {
-    poNumber: 'PO-2026-0988',
+    poNumber: 'PO-1038',
+    accountId: DEMO_BUYER_ACCOUNT_ID,
+    productSummary: 'Titanium Dioxide · 9 MT',
+    chemicals: [
+      { name: 'Titanium Dioxide (Rutile)', casNumber: '13463-67-7', quantity: '9 MT' },
+    ],
+    lifecycle: 'open',
+    activeStepIndex: 1, // Ocean Transit
+    logs: [
+      {
+        id: '1038-1',
+        poNumber: 'PO-1038',
+        stepId: 'origin-port',
+        timestamp: '2026-08-01T06:30:00.000Z',
+        message: 'TiO₂ bags sealed and gated out at origin.',
+      },
+      {
+        id: '1038-2',
+        poNumber: 'PO-1038',
+        stepId: 'ocean-transit',
+        timestamp: '2026-08-03T14:00:00.000Z',
+        message: 'Vessel departed. AIS tracking live — ETA Djibouti +12 days.',
+      },
+      {
+        id: '1038-3',
+        poNumber: 'PO-1038',
+        stepId: 'ocean-transit',
+        timestamp: '2026-08-12T09:45:00.000Z',
+        message: 'Mid-ocean position update. Schedule remains within SLA.',
+      },
+    ],
+  },
+  {
+    poNumber: 'PO-0988',
     accountId: DEMO_BUYER_ACCOUNT_ID,
     productSummary: 'Isopropyl Alcohol · 5 MT',
     chemicals: [
       { name: 'Isopropyl Alcohol', casNumber: '67-63-0', quantity: '5 MT' },
     ],
     lifecycle: 'closed',
-    activeStepIndex: 5, // Final Delivery (complete)
+    activeStepIndex: 4, // Addis Delivery (complete)
     logs: [
       {
         id: '0988-1',
-        poNumber: 'PO-2026-0988',
+        poNumber: 'PO-0988',
         stepId: 'origin-port',
         timestamp: '2026-05-10T08:00:00.000Z',
         message: 'Order gated out at origin.',
       },
       {
         id: '0988-2',
-        poNumber: 'PO-2026-0988',
-        stepId: 'final-delivery',
+        poNumber: 'PO-0988',
+        stepId: 'addis-delivery',
         timestamp: '2026-06-08T12:00:00.000Z',
-        message: 'Delivered to your plant gate. POD signed — order closed.',
-      },
-    ],
-  },
-  {
-    poNumber: 'PO-2026-0912',
-    accountId: DEMO_BUYER_ACCOUNT_ID,
-    productSummary: 'Calcium Chloride Anhydrous · 16 MT',
-    chemicals: [
-      { name: 'Calcium Chloride Anhydrous', casNumber: '10043-52-4', quantity: '16 MT' },
-    ],
-    lifecycle: 'closed',
-    activeStepIndex: 5,
-    logs: [
-      {
-        id: '0912-1',
-        poNumber: 'PO-2026-0912',
-        stepId: 'final-delivery',
-        timestamp: '2026-05-22T14:20:00.000Z',
-        message: 'Bulk tanker offloaded at your site. Order closed.',
+        message: 'Delivered to plant gate in Addis. POD signed — order closed.',
       },
     ],
   },
@@ -226,6 +237,20 @@ export function formatEatTimestamp(iso: string): string {
         hour12: false,
       }).format(new Date(iso)) + ' EAT'
     )
+  } catch {
+    return iso
+  }
+}
+
+/** Human-readable date for Live Updates (e.g. "15 Aug 2026"). */
+export function formatLiveUpdateDate(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Africa/Addis_Ababa',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).format(new Date(iso))
   } catch {
     return iso
   }

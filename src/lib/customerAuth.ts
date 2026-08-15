@@ -167,9 +167,9 @@ function seedStarterOrders(accountId: string, companyName: string) {
         {
           id: `${poOpen}-3`,
           poNumber: poOpen,
-          stepId: 'djibouti-port',
+          stepId: 'djibouti-customs',
           timestamp: new Date(now - 1 * 86400000).toISOString(),
-          message: 'Your cargo is at Djibouti Port. Discharge window allocated.',
+          message: 'Cargo at Djibouti Customs. Discharge window allocated.',
         },
       ],
     },

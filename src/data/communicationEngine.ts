@@ -70,7 +70,7 @@ export const SEED_COMMS_MESSAGES: CommsThreadMessage[] = [
     id: 'msg-2',
     accountId: DEMO_BUYER_ACCOUNT_ID,
     direction: 'manager',
-    body: 'PO-2026-1142 is in Customs Clearance — please upload the commercial invoice when ready.',
+    body: 'PO-1042 is in Djibouti Customs — please upload the commercial invoice when ready.',
     createdAt: '2026-08-05T10:20:00.000Z',
   },
 ]

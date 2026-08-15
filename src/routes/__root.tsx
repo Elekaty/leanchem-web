@@ -69,11 +69,12 @@ function RootComponent() {
                     <SiteFooter />
                     <FloatingChat />
                     <StickyMobileCta />
-                    <RfqFloatingCart />
-                    <RfqDrawer />
-                    <RfqCheckoutModal />
                   </>
                 )}
+                {/* Global RFQ cart UI — persists across public + portal routes */}
+                <RfqFloatingCart />
+                <RfqDrawer />
+                <RfqCheckoutModal />
               </RfqProvider>
             </CatalogDataProvider>
           </CommunicationProvider>

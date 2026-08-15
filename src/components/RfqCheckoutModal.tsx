@@ -11,15 +11,8 @@ import type {
 } from '../types/catalog'
 
 const VOLUME_UNITS: RfqVolumeUnit[] = ['MT', 'L', 'kg']
-
-const PACKAGING_OPTIONS: RfqPreferredPackaging[] = [
-  '200L Drums',
-  'IBC Totes',
-  '25kg Bags',
-  'Bulk Tanker',
-]
-
-const INCOTERMS: RfqIncoterm[] = ['FOB', 'CIF', 'DDP', 'Ex-Works']
+const PACKAGING_OPTIONS: RfqPreferredPackaging[] = ['Drums', 'IBCs', 'Bags']
+const INCOTERMS: RfqIncoterm[] = ['FOB', 'DDP']
 
 const fieldClass =
   'mt-1.5 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 text-sm font-normal text-velvet outline-none focus:border-adamantine'
@@ -31,11 +24,9 @@ export function RfqCheckoutModal() {
   useFocusTrap(panelRef, checkoutOpen)
 
   const [expectedVolume, setExpectedVolume] = useState('')
-  const [volumeUnit, setVolumeUnit] = useState<RfqVolumeUnit>('MT')
-  const [preferredPackaging, setPreferredPackaging] =
-    useState<RfqPreferredPackaging>('200L Drums')
-  const [incoterms, setIncoterms] = useState<RfqIncoterm>('CIF')
-  const [targetDeliveryWindow, setTargetDeliveryWindow] = useState('')
+  const [unit, setUnit] = useState<RfqVolumeUnit>('MT')
+  const [packaging, setPackaging] = useState<RfqPreferredPackaging>('Drums')
+  const [incoterms, setIncoterms] = useState<RfqIncoterm>('FOB')
   const [submittedRef, setSubmittedRef] = useState<string | null>(null)
 
   if (!checkoutOpen) return null
@@ -50,10 +41,6 @@ export function RfqCheckoutModal() {
     const volume = Number(expectedVolume)
     if (!Number.isFinite(volume) || volume <= 0) {
       announce('Enter a valid expected volume greater than zero.')
-      return
-    }
-    if (!targetDeliveryWindow) {
-      announce('Select a target delivery window.')
       return
     }
 
@@ -72,14 +59,12 @@ export function RfqCheckoutModal() {
       })),
       batch: {
         expectedVolume: volume,
-        volumeUnit,
-        preferredPackaging,
+        unit,
+        packaging,
         incoterms,
-        targetDeliveryWindow,
       },
     }
 
-    // API-ready structured payload for integration.
     console.log(JSON.stringify(payload, null, 2))
     console.log('[LeanChem RFQ] Quote payload', payload)
 
@@ -112,10 +97,10 @@ export function RfqCheckoutModal() {
         <header className="flex items-center justify-between border-b border-organza/30 px-5 py-4">
           <div>
             <h2 id="rfq-checkout-title" className="text-lg font-bold text-velvet">
-              Proceed to Quote
+              Request Quote
             </h2>
             <p className="text-xs text-velvet/55">
-              Batch commercial details for {items.length} selected chemical
+              Global order details for {items.length} chemical
               {items.length === 1 ? '' : 's'}
             </p>
           </div>
@@ -154,12 +139,14 @@ export function RfqCheckoutModal() {
                 ) : (
                   <ul className="mt-2 divide-y divide-organza/25 rounded border border-organza/30">
                     {items.map((item) => (
-                      <li key={item.productId} className="flex items-start justify-between gap-3 px-3 py-2.5">
+                      <li
+                        key={item.productId}
+                        className="flex items-start justify-between gap-3 px-3 py-2.5"
+                      >
                         <div className="min-w-0">
                           <p className="text-sm font-bold text-velvet">{item.name}</p>
                           <p className="text-xs font-semibold text-lapis">CAS {item.casNumber}</p>
                         </div>
-                        <p className="shrink-0 text-xs text-velvet/55">{item.quantity}</p>
                       </li>
                     ))}
                   </ul>
@@ -167,7 +154,7 @@ export function RfqCheckoutModal() {
               </section>
 
               <section className="space-y-4">
-                <h3 className="text-sm font-bold text-lapis">Batch commercial terms</h3>
+                <h3 className="text-sm font-bold text-lapis">Global order details</h3>
 
                 <div>
                   <span className="text-sm font-semibold text-velvet">Expected Volume</span>
@@ -180,13 +167,14 @@ export function RfqCheckoutModal() {
                       value={expectedVolume}
                       onChange={(e) => setExpectedVolume(e.target.value)}
                       placeholder="e.g. 24"
-                      className={fieldClass + ' mt-0'}
+                      className={`${fieldClass} mt-0`}
+                      aria-label="Expected volume"
                     />
                     <select
-                      value={volumeUnit}
-                      onChange={(e) => setVolumeUnit(e.target.value as RfqVolumeUnit)}
-                      className={fieldClass + ' mt-0'}
-                      aria-label="Volume unit"
+                      value={unit}
+                      onChange={(e) => setUnit(e.target.value as RfqVolumeUnit)}
+                      className={`${fieldClass} mt-0`}
+                      aria-label="Unit"
                     >
                       {VOLUME_UNITS.map((u) => (
                         <option key={u} value={u}>
@@ -198,12 +186,10 @@ export function RfqCheckoutModal() {
                 </div>
 
                 <label className="block text-sm font-semibold text-velvet">
-                  Preferred Packaging
+                  Packaging
                   <select
-                    value={preferredPackaging}
-                    onChange={(e) =>
-                      setPreferredPackaging(e.target.value as RfqPreferredPackaging)
-                    }
+                    value={packaging}
+                    onChange={(e) => setPackaging(e.target.value as RfqPreferredPackaging)}
                     className={fieldClass}
                   >
                     {PACKAGING_OPTIONS.map((p) => (
@@ -227,17 +213,6 @@ export function RfqCheckoutModal() {
                       </option>
                     ))}
                   </select>
-                </label>
-
-                <label className="block text-sm font-semibold text-velvet">
-                  Target Delivery Window
-                  <input
-                    type="date"
-                    required
-                    value={targetDeliveryWindow}
-                    onChange={(e) => setTargetDeliveryWindow(e.target.value)}
-                    className={fieldClass}
-                  />
                 </label>
               </section>
             </form>

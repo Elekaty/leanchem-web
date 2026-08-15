@@ -17,7 +17,7 @@ export const Route = createFileRoute('/catalog/')({
       {
         name: 'description',
         content:
-          'Parametric search for industrial chemical grades — filter by CAS, market application, and grade, then add to RFQ.',
+          'Parametric catalog — filter by CAS or name, market, and grade, then add chemicals to your RFQ cart.',
       },
     ],
   }),
@@ -57,14 +57,13 @@ function CatalogPage() {
       <header className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight text-velvet">Chemical Catalog</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-velvet/60 md:text-base">
-          Parametric search by CAS / name, market application, and grade. Demo set of{' '}
-          {catalog.length} chemicals — swap this mock source for Supabase when ready.
+          Filter by CAS or name, market, and grade — then add lines to the global RFQ cart.
         </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]">
-        {/* Left ~25% */}
-        <div className="lg:col-span-1">
+      {/* Two-column: ~25% sticky filters / ~75% results */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(240px,1fr)_minmax(0,3fr)]">
+        <div>
           <ParametricCatalogSidebar
             value={filters}
             onChange={setFilters}
@@ -73,12 +72,11 @@ function CatalogPage() {
           />
         </div>
 
-        {/* Right ~75% */}
-        <div className="min-w-0 lg:col-span-1">
+        <div className="min-w-0">
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-velvet">
               {products.length === 0
-                ? 'No matching grades'
+                ? 'No matching chemicals'
                 : `${products.length} result${products.length === 1 ? '' : 's'}`}
             </p>
           </div>
@@ -87,7 +85,7 @@ function CatalogPage() {
             <div className="rounded border border-dashed border-organza/40 bg-white px-4 py-12 text-center">
               <p className="text-sm font-semibold text-velvet">No products match these filters</p>
               <p className="mx-auto mt-1.5 max-w-[36ch] text-sm text-velvet/60">
-                Clear a market or grade checkbox, or broaden the CAS / name search.
+                Clear a Market or Grade checkbox, or broaden the CAS / name search.
               </p>
               <button
                 type="button"

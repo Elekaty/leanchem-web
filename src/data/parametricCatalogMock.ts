@@ -1,4 +1,4 @@
-/** Demo chemicals for parametric catalog filtering (pre-Supabase wiring). */
+/** Demo chemicals for parametric catalog filtering (Task 2). */
 
 export const MARKET_APPLICATIONS = [
   'Paints & Coatings',
@@ -7,7 +7,7 @@ export const MARKET_APPLICATIONS = [
   'Water Treatment',
 ] as const
 
-export const CHEMICAL_GRADES = ['Industrial', 'Technical', 'Food'] as const
+export const CHEMICAL_GRADES = ['Industrial', 'Tech', 'Food'] as const
 
 export type MarketApplication = (typeof MARKET_APPLICATIONS)[number]
 export type ChemicalGrade = (typeof CHEMICAL_GRADES)[number]
@@ -21,7 +21,6 @@ export interface ParametricChemical {
   sdsUrl: string
   tdsUrl: string
   slug: string
-  /** Optional structure image; cards fall back to a placeholder glyph. */
   structureImageUrl?: string
 }
 
@@ -41,7 +40,7 @@ export const PARAMETRIC_CATALOG_MOCK: ParametricChemical[] = [
     name: 'Sodium Hydroxide (Pellets)',
     casNumber: '1310-73-2',
     markets: ['Water Treatment', 'Construction'],
-    grade: 'Technical',
+    grade: 'Tech',
     sdsUrl: '/docs/sds-placeholder.pdf',
     tdsUrl: '/docs/tds-placeholder.pdf',
     slug: 'sodium-hydroxide-pellets',
@@ -51,7 +50,7 @@ export const PARAMETRIC_CATALOG_MOCK: ParametricChemical[] = [
     name: 'Isopropyl Alcohol',
     casNumber: '67-63-0',
     markets: ['Paints & Coatings', 'Plastics'],
-    grade: 'Technical',
+    grade: 'Tech',
     sdsUrl: '/docs/sds-placeholder.pdf',
     tdsUrl: '/docs/tds-placeholder.pdf',
     slug: 'isopropyl-alcohol',
@@ -105,11 +104,9 @@ export function filterParametricCatalog(
       item.casNumber.toLowerCase().includes(q)
 
     const matchesMarket =
-      opts.markets.length === 0 ||
-      opts.markets.some((m) => item.markets.includes(m))
+      opts.markets.length === 0 || opts.markets.some((m) => item.markets.includes(m))
 
-    const matchesGrade =
-      opts.grades.length === 0 || opts.grades.includes(item.grade)
+    const matchesGrade = opts.grades.length === 0 || opts.grades.includes(item.grade)
 
     return matchesQuery && matchesMarket && matchesGrade
   })
