@@ -229,16 +229,21 @@ function SiteFooter() {
 
 function StickyMobileCta() {
   const { itemCount, openDrawer } = useRfq()
+  const reviewLabel = itemCount > 0 ? `Review RFQ (${itemCount})` : 'Review RFQ'
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-organza/30 bg-white/95 p-3 backdrop-blur md:hidden">
       <div className="flex gap-2">
-        <button type="button" className="btn btn-secondary relative flex-1" onClick={openDrawer}>
-          Review RFQ
-          {itemCount > 0 ? (
-            <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-lapis px-1.5 text-[0.65rem] font-bold text-white">
-              {itemCount}
-            </span>
-          ) : null}
+        <button
+          type="button"
+          className="btn btn-secondary relative flex-1"
+          onClick={openDrawer}
+          aria-label={
+            itemCount > 0
+              ? `Review RFQ, ${itemCount} item${itemCount === 1 ? '' : 's'}`
+              : 'Review RFQ'
+          }
+        >
+          {reviewLabel}
         </button>
         <Link
           to="/contact"

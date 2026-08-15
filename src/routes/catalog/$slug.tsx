@@ -82,11 +82,7 @@ function ProductDetailPage() {
 
   const onAdd = () => {
     addProduct(product)
-    announce(
-      inRfq
-        ? `${product.name} updated in your RFQ.`
-        : `${product.name} added to your RFQ.`,
-    )
+    announce(inRfq ? 'Updated in your RFQ' : 'Added to RFQ')
   }
 
   const specRows = useMemo(() => {
@@ -126,7 +122,7 @@ function ProductDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 md:px-6 lg:pb-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 pb-36 md:px-6 lg:pb-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -134,8 +130,8 @@ function ProductDetailPage() {
 
       <ProductBreadcrumbs category={product.category} productName={product.name} />
 
-      <div className="grid gap-8 lg:grid-cols-[7fr_3fr]">
-        <section className="min-w-0 space-y-6">
+      <div className="grid gap-7 lg:grid-cols-[7fr_3fr] lg:gap-8">
+        <section className="min-w-0 space-y-5 md:space-y-6">
           <header>
             <p className="text-sm font-semibold text-lapis">
               {formatProductIdLabel(product.casNumber)}
@@ -146,24 +142,28 @@ function ProductDetailPage() {
             <p className="mt-2 text-sm font-semibold text-velvet/65">
               Grade: <span className="text-velvet">{product.purity}</span>
             </p>
-            <div className="mt-5">
+            <div className="mt-4">
               <HazardIcons hazards={product.hazards} />
             </div>
           </header>
 
-          <div className="rounded-lg border border-organza/30 bg-white p-5 md:p-6">
+          <div className="rounded border border-organza/30 bg-white p-4 md:p-6">
             <h2 className="text-base font-bold text-lapis md:text-lg">Technical description</h2>
-            <p className="mt-3 leading-relaxed text-velvet/70">{product.description}</p>
+            <p className="mt-2.5 leading-relaxed text-velvet/70">{product.description}</p>
 
-            <h2 className="mt-8 text-base font-bold text-lapis md:text-lg">
+            <h2 className="mt-6 text-base font-bold text-lapis md:mt-7 md:text-lg">
               Technical specifications
             </h2>
             <SpecsTable rows={specRows} />
 
-            <h2 className="mt-8 text-base font-bold text-lapis md:text-lg">Typical applications</h2>
+            <h2 className="mt-6 text-base font-bold text-lapis md:mt-7 md:text-lg">
+              Typical applications
+            </h2>
             <p className="mt-2 leading-relaxed text-velvet/70">{product.applications}</p>
 
-            <h2 className="mt-8 text-base font-bold text-lapis md:text-lg">Handling &amp; storage</h2>
+            <h2 className="mt-6 text-base font-bold text-lapis md:mt-7 md:text-lg">
+              Handling &amp; storage
+            </h2>
             <p className="mt-2 leading-relaxed text-velvet/70">{product.handlingNotes}</p>
           </div>
 
@@ -181,14 +181,25 @@ function ProductDetailPage() {
       </div>
 
       {/* Mobile sticky Add to RFQ — sits above site mobile CTA bar */}
-      <div className="fixed inset-x-0 bottom-[4.5rem] z-30 border-t border-organza/25 bg-white/95 p-3 backdrop-blur md:bottom-0 lg:hidden">
-        <button
-          type="button"
-          className="btn btn-primary w-full min-h-12 text-base"
-          onClick={onAdd}
-        >
-          {inRfq ? 'In RFQ — tap to update' : 'Add to RFQ'}
-        </button>
+      <div className="fixed inset-x-0 bottom-[4.25rem] z-30 border-t border-organza/30 bg-white/95 p-3 shadow-[0_-6px_20px_rgba(34,34,53,0.08)] backdrop-blur md:bottom-0 lg:hidden">
+        <div className="mx-auto flex max-w-7xl gap-2">
+          <button
+            type="button"
+            className="btn btn-primary min-h-12 flex-[1.4] text-base shadow-[0_4px_14px_rgba(30,88,151,0.25)]"
+            onClick={onAdd}
+          >
+            {inRfq ? 'Update RFQ' : 'Add to RFQ'}
+          </button>
+          {inRfq ? (
+            <button
+              type="button"
+              className="btn btn-secondary min-h-12 flex-1"
+              onClick={openDrawer}
+            >
+              Review
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   )

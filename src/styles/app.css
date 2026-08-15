@@ -32,7 +32,7 @@
 
 @layer components {
   .btn {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded px-5 text-sm font-semibold no-underline transition duration-200;
+    @apply inline-flex h-11 min-h-11 items-center justify-center gap-2 rounded px-5 text-sm font-semibold no-underline transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lapis;
   }
 
   .btn-primary {
@@ -52,7 +52,7 @@
   }
 
   .spec-pill {
-    @apply inline-flex items-center rounded border border-organza/35 bg-canvas px-2 py-0.5 text-[0.7rem] font-semibold text-velvet;
+    @apply inline-flex max-w-full items-center rounded border border-organza/35 bg-canvas px-2 py-0.5 text-[0.7rem] font-semibold text-velvet;
   }
 
   .status-chip {

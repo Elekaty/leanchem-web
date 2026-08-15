@@ -57,9 +57,19 @@ export function RfqDrawer() {
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
           {items.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-organza/35 bg-canvas px-5 py-10 text-center">
-              <p className="text-sm font-semibold text-velvet">Your RFQ is empty</p>
-              <p className="mt-2 text-sm leading-relaxed text-velvet/60">
+            <div className="rounded-lg border border-dashed border-organza/35 bg-canvas px-5 py-12 text-center">
+              <div
+                className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-lapis/8 text-lapis"
+                aria-hidden="true"
+              >
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path d="M8 7h11l-1.2 10.2a2 2 0 0 1-2 1.8H11a2 2 0 0 1-2-1.8L7.2 4H4" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="10" cy="20" r="1.2" fill="currentColor" stroke="none" />
+                  <circle cx="17" cy="20" r="1.2" fill="currentColor" stroke="none" />
+                </svg>
+              </div>
+              <p className="text-sm font-bold text-velvet">No products in this RFQ yet</p>
+              <p className="mx-auto mt-2 max-w-[28ch] text-sm leading-relaxed text-velvet/60">
                 Add grades from the catalog or a product page, then submit one multi-line request.
               </p>
               <Link
@@ -168,25 +178,30 @@ export function RfqDrawer() {
 
 export function RfqHeaderButton() {
   const { itemCount, openDrawer } = useRfq()
+  const label = itemCount > 0 ? `Review RFQ (${itemCount})` : 'Review RFQ'
 
   return (
     <button
       type="button"
-      className={`relative inline-flex h-10 items-center gap-2 rounded border px-3 text-sm font-semibold transition ${
+      className={`relative inline-flex h-11 items-center gap-2 rounded border px-3.5 text-sm font-semibold transition ${
         itemCount > 0
-          ? 'border-lapis/40 bg-lapis/5 text-lapis'
+          ? 'border-lapis/45 bg-lapis/5 text-lapis'
           : 'border-organza/40 text-lapis hover:border-adamantine'
       }`}
       onClick={openDrawer}
       aria-label={
-        itemCount > 0 ? `Review RFQ, ${itemCount} items` : 'Review RFQ'
+        itemCount > 0
+          ? `Review RFQ, ${itemCount} item${itemCount === 1 ? '' : 's'}`
+          : 'Review RFQ'
       }
     >
-      Review RFQ
+      {label}
       {itemCount > 0 ? (
-        <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-lapis px-1.5 text-[0.65rem] font-bold leading-none text-white">
+        <span
+          className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-lapis px-1.5 text-[0.65rem] font-bold leading-none text-white"
+          aria-hidden="true"
+        >
           {itemCount}
-          <span className="sr-only"> items in RFQ</span>
         </span>
       ) : null}
     </button>

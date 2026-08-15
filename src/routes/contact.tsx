@@ -89,7 +89,7 @@ function ContactPage() {
   const emptyHint = useMemo(
     () =>
       lineCount === 0
-        ? 'Your RFQ has no line items yet. Search below or return to the catalog.'
+        ? 'Add products from the catalog, or search below to build a multi-line RFQ.'
         : null,
     [lineCount],
   )
@@ -201,9 +201,16 @@ function ContactPage() {
               Line items ({lineCount})
             </legend>
             {emptyHint ? (
-              <p className="rounded border border-dashed border-organza/40 bg-canvas px-3 py-3 text-sm text-velvet/65">
-                {emptyHint}
-              </p>
+              <div className="rounded border border-dashed border-organza/40 bg-canvas px-4 py-6 text-center">
+                <p className="text-sm font-semibold text-velvet">No line items yet</p>
+                <p className="mx-auto mt-1.5 max-w-[36ch] text-sm text-velvet/60">{emptyHint}</p>
+                <Link
+                  to="/catalog"
+                  className="btn btn-secondary mt-4 inline-flex no-underline hover:no-underline"
+                >
+                  Browse catalog
+                </Link>
+              </div>
             ) : null}
 
             <ul className="space-y-3">

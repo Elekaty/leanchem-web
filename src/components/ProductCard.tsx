@@ -16,19 +16,19 @@ export function ProductCard({ product }: ProductCardProps) {
   const stockLabel = product.inStock ? 'In stock' : 'Made to order'
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-lg border border-organza/30 bg-white transition hover:border-organza/55">
-      <div className="relative flex h-[100px] items-center justify-between gap-3 bg-[linear-gradient(135deg,#EEF4FA_0%,#F8FAFC_100%)] px-4">
-        <CategoryGlyph category={product.category || product.physicalState} width={48} height={48} />
+    <article className="flex flex-col overflow-hidden rounded border border-organza/30 bg-white transition hover:border-organza/55">
+      <div className="relative flex h-[92px] items-center justify-between gap-3 bg-[linear-gradient(135deg,#EEF4FA_0%,#F8FAFC_100%)] px-3.5">
+        <CategoryGlyph category={product.category || product.physicalState} width={44} height={44} />
         <span className="inline-flex h-8 w-8 items-center justify-center rounded bg-white shadow-sm ring-1 ring-black/8">
-          <HazardPictogramIcon type={product.hazard} width={22} height={22} />
+          <HazardPictogramIcon type={product.hazard} width={20} height={20} />
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
-        <p className="text-[0.7rem] font-semibold tracking-wide text-organza uppercase">
+      <div className="flex flex-1 flex-col p-3.5">
+        <p className="text-[0.68rem] font-semibold tracking-wide text-organza uppercase">
           {/^\d/.test(product.casNumber) ? `CAS ${product.casNumber}` : product.casNumber}
         </p>
-        <h3 className="mt-1 line-clamp-2 text-[0.95rem] font-bold leading-snug text-velvet">
+        <h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-[0.95rem] font-bold leading-snug text-velvet">
           <Link
             to="/catalog/$slug"
             params={{ slug: product.slug }}
@@ -37,11 +37,11 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </Link>
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-velvet/60">
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-velvet/60">
           {product.description}
         </p>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
           <span className="spec-pill" aria-label={`Packaging: ${packLabel}`}>
             {packLabel}
           </span>
@@ -52,32 +52,32 @@ export function ProductCard({ product }: ProductCardProps) {
           >
             {stockLabel}
           </span>
-          <span className="spec-pill max-w-[9rem] truncate" aria-label={`Grade: ${product.purity}`}>
-            {product.purity}
+          <span
+            className="spec-pill max-w-full"
+            title={product.purity}
+            aria-label={`Grade: ${product.purity}`}
+          >
+            <span className="line-clamp-1">{product.purity}</span>
           </span>
         </div>
 
-        <div className="mt-auto flex flex-wrap gap-2 pt-4">
+        <div className="mt-auto flex gap-2 pt-3.5">
           <button
             type="button"
-            className={`btn min-h-10 flex-1 px-3 text-xs ${
+            className={`btn h-11 min-h-11 flex-1 px-3 text-xs ${
               inRfq ? 'btn-secondary' : 'btn-primary'
             }`}
             onClick={() => {
               addProduct(product)
-              announce(
-                inRfq
-                  ? `${product.name} is in your RFQ.`
-                  : `Added ${product.name} to RFQ.`,
-              )
+              announce(inRfq ? 'Already in your RFQ' : 'Added to RFQ')
             }}
           >
-            {inRfq ? 'In RFQ ✓' : 'Add to RFQ'}
+            {inRfq ? 'In RFQ' : 'Add to RFQ'}
           </button>
           <Link
             to="/catalog/$slug"
             params={{ slug: product.slug }}
-            className="btn btn-secondary min-h-10 flex-1 px-3 text-xs no-underline hover:no-underline"
+            className="btn btn-secondary h-11 min-h-11 flex-1 px-3 text-xs no-underline hover:no-underline"
           >
             TDS / Specs
           </Link>
@@ -89,13 +89,13 @@ export function ProductCard({ product }: ProductCardProps) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-lg border border-organza/30 bg-white" aria-hidden="true">
-      <div className="skel h-[100px] rounded-none" />
-      <div className="space-y-3 p-4">
+    <div className="overflow-hidden rounded border border-organza/30 bg-white" aria-hidden="true">
+      <div className="skel h-[92px] rounded-none" />
+      <div className="space-y-2.5 p-3.5">
         <div className="skel h-3 w-24" />
         <div className="skel h-5 w-11/12" />
-        <div className="skel h-10 w-full" />
-        <div className="skel h-10 w-full" />
+        <div className="skel h-9 w-full" />
+        <div className="skel h-11 w-full" />
       </div>
     </div>
   )

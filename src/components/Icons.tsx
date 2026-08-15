@@ -132,12 +132,12 @@ export function CheckIcon(props: IconProps) {
 }
 
 const HAZARD_LABELS: Record<HazardPictogram, string> = {
-  flammable: 'Flammable',
-  corrosive: 'Corrosive',
-  toxic: 'Toxic',
-  irritant: 'Irritant',
-  health: 'Health hazard',
-  environment: 'Environmental hazard',
+  flammable: 'GHS hazard: Flammable',
+  corrosive: 'GHS hazard: Corrosive',
+  toxic: 'GHS hazard: Toxic',
+  irritant: 'GHS hazard: Irritant',
+  health: 'GHS hazard: Health hazard',
+  environment: 'GHS hazard: Environmental hazard',
 }
 
 export function CategoryGlyph({ category, ...props }: IconProps & { category: string }) {

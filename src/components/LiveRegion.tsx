@@ -26,7 +26,7 @@ export function LiveRegionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!toast) return
-    const t = window.setTimeout(() => setToast(null), 2600)
+    const t = window.setTimeout(() => setToast(null), 2400)
     return () => window.clearTimeout(t)
   }, [toast])
 
@@ -35,15 +35,16 @@ export function LiveRegionProvider({ children }: { children: ReactNode }) {
   return (
     <LiveRegionContext.Provider value={value}>
       {children}
-      <div className="sr-only" aria-live="assertive" aria-atomic="true" role="status">
+      <div className="sr-only" aria-live="polite" aria-atomic="true" role="status">
         {message}
       </div>
       {toast ? (
         <div
-          className="pointer-events-none fixed bottom-24 left-1/2 z-[70] w-[min(92vw,24rem)] -translate-x-1/2 md:bottom-8"
+          className="pointer-events-none fixed bottom-24 left-1/2 z-[70] w-[min(92vw,22rem)] -translate-x-1/2 md:bottom-8"
           role="status"
+          aria-live="polite"
         >
-          <p className="rounded-lg border border-lapis/25 bg-velvet px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-velvet/25">
+          <p className="rounded border border-white/10 bg-velvet/95 px-4 py-2.5 text-center text-sm font-semibold tracking-tight text-white shadow-[0_8px_24px_rgba(34,34,53,0.28)] backdrop-blur-sm">
             {toast}
           </p>
         </div>

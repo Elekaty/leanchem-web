@@ -145,7 +145,7 @@ function CatalogPage() {
   const loading = catalogLoading
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 md:px-6 md:pb-10">
       <nav aria-label="Breadcrumb" className="mb-4 text-sm text-organza">
         <Link to="/" className="text-lapis no-underline hover:underline">
           Home

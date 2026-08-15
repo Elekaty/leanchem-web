@@ -113,7 +113,7 @@ function HomePage() {
       </section>
 
       {/* Why */}
-      <section className="py-16" aria-labelledby="why-heading">
+      <section className="py-14 md:py-16" aria-labelledby="why-heading">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <h2 id="why-heading" className="text-[clamp(1.6rem,3vw,2.1rem)] font-bold text-velvet">
             Why LeanChem
@@ -122,7 +122,7 @@ function HomePage() {
             Built for procurement and technical buyers who need grades they can defend — and
             logistics they can plan.
           </p>
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <div className="mt-7 grid gap-5 md:grid-cols-2 md:gap-6">
             {WHY_ITEMS.map((item) => (
               <article key={item.title}>
                 <h3 className="text-lg font-bold text-lapis">{item.title}</h3>
@@ -134,7 +134,7 @@ function HomePage() {
       </section>
 
       {/* Industries */}
-      <section className="bg-organza/10 py-16" aria-labelledby="markets-heading">
+      <section className="bg-organza/10 py-14 md:py-16" aria-labelledby="markets-heading">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <h2 id="markets-heading" className="text-[clamp(1.6rem,3vw,2.1rem)] font-bold text-velvet">
             Industry catalog
@@ -142,33 +142,33 @@ function HomePage() {
           <p className="mt-2 max-w-[58ch] text-velvet/65">
             End-use markets with quote, sample, and SDS/TDS pathways into the live catalog.
           </p>
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <div className="mt-7 grid gap-4 md:grid-cols-2">
             {INDUSTRIES.map((ind) => (
               <article
                 key={ind.slug}
-                className="rounded-lg border border-organza/35 bg-white p-6"
+                className="rounded border border-organza/35 bg-white p-5 md:p-6"
               >
                 <h3 className="text-lg font-bold text-velvet">{ind.title}</h3>
-                <p className="mt-2 mb-5 leading-relaxed text-velvet/65">{ind.body}</p>
+                <p className="mt-2 mb-4 leading-relaxed text-velvet/65">{ind.body}</p>
                 <div className="flex flex-wrap gap-2">
                   <Link
                     to="/contact"
                     search={{ market: ind.slug }}
-                    className="btn btn-primary min-h-10 px-3.5 text-[0.88rem] no-underline hover:no-underline"
+                    className="btn btn-primary px-3.5 text-[0.88rem] no-underline hover:no-underline"
                   >
                     Quote
                   </Link>
                   <Link
                     to="/contact"
                     search={{ market: ind.slug, intent: 'sample' }}
-                    className="btn btn-secondary min-h-10 px-3.5 text-[0.88rem] no-underline hover:no-underline"
+                    className="btn btn-secondary px-3.5 text-[0.88rem] no-underline hover:no-underline"
                   >
                     Sample
                   </Link>
                   <Link
                     to="/catalog"
                     search={{ market: ind.slug }}
-                    className="btn btn-ghost min-h-10 px-3.5 text-[0.88rem] no-underline hover:no-underline"
+                    className="btn btn-ghost px-3.5 text-[0.88rem] no-underline hover:no-underline"
                   >
                     SDS / TDS
                   </Link>
@@ -180,12 +180,14 @@ function HomePage() {
       </section>
 
       {/* Trusted by */}
-      <section className="py-16" aria-labelledby="trusted-heading">
+      <section className="py-14 md:py-16" aria-labelledby="trusted-heading">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <h2 id="trusted-heading" className="text-[clamp(1.6rem,3vw,2.1rem)] font-bold text-velvet">
             Trusted by
           </h2>
-          <p className="mt-2 text-velvet/65">Logo placeholders — keep until client approvals land.</p>
+          <p className="mt-2 text-velvet/65">
+            Selected industrial buyers across Ethiopian manufacturing corridors.
+          </p>
           <ul className="mt-7 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-3">
             {CLIENT_LOGOS.map((name) => (
               <li
