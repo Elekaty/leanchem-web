@@ -71,12 +71,19 @@ export interface RfqBatchDetails {
   unit: RfqVolumeUnit
   packaging: RfqPreferredPackaging
   incoterms: RfqIncoterm
+  targetDeliveryDate: string
 }
 
 /** Structured payload ready for the quote API. */
 export interface RfqQuotePayload {
   reference: string
   submittedAt: string
+  buyer: {
+    contactName: string
+    companyName: string
+    email: string
+    phone: string
+  }
   items: Array<{
     productId: string
     slug: string

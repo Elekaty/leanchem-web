@@ -1,14 +1,14 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { useLiveRegion } from './LiveRegion'
-import { generateRfqReference, useRfq } from '../context/RfqContext'
+import { useRfq } from '../context/RfqContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { CloseIcon } from './Icons'
 import type {
   RfqIncoterm,
   RfqPreferredPackaging,
-  RfqQuotePayload,
   RfqVolumeUnit,
 } from '../types/catalog'
+import type { RfqSubmitResponse } from '../types/rfqSubmit'
 
 const VOLUME_UNITS: RfqVolumeUnit[] = ['MT', 'L', 'kg']
 const PACKAGING_OPTIONS: RfqPreferredPackaging[] = ['Drums', 'IBCs', 'Bags']
@@ -23,58 +23,111 @@ export function RfqCheckoutModal() {
   const panelRef = useRef<HTMLDivElement>(null)
   useFocusTrap(panelRef, checkoutOpen)
 
+  const [contactName, setContactName] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [expectedVolume, setExpectedVolume] = useState('')
   const [unit, setUnit] = useState<RfqVolumeUnit>('MT')
   const [packaging, setPackaging] = useState<RfqPreferredPackaging>('Drums')
   const [incoterms, setIncoterms] = useState<RfqIncoterm>('FOB')
-  const [submittedRef, setSubmittedRef] = useState<string | null>(null)
+  const [targetDeliveryDate, setTargetDeliveryDate] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [confirmation, setConfirmation] = useState<{
+    rfqId: string
+    reference: string
+  } | null>(null)
 
   if (!checkoutOpen) return null
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    setFormError(null)
+
     if (items.length === 0) {
-      announce('Add at least one chemical before submitting a quote request.')
+      const msg = 'Add at least one chemical before submitting a quote request.'
+      setFormError(msg)
+      announce(msg)
       return
     }
 
     const volume = Number(expectedVolume)
     if (!Number.isFinite(volume) || volume <= 0) {
-      announce('Enter a valid expected volume greater than zero.')
+      const msg = 'Enter a valid expected volume greater than zero.'
+      setFormError(msg)
+      announce(msg)
       return
     }
 
-    const reference = generateRfqReference()
-    const payload: RfqQuotePayload = {
-      reference,
-      submittedAt: new Date().toISOString(),
-      items: items.map((item) => ({
-        productId: item.productId,
-        slug: item.slug,
-        name: item.name,
-        casNumber: item.casNumber,
-        lineQuantity: item.quantity,
-        linePackaging: item.packaging,
-        lineNotes: item.notes,
-      })),
-      batch: {
-        expectedVolume: volume,
-        unit,
-        packaging,
-        incoterms,
-      },
+    if (!contactName.trim() || !companyName.trim() || !email.trim() || !phone.trim()) {
+      const msg = 'Please complete all buyer contact fields.'
+      setFormError(msg)
+      announce(msg)
+      return
     }
 
-    console.log(JSON.stringify(payload, null, 2))
-    console.log('[LeanChem RFQ] Quote payload', payload)
+    if (!targetDeliveryDate) {
+      const msg = 'Select a target delivery date.'
+      setFormError(msg)
+      announce(msg)
+      return
+    }
 
-    setSubmittedRef(reference)
-    clear()
-    announce(`Quote request ${reference} prepared. Payload logged to console.`)
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/rfq/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contactName: contactName.trim(),
+          companyName: companyName.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          volume,
+          unit,
+          packaging,
+          incoterms,
+          targetDeliveryDate,
+          items: items.map((item) => ({
+            productId: item.productId,
+            slug: item.slug,
+            name: item.name,
+            casNumber: item.casNumber,
+            quantity: item.quantity,
+            packaging: item.packaging,
+            notes: item.notes,
+          })),
+        }),
+      })
+
+      const data = (await res.json()) as RfqSubmitResponse
+
+      if (!res.ok || !data.success) {
+        const msg =
+          !data.success && 'error' in data
+            ? data.error
+            : 'Unable to submit RFQ. Please try again.'
+        setFormError(msg)
+        announce(msg)
+        return
+      }
+
+      clear()
+      setConfirmation({ rfqId: data.rfqId, reference: data.reference })
+      announce(`RFQ ${data.reference} submitted successfully.`)
+    } catch {
+      const msg = 'Network error while submitting RFQ. Please try again.'
+      setFormError(msg)
+      announce(msg)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const onClose = () => {
-    setSubmittedRef(null)
+    setConfirmation(null)
+    setFormError(null)
     closeCheckout()
   }
 
@@ -97,12 +150,14 @@ export function RfqCheckoutModal() {
         <header className="flex items-center justify-between border-b border-organza/30 px-5 py-4">
           <div>
             <h2 id="rfq-checkout-title" className="text-lg font-bold text-velvet">
-              Request Quote
+              {confirmation ? 'RFQ confirmed' : 'Request Quote'}
             </h2>
-            <p className="text-xs text-velvet/55">
-              Global order details for {items.length} chemical
-              {items.length === 1 ? '' : 's'}
-            </p>
+            {!confirmation ? (
+              <p className="text-xs text-velvet/55">
+                Global order details for {items.length} chemical
+                {items.length === 1 ? '' : 's'}
+              </p>
+            ) : null}
           </div>
           <button
             type="button"
@@ -115,21 +170,32 @@ export function RfqCheckoutModal() {
         </header>
 
         <div className="flex-1 overflow-y-auto px-5 py-5">
-          {submittedRef ? (
+          {confirmation ? (
             <div className="rounded border border-success/35 bg-success/5 p-5" role="status">
               <p className="text-xs font-semibold tracking-wide text-success uppercase">
-                Quote payload ready
+                Request received
               </p>
-              <p className="mt-2 text-xl font-bold text-velvet">{submittedRef}</p>
-              <p className="mt-2 text-sm leading-relaxed text-velvet/65">
-                Structured JSON was logged to the browser console for API handoff. Cart cleared.
+              <p className="mt-2 text-xl font-bold text-velvet">{confirmation.reference}</p>
+              <p className="mt-1 text-xs font-semibold text-velvet/50">
+                Internal ID · {confirmation.rfqId}
               </p>
+              <div className="mt-4 space-y-2 text-sm leading-relaxed text-velvet/70">
+                <p>
+                  We emailed a confirmation to your inbox. Technical sourcing is underway — a
+                  LeanChem specialist will follow up with availability and commercial options.
+                </p>
+                <ol className="list-decimal space-y-1 pl-5">
+                  <li>Watch for your confirmation email (and spam folder).</li>
+                  <li>Our desk reviews grades, packaging, and corridor timing.</li>
+                  <li>Expect a follow-up with SDS/TDS alignment and quote options.</li>
+                </ol>
+              </div>
               <button type="button" className="btn btn-primary mt-5" onClick={onClose}>
                 Done
               </button>
             </div>
           ) : (
-            <form id="rfq-checkout-form" className="space-y-6" onSubmit={onSubmit}>
+            <form id="rfq-checkout-form" className="space-y-6" onSubmit={(e) => void onSubmit(e)}>
               <section>
                 <h3 className="text-sm font-bold text-lapis">Selected chemicals</h3>
                 {items.length === 0 ? (
@@ -151,6 +217,54 @@ export function RfqCheckoutModal() {
                     ))}
                   </ul>
                 )}
+              </section>
+
+              <section className="space-y-4">
+                <h3 className="text-sm font-bold text-lapis">Buyer contact</h3>
+                <label className="block text-sm font-semibold text-velvet">
+                  Name
+                  <input
+                    required
+                    value={contactName}
+                    onChange={(e) => setContactName(e.target.value)}
+                    className={fieldClass}
+                    autoComplete="name"
+                  />
+                </label>
+                <label className="block text-sm font-semibold text-velvet">
+                  Company
+                  <input
+                    required
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className={fieldClass}
+                    autoComplete="organization"
+                  />
+                </label>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-semibold text-velvet">
+                    Email
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={fieldClass}
+                      autoComplete="email"
+                    />
+                  </label>
+                  <label className="block text-sm font-semibold text-velvet">
+                    Phone
+                    <input
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className={fieldClass}
+                      autoComplete="tel"
+                    />
+                  </label>
+                </div>
               </section>
 
               <section className="space-y-4">
@@ -214,24 +328,42 @@ export function RfqCheckoutModal() {
                     ))}
                   </select>
                 </label>
+
+                <label className="block text-sm font-semibold text-velvet">
+                  Target Delivery Date
+                  <input
+                    type="date"
+                    required
+                    value={targetDeliveryDate}
+                    onChange={(e) => setTargetDeliveryDate(e.target.value)}
+                    className={fieldClass}
+                  />
+                </label>
               </section>
+
+              {formError ? (
+                <p className="rounded border border-error/30 bg-error/5 px-3 py-2 text-sm text-error" role="alert">
+                  {formError}
+                </p>
+              ) : null}
             </form>
           )}
         </div>
 
-        {!submittedRef ? (
+        {!confirmation ? (
           <footer className="border-t border-organza/30 p-4">
             <button
               type="submit"
               form="rfq-checkout-form"
               className="btn btn-primary w-full"
-              disabled={items.length === 0}
+              disabled={items.length === 0 || submitting}
             >
-              Submit quote request
+              {submitting ? 'Submitting…' : 'Submit quote request'}
             </button>
             <button
               type="button"
               className="btn btn-ghost mt-2 w-full"
+              disabled={submitting}
               onClick={() => {
                 closeCheckout()
                 openDrawer()

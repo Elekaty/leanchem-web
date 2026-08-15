@@ -266,3 +266,30 @@ export function logsForPurchaseOrder(po: CorridorPurchaseOrder): CorridorLogEntr
 export function stepLabelForIndex(index: number): string {
   return CORRIDOR_STEPS[index]?.label ?? 'Unknown'
 }
+
+/** Map DB `current_stage` label → stepper index (0-based). */
+export function stageLabelToIndex(stage: string): number {
+  const normalized = stage.trim().toLowerCase()
+  const idx = CORRIDOR_STEPS.findIndex((s) => s.label.toLowerCase() === normalized)
+  return idx >= 0 ? idx : 0
+}
+
+export function stepIdForStageLabel(stage: string): CorridorStepId {
+  return CORRIDOR_STEPS[stageLabelToIndex(stage)]!.id
+}
+
+/** Build a timeline row for a Realtime / admin stage change. */
+export function makeStageUpdateLog(input: {
+  poNumber: string
+  stage: string
+  timestamp?: string
+}): CorridorLogEntry {
+  const timestamp = input.timestamp ?? new Date().toISOString()
+  return {
+    id: `rt-${input.poNumber}-${timestamp}-${Math.random().toString(36).slice(2, 8)}`,
+    poNumber: input.poNumber,
+    stepId: stepIdForStageLabel(input.stage),
+    timestamp,
+    message: `Stage updated to ${input.stage} by LeanChem Logistics`,
+  }
+}
