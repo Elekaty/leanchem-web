@@ -88,19 +88,19 @@ function HomePage() {
       </section>
 
       {/* Trust bar */}
-      <section className="bg-lapis text-white" aria-label="Trust signals">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-7 md:grid-cols-3 md:px-6">
+      <section className="bg-lapis text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]" aria-label="Trust signals">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 md:grid-cols-3 md:gap-8 md:px-6">
           {TRUST_ITEMS.map((item) => (
-            <div key={item.title}>
+            <div key={item.title} className="border-l-2 border-adamantine/50 pl-4">
               <p className="text-lg font-bold">{item.title}</p>
-              <p className="mt-1 text-sm text-white/80">{item.body}</p>
+              <p className="mt-1 text-sm leading-relaxed text-white/80">{item.body}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Why */}
-      <section className="py-14 md:py-16" aria-labelledby="why-heading">
+      <section className="bg-white py-16 md:py-20" aria-labelledby="why-heading">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <h2 id="why-heading" className="text-[clamp(1.6rem,3vw,2.1rem)] font-bold text-velvet">
             Why LeanChem
@@ -109,9 +109,12 @@ function HomePage() {
             Built for procurement and technical buyers who need grades they can defend — and
             logistics they can plan.
           </p>
-          <div className="mt-7 grid gap-5 md:grid-cols-2 md:gap-6">
+          <div className="mt-8 grid gap-4 md:grid-cols-2 md:gap-5">
             {WHY_ITEMS.map((item) => (
-              <article key={item.title}>
+              <article
+                key={item.title}
+                className="rounded border border-organza/25 bg-canvas/60 p-5 md:p-6"
+              >
                 <h3 className="text-lg font-bold text-lapis">{item.title}</h3>
                 <p className="mt-2 leading-relaxed text-velvet/65">{item.body}</p>
               </article>
@@ -121,7 +124,10 @@ function HomePage() {
       </section>
 
       {/* Industries */}
-      <section className="bg-organza/10 py-14 md:py-16" aria-labelledby="markets-heading">
+      <section
+        className="section-band bg-[linear-gradient(180deg,#F1F5F9_0%,#F8FAFC_100%)] py-16 md:py-20"
+        aria-labelledby="markets-heading"
+      >
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <h2 id="markets-heading" className="text-[clamp(1.6rem,3vw,2.1rem)] font-bold text-velvet">
             Industry catalog
@@ -129,33 +135,33 @@ function HomePage() {
           <p className="mt-2 max-w-[58ch] text-velvet/65">
             End-use markets with quote, sample, and SDS/TDS pathways into the live catalog.
           </p>
-          <div className="mt-7 grid gap-4 md:grid-cols-2">
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
             {INDUSTRIES.map((ind) => (
               <article
                 key={ind.slug}
-                className="rounded border border-organza/35 bg-white p-5 md:p-6"
+                className="rounded border border-organza/30 bg-white p-5 shadow-[0_1px_2px_rgba(34,34,53,0.04)] md:p-6"
               >
                 <h3 className="text-lg font-bold text-velvet">{ind.title}</h3>
-                <p className="mt-2 mb-4 leading-relaxed text-velvet/65">{ind.body}</p>
+                <p className="mt-2 mb-5 leading-relaxed text-velvet/65">{ind.body}</p>
                 <div className="flex flex-wrap gap-2">
                   <Link
                     to="/contact"
                     search={{ market: ind.slug }}
-                    className="btn btn-primary px-3.5 text-[0.88rem] no-underline hover:no-underline"
+                    className="btn btn-primary h-10 min-h-10 px-3.5 text-[0.88rem] no-underline hover:no-underline"
                   >
                     Quote
                   </Link>
                   <Link
                     to="/contact"
                     search={{ market: ind.slug, intent: 'sample' }}
-                    className="btn btn-secondary px-3.5 text-[0.88rem] no-underline hover:no-underline"
+                    className="btn btn-secondary h-10 min-h-10 px-3.5 text-[0.88rem] no-underline hover:no-underline"
                   >
                     Sample
                   </Link>
                   <Link
                     to="/catalog"
                     search={{ market: ind.slug }}
-                    className="btn btn-ghost px-3.5 text-[0.88rem] no-underline hover:no-underline"
+                    className="btn btn-ghost h-10 min-h-10 px-3.5 text-[0.88rem] no-underline hover:no-underline"
                   >
                     SDS / TDS
                   </Link>
@@ -167,7 +173,7 @@ function HomePage() {
       </section>
 
       {/* Trusted by */}
-      <section className="py-14 md:py-16" aria-labelledby="trusted-heading">
+      <section className="bg-white py-16 md:py-20" aria-labelledby="trusted-heading">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <h2 id="trusted-heading" className="text-[clamp(1.6rem,3vw,2.1rem)] font-bold text-velvet">
             Trusted by
@@ -175,11 +181,11 @@ function HomePage() {
           <p className="mt-2 text-velvet/65">
             Selected industrial buyers across Ethiopian manufacturing corridors.
           </p>
-          <ul className="mt-7 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-3">
+          <ul className="mt-8 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-3">
             {CLIENT_LOGOS.map((name) => (
               <li
                 key={name}
-                className="grid min-h-[72px] place-items-center rounded-md border border-dashed border-organza/45 bg-white px-3 text-center text-sm font-semibold text-velvet/55"
+                className="grid min-h-[72px] place-items-center rounded border border-organza/30 bg-canvas/50 px-3 text-center text-sm font-semibold text-velvet/60"
               >
                 {name}
               </li>
@@ -189,7 +195,7 @@ function HomePage() {
             {TESTIMONIALS.map((t) => (
               <blockquote
                 key={t.org}
-                className="m-0 rounded-r-lg border-l-[3px] border-adamantine bg-white p-5"
+                className="m-0 rounded border border-organza/20 border-l-[3px] border-l-adamantine bg-canvas/40 p-5"
               >
                 <p className="leading-relaxed text-velvet">“{t.quote}”</p>
                 <footer className="mt-3 text-sm text-velvet/55">
@@ -202,7 +208,10 @@ function HomePage() {
       </section>
 
       {/* Logistics */}
-      <section className="bg-organza/10 py-14 md:py-16" aria-labelledby="logistics-heading">
+      <section
+        className="section-band bg-[linear-gradient(180deg,#EEF2F7_0%,#F8FAFC_100%)] py-16 md:py-20"
+        aria-labelledby="logistics-heading"
+      >
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <h2
             id="logistics-heading"

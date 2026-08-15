@@ -14,7 +14,7 @@ export function RfqFloatingCart() {
     <button
       type="button"
       onClick={openDrawer}
-      className="fixed right-5 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-lapis text-white shadow-[0_10px_28px_rgba(30,88,151,0.4)] transition hover:bg-[#184a7f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-adamantine md:right-6"
+      className="fixed right-5 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-lapis text-white shadow-[0_10px_28px_rgba(30,88,151,0.45)] ring-2 ring-white/90 transition hover:bg-[#184a7f] hover:shadow-[0_12px_32px_rgba(30,88,151,0.5)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-adamantine md:right-6"
       aria-label={
         itemCount > 0
           ? `Open RFQ cart, ${itemCount} item${itemCount === 1 ? '' : 's'}`

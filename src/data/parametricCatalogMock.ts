@@ -1,4 +1,6 @@
-/** Demo chemicals for parametric catalog filtering (Task 2). */
+/** Demo chemicals for parametric catalog filtering. */
+
+import type { HazardPictogram } from '../types/catalog'
 
 export const MARKET_APPLICATIONS = [
   'Paints & Coatings',
@@ -18,6 +20,13 @@ export interface ParametricChemical {
   casNumber: string
   markets: MarketApplication[]
   grade: ChemicalGrade
+  /** One-line buyer-facing technical summary. */
+  description: string
+  purity: string
+  packaging: string
+  physicalState: string
+  inStock: boolean
+  hazards: HazardPictogram[]
   sdsUrl: string
   tdsUrl: string
   slug: string
@@ -31,6 +40,13 @@ export const PARAMETRIC_CATALOG_MOCK: ParametricChemical[] = [
     casNumber: '13463-67-7',
     markets: ['Paints & Coatings', 'Plastics'],
     grade: 'Industrial',
+    description:
+      'High-opacity rutile pigment for architectural coatings and polymer masterbatch.',
+    purity: '≥98.5% TiO₂',
+    packaging: '25 kg bag',
+    physicalState: 'Solid',
+    inStock: true,
+    hazards: ['irritant'],
     sdsUrl: '/docs/sds-placeholder.pdf',
     tdsUrl: '/docs/tds-placeholder.pdf',
     slug: 'titanium-dioxide-rutile',
@@ -41,6 +57,13 @@ export const PARAMETRIC_CATALOG_MOCK: ParametricChemical[] = [
     casNumber: '1310-73-2',
     markets: ['Water Treatment', 'Construction'],
     grade: 'Tech',
+    description:
+      'Caustic pellets for pH control, cleaning circuits, and water treatment dosing.',
+    purity: '≥99.0%',
+    packaging: '25 kg bag',
+    physicalState: 'Solid',
+    inStock: true,
+    hazards: ['corrosive'],
     sdsUrl: '/docs/sds-placeholder.pdf',
     tdsUrl: '/docs/tds-placeholder.pdf',
     slug: 'sodium-hydroxide-pellets',
@@ -51,6 +74,13 @@ export const PARAMETRIC_CATALOG_MOCK: ParametricChemical[] = [
     casNumber: '67-63-0',
     markets: ['Paints & Coatings', 'Plastics'],
     grade: 'Tech',
+    description:
+      'Fast-evaporating solvent for coatings thinning, wipe-down, and process cleaning.',
+    purity: '≥99.5%',
+    packaging: '200 L drum',
+    physicalState: 'Liquid',
+    inStock: true,
+    hazards: ['flammable', 'irritant'],
     sdsUrl: '/docs/sds-placeholder.pdf',
     tdsUrl: '/docs/tds-placeholder.pdf',
     slug: 'isopropyl-alcohol',
@@ -61,6 +91,13 @@ export const PARAMETRIC_CATALOG_MOCK: ParametricChemical[] = [
     casNumber: '10043-52-4',
     markets: ['Construction', 'Water Treatment'],
     grade: 'Industrial',
+    description:
+      'Hygroscopic salt for concrete acceleration, dust control, and brine systems.',
+    purity: '≥94%',
+    packaging: '25 kg bag',
+    physicalState: 'Solid',
+    inStock: false,
+    hazards: ['irritant'],
     sdsUrl: '/docs/sds-placeholder.pdf',
     tdsUrl: '/docs/tds-placeholder.pdf',
     slug: 'calcium-chloride-anhydrous',
@@ -71,6 +108,13 @@ export const PARAMETRIC_CATALOG_MOCK: ParametricChemical[] = [
     casNumber: '5949-29-1',
     markets: ['Water Treatment'],
     grade: 'Food',
+    description:
+      'Food-grade acidulant for CIP, descaling, and water-treatment chelation programs.',
+    purity: '≥99.5%',
+    packaging: '25 kg bag',
+    physicalState: 'Solid',
+    inStock: true,
+    hazards: ['irritant'],
     sdsUrl: '/docs/sds-placeholder.pdf',
     tdsUrl: '/docs/tds-placeholder.pdf',
     slug: 'citric-acid-monohydrate',
@@ -81,6 +125,13 @@ export const PARAMETRIC_CATALOG_MOCK: ParametricChemical[] = [
     casNumber: '108-88-3',
     markets: ['Paints & Coatings', 'Plastics'],
     grade: 'Industrial',
+    description:
+      'Aromatic solvent for alkyd systems, adhesives, and industrial thinning.',
+    purity: '≥99.5%',
+    packaging: '200 L drum',
+    physicalState: 'Liquid',
+    inStock: false,
+    hazards: ['flammable', 'health', 'irritant'],
     sdsUrl: '/docs/sds-placeholder.pdf',
     tdsUrl: '/docs/tds-placeholder.pdf',
     slug: 'toluene',

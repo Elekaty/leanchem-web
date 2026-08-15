@@ -33,11 +33,11 @@ export function ParametricCatalogSidebar({
   const activeFilters = value.markets.length + value.grades.length + (value.query.trim() ? 1 : 0)
 
   return (
-    <aside className="rounded border border-organza/30 bg-white p-4 lg:sticky lg:top-24">
+    <aside className="rounded border border-organza/30 bg-white p-4 shadow-[0_1px_2px_rgba(34,34,53,0.04)] lg:sticky lg:top-24">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="text-sm font-bold text-velvet">Filters</h2>
-        <p className="text-xs font-semibold text-velvet/50">
-          {resultCount} of {totalCount}
+        <p className="rounded bg-canvas px-2 py-0.5 text-xs font-semibold text-velvet/60">
+          {resultCount}/{totalCount}
         </p>
       </div>
 

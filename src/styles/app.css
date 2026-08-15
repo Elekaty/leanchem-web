@@ -36,11 +36,11 @@
   }
 
   .btn-primary {
-    @apply bg-lapis text-white hover:bg-[#184a7f] hover:no-underline;
+    @apply bg-lapis text-white shadow-[0_1px_2px_rgba(30,88,151,0.25)] hover:bg-[#184a7f] hover:shadow-[0_2px_6px_rgba(30,88,151,0.28)] hover:no-underline;
   }
 
   .btn-secondary {
-    @apply border border-organza bg-transparent text-lapis hover:border-adamantine hover:text-adamantine hover:no-underline;
+    @apply border border-organza/70 bg-white text-lapis hover:border-lapis hover:bg-canvas hover:no-underline;
   }
 
   .btn-ghost {
@@ -48,11 +48,43 @@
   }
 
   .btn-hero-ghost {
-    @apply border border-white/40 bg-white/10 text-white hover:border-adamantine hover:no-underline;
+    @apply border border-white/40 bg-white/10 text-white hover:border-adamantine hover:bg-white/15 hover:no-underline;
   }
 
   .spec-pill {
     @apply inline-flex max-w-full items-center rounded border border-organza/35 bg-canvas px-2 py-0.5 text-[0.7rem] font-semibold text-velvet;
+  }
+
+  .badge {
+    @apply inline-flex max-w-full items-center rounded px-2 py-0.5 text-[0.68rem] font-semibold tracking-wide;
+  }
+
+  .badge-stock {
+    @apply border border-emerald-200/80 bg-emerald-50 text-emerald-800;
+  }
+
+  .badge-mto {
+    @apply border border-amber-200/90 bg-amber-50 text-amber-900;
+  }
+
+  .badge-neutral {
+    @apply border border-organza/30 bg-canvas text-velvet/75;
+  }
+
+  .catalog-card {
+    @apply shadow-[0_1px_2px_rgba(34,34,53,0.04)] transition duration-200 ease-out;
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .catalog-card:hover {
+      @apply border-organza/50;
+      box-shadow: 0 4px 14px rgba(34, 34, 53, 0.08);
+      transform: translateY(-1px);
+    }
+  }
+
+  .section-band {
+    @apply border-y border-organza/20;
   }
 
   .status-chip {
