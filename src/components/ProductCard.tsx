@@ -11,7 +11,9 @@ export function ProductCard({ product }: ProductCardProps) {
     <article className="flex flex-col overflow-hidden rounded-lg border border-organza/35 bg-white">
       <div className="relative flex h-[120px] items-center justify-between gap-3 bg-[linear-gradient(135deg,#EEF4FA_0%,#F8FAFC_100%)] px-4">
         <CategoryGlyph category={product.category || product.physicalState} width={56} height={56} />
-        <HazardPictogramIcon type={product.hazard} width={36} height={36} />
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded bg-white shadow-sm ring-1 ring-black/10">
+          <HazardPictogramIcon type={product.hazard} width={24} height={24} />
+        </span>
       </div>
 
       <div className="flex flex-1 flex-col p-4">
@@ -34,6 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className={`spec-pill ${product.inStock ? 'border-success/40 text-success' : ''}`}>
             {product.inStock ? 'In stock' : 'Made to order'}
           </span>
+          <span className="spec-pill">{product.purity}</span>
         </div>
 
         <div className="mt-auto flex flex-wrap gap-2 pt-4">

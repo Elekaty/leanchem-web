@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { CatalogTypeahead } from '../components/CatalogTypeahead'
 import { LogisticsFeed } from '../components/LogisticsFeed'
 import {
   CLIENT_LOGOS,
@@ -26,18 +26,6 @@ export const Route = createFileRoute('/')({
 })
 
 function HomePage() {
-  const navigate = useNavigate()
-  const [query, setQuery] = useState('')
-
-  const onSearch = (e: FormEvent) => {
-    e.preventDefault()
-    const q = query.trim()
-    void navigate({
-      to: '/catalog',
-      search: q ? { q } : {},
-    })
-  }
-
   return (
     <div>
       {/* Hero — full bleed */}
@@ -68,26 +56,13 @@ function HomePage() {
             {SITE.valueProp}
           </p>
 
-          <form
-            className="mt-7 flex max-w-xl flex-col gap-2 rounded-md bg-white/95 p-2 sm:flex-row"
-            onSubmit={onSearch}
-            role="search"
-          >
-            <label className="sr-only" htmlFor="home-search">
-              Search catalog
-            </label>
-            <input
+          <div className="mt-7 max-w-xl rounded-md bg-white/95 p-2" role="search">
+            <CatalogTypeahead
               id="home-search"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              navigateOnSelect
               placeholder="Search by product name, grade, or CAS number…"
-              className="min-h-11 flex-1 border-0 bg-transparent px-3 text-velvet outline-none"
             />
-            <button type="submit" className="btn btn-primary">
-              Search
-            </button>
-          </form>
+          </div>
 
           <div className="mt-4 flex flex-wrap gap-2.5">
             <Link to="/contact" className="btn btn-primary no-underline hover:no-underline">

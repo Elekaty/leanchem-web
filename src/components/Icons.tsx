@@ -176,6 +176,7 @@ export function CategoryGlyph({ category, ...props }: IconProps & { category: st
   )
 }
 
+/** GHS-style diamond: red border, white face, black pictogram — high contrast at 24×24. */
 export function HazardPictogramIcon({
   type,
   ...props
@@ -183,49 +184,49 @@ export function HazardPictogramIcon({
   return (
     <svg
       viewBox="0 0 48 48"
-      width="40"
-      height="40"
+      width="24"
+      height="24"
       role="img"
       aria-label={HAZARD_LABELS[type]}
       {...props}
     >
-      <path d="M24 4 44 24 24 44 4 24Z" fill="#F5C518" stroke="#222235" strokeWidth="2" />
+      <path d="M24 3 45 24 24 45 3 24Z" fill="#FFFFFF" stroke="#C8102E" strokeWidth="3.5" />
       {type === 'flammable' && (
         <path
-          d="M24 14c2 4-2 6 0 10 3-2 6 1 6 5a6 6 0 1 1-12 0c0-5 4-8 6-15Z"
-          fill="#222235"
+          d="M24 12c2 4-2 6 0 10 3-2 6 1 6 5a6 6 0 1 1-12 0c0-5 4-8 6-15Z"
+          fill="#000000"
         />
       )}
       {type === 'corrosive' && (
         <>
-          <path d="M16 18h6v8H16zM26 18h6v8h-6z" fill="#222235" />
-          <path d="M14 30h20l-3 6H17z" fill="#222235" />
+          <path d="M15 16h7v8H15zM26 16h7v8h-7z" fill="#000000" />
+          <path d="M13 29h22l-3.5 7H16.5z" fill="#000000" />
         </>
       )}
       {type === 'toxic' && (
         <>
-          <circle cx="24" cy="20" r="6" fill="#222235" />
-          <path d="M18 28h12l-2 8h-8z" fill="#222235" />
-          <circle cx="21.5" cy="19" r="1.2" fill="#F5C518" />
-          <circle cx="26.5" cy="19" r="1.2" fill="#F5C518" />
+          <circle cx="24" cy="19" r="6.5" fill="#000000" />
+          <path d="M17 28h14l-2.5 9h-9z" fill="#000000" />
+          <circle cx="21.2" cy="18" r="1.3" fill="#FFFFFF" />
+          <circle cx="26.8" cy="18" r="1.3" fill="#FFFFFF" />
         </>
       )}
       {type === 'irritant' && (
         <path
-          d="M24 15v10M24 30.5v.5M17 20l14 8M31 20 17 28"
-          stroke="#222235"
-          strokeWidth="2.2"
+          d="M24 13v11M24 29.5v1M16 18l16 9M32 18 16 27"
+          stroke="#000000"
+          strokeWidth="2.4"
           strokeLinecap="round"
         />
       )}
       {type === 'health' && (
-        <path d="M24 14c4 4 8 7 8 12a8 8 0 1 1-16 0c0-5 4-8 8-12Z" fill="#222235" />
+        <path d="M24 12c4.5 4.5 9 8 9 13.5a9 9 0 1 1-18 0C15 20 19.5 16.5 24 12Z" fill="#000000" />
       )}
       {type === 'environment' && (
         <>
-          <path d="M14 28c4-8 16-8 20 0" stroke="#222235" strokeWidth="2" fill="none" />
-          <circle cx="24" cy="22" r="4" fill="#222235" />
-          <path d="M20 32h8" stroke="#222235" strokeWidth="2" strokeLinecap="round" />
+          <path d="M12 28c5-9 19-9 24 0" stroke="#000000" strokeWidth="2.4" fill="none" />
+          <circle cx="24" cy="21" r="4.5" fill="#000000" />
+          <path d="M18 33h12" stroke="#000000" strokeWidth="2.4" strokeLinecap="round" />
         </>
       )}
     </svg>
