@@ -5,7 +5,10 @@ import {
   Outlet,
   Scripts,
   createRootRoute,
+  useRouterState,
 } from '@tanstack/react-router'
+import { LiveRegionProvider } from '../components/LiveRegion'
+import { AuthProvider } from '../context/AuthContext'
 import { SITE } from '../data/marketing'
 import appCss from '../styles/app.css?url'
 
@@ -29,7 +32,7 @@ export const Route = createRootRoute({
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
       {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap',
       },
     ],
   }),
@@ -37,15 +40,28 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const isPortal = pathname.startsWith('/portal')
+
   return (
     <RootDocument>
-      <SiteHeader />
-      <main className="w-full flex-1 pb-24 md:pb-0">
-        <Outlet />
-      </main>
-      <SiteFooter />
-      <FloatingChat />
-      <StickyMobileCta />
+      <AuthProvider>
+        <LiveRegionProvider>
+          {isPortal ? (
+            <Outlet />
+          ) : (
+            <>
+              <SiteHeader />
+              <main className="w-full flex-1 bg-canvas pb-24 md:pb-0">
+                <Outlet />
+              </main>
+              <SiteFooter />
+              <FloatingChat />
+              <StickyMobileCta />
+            </>
+          )}
+        </LiveRegionProvider>
+      </AuthProvider>
     </RootDocument>
   )
 }
@@ -56,7 +72,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="flex min-h-dvh flex-col bg-canvas text-velvet">
+      <body className="flex min-h-dvh flex-col bg-canvas font-sans text-velvet">
         {children}
         <Scripts />
       </body>
@@ -139,9 +155,7 @@ function SiteFooter() {
           </p>
         </div>
         <div className="flex flex-col gap-2 text-sm">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-organza">
-            Explore
-          </p>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-organza">Explore</p>
           <Link to="/catalog" className="text-adamantine no-underline hover:underline">
             Catalog
           </Link>
@@ -159,9 +173,7 @@ function SiteFooter() {
           </Link>
         </div>
         <div className="flex flex-col gap-2 text-sm">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-organza">
-            Contact
-          </p>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-organza">Contact</p>
           <a
             href={`mailto:${SITE.emails.commercial}`}
             className="text-adamantine no-underline hover:underline"
@@ -199,10 +211,7 @@ function SiteFooter() {
 function StickyMobileCta() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-organza/30 bg-white/95 p-3 backdrop-blur md:hidden">
-      <Link
-        to="/contact"
-        className="btn btn-primary flex w-full no-underline hover:no-underline"
-      >
+      <Link to="/contact" className="btn btn-primary flex w-full no-underline hover:no-underline">
         Request Quote
       </Link>
     </div>
@@ -212,7 +221,7 @@ function StickyMobileCta() {
 function FloatingChat() {
   const [open, setOpen] = useState(false)
   return (
-    <div className="fixed bottom-24 right-5 z-50 flex flex-col items-end gap-2 md:bottom-6">
+    <div className="fixed right-5 bottom-24 z-50 flex flex-col items-end gap-2 md:bottom-6">
       {open ? (
         <div
           className="flex w-52 flex-col gap-2 rounded-lg border border-organza/30 bg-white p-3 shadow-xl"

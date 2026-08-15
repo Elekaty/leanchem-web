@@ -1,4 +1,7 @@
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useLiveRegion } from '../components/LiveRegion'
+import { MOCK_PRODUCTS } from '../data/mockProducts'
 
 type ContactSearch = {
   product?: string
@@ -15,14 +18,38 @@ export const Route = createFileRoute('/contact')({
     cas: typeof search.cas === 'string' ? search.cas : undefined,
   }),
   head: () => ({
-    meta: [{ title: 'Request Quote | LeanChem' }],
+    meta: [
+      { title: 'Request Quote | LeanChem' },
+      {
+        name: 'description',
+        content:
+          'Structured RFQ for LeanChem — company identity, product, volume, delivery date, and location.',
+      },
+    ],
   }),
   component: ContactPage,
 })
 
 function ContactPage() {
-  const { product, market, intent, cas } = Route.useSearch()
+  const { product, market, intent } = Route.useSearch()
+  const { announce } = useLiveRegion()
   const title = intent === 'sample' ? 'Request a sample' : 'Request a quote'
+  const initialSlug = useMemo(() => {
+    if (product && MOCK_PRODUCTS.some((p) => p.slug === product)) return product
+    return MOCK_PRODUCTS[0]?.slug ?? ''
+  }, [product])
+  const [selectedProduct, setSelectedProduct] = useState(initialSlug)
+  const [submitted, setSubmitted] = useState(false)
+
+  useEffect(() => {
+    setSelectedProduct(initialSlug)
+  }, [initialSlug])
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    setSubmitted(true)
+    announce('RFQ submitted successfully. Our commercial team will respond shortly.')
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 md:px-6">
@@ -35,66 +62,117 @@ function ContactPage() {
       </nav>
       <h1 className="text-3xl font-bold tracking-tight text-velvet">{title}</h1>
       <p className="mt-2 text-velvet/65">
-        Public RFQ route — company, product, volume, and delivery terms. Supabase insert wires in
-        Phase 3.
+        Structured RFQ — company identity, product, estimated volume, target delivery date, and
+        delivery location.
       </p>
-      <form
-        className="mt-8 space-y-4 rounded-lg border border-organza/30 bg-white p-6"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <label className="block text-sm font-semibold">
-          Company
-          <input
-            required
-            name="company"
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
-          />
-        </label>
-        <div className="grid gap-4 sm:grid-cols-2">
+
+      {submitted ? (
+        <div
+          className="mt-8 rounded-lg border border-success/40 bg-success/5 p-6"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="font-bold text-success">RFQ received</p>
+          <p className="mt-2 text-sm text-velvet/70">
+            We will confirm packaging and corridor options for your selected grade.
+          </p>
+          <Link
+            to="/catalog"
+            className="btn btn-secondary mt-4 no-underline hover:no-underline"
+          >
+            Return to catalog
+          </Link>
+        </div>
+      ) : (
+        <form
+          className="mt-8 space-y-4 rounded-lg border border-organza/30 bg-white p-6"
+          onSubmit={onSubmit}
+        >
+          <fieldset className="space-y-4">
+            <legend className="text-sm font-bold text-lapis">Company identity</legend>
+            <label className="block text-sm font-semibold">
+              Company name
+              <input
+                required
+                name="company"
+                className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+              />
+            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block text-sm font-semibold">
+                Contact name
+                <input
+                  required
+                  name="contactName"
+                  className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+                />
+              </label>
+              <label className="block text-sm font-semibold">
+                Work email
+                <input
+                  required
+                  type="email"
+                  name="email"
+                  className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+                />
+              </label>
+            </div>
+          </fieldset>
+
           <label className="block text-sm font-semibold">
             Product
-            <input
+            <select
               name="product"
-              defaultValue={product ?? ''}
+              required
+              value={selectedProduct}
+              onChange={(e) => setSelectedProduct(e.target.value)}
               className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
-            />
+            >
+              {MOCK_PRODUCTS.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.name} (CAS {p.casNumber})
+                </option>
+              ))}
+            </select>
           </label>
+
           <label className="block text-sm font-semibold">
-            CAS
+            Estimated volume
             <input
-              name="cas"
-              defaultValue={cas ?? ''}
+              required
+              name="volume"
+              placeholder="e.g. 4 × 200 L drums / month"
               className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
             />
           </label>
-        </div>
-        <label className="block text-sm font-semibold">
-          Volume
-          <input
-            name="volume"
-            placeholder="e.g. 4 × 200 L drums / month"
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
-          />
-        </label>
-        <label className="block text-sm font-semibold">
-          Delivery terms
-          <select
-            name="deliveryTerms"
-            defaultValue="CIF Djibouti"
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
-          >
-            <option>CIF Djibouti</option>
-            <option>DAP Addis Ababa</option>
-            <option>Ex Works</option>
-          </select>
-        </label>
-        {market ? (
-          <input type="hidden" name="market" value={market} />
-        ) : null}
-        <button type="submit" className="btn btn-primary">
-          Submit RFQ
-        </button>
-      </form>
+
+          <label className="block text-sm font-semibold">
+            Target delivery date
+            <input
+              required
+              type="date"
+              name="deliveryDate"
+              className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+            />
+          </label>
+
+          <label className="block text-sm font-semibold">
+            Delivery location
+            <input
+              required
+              name="deliveryLocation"
+              placeholder="e.g. Bole Lemi Industrial Park, Addis Ababa"
+              className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+            />
+          </label>
+
+          {market ? <input type="hidden" name="market" value={market} /> : null}
+
+          <button type="submit" className="btn btn-primary">
+            Submit RFQ
+          </button>
+        </form>
+      )}
     </div>
   )
 }

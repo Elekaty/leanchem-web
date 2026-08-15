@@ -1,5 +1,8 @@
+import { useEffect, useMemo, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { ProductCard, ProductCardSkeleton } from '../../components/ProductCard'
 import { INDUSTRIES } from '../../data/marketing'
+import { filterProducts } from '../../data/mockProducts'
 
 type CatalogSearch = {
   q?: string
@@ -12,7 +15,14 @@ export const Route = createFileRoute('/catalog/')({
     market: typeof search.market === 'string' ? search.market : undefined,
   }),
   head: () => ({
-    meta: [{ title: 'Catalog & Markets | LeanChem' }],
+    meta: [
+      { title: 'Chemical Catalog | LeanChem' },
+      {
+        name: 'description',
+        content:
+          'Browse industrial chemical grades for Ethiopian procurement — packaging, stock status, TDS/SDS, and RFQ.',
+      },
+    ],
   }),
   component: CatalogPage,
 })
@@ -20,6 +30,15 @@ export const Route = createFileRoute('/catalog/')({
 function CatalogPage() {
   const { q, market } = Route.useSearch()
   const marketLabel = INDUSTRIES.find((i) => i.slug === market)?.title
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    setLoading(true)
+    const t = window.setTimeout(() => setLoading(false), 400)
+    return () => window.clearTimeout(t)
+  }, [q, market])
+
+  const products = useMemo(() => filterProducts({ q, market }), [q, market])
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
@@ -38,8 +57,8 @@ function CatalogPage() {
       </nav>
       <h1 className="text-3xl font-bold tracking-tight text-velvet">Chemical Catalog</h1>
       <p className="mt-2 max-w-2xl text-velvet/65">
-        Browse industrial grades for Ethiopian procurement. Product cards and filters from Phase 2
-        will hydrate this grid — search and market deep-links already work.
+        Discrete product cards with hazard identity, packaging status, and direct quote or TDS
+        pathways.
       </p>
       {(q || market) && (
         <p className="mt-4 rounded border border-organza/30 bg-white px-4 py-3 text-sm text-velvet/70">
@@ -49,43 +68,18 @@ function CatalogPage() {
           {market ? <strong className="text-lapis">{marketLabel ?? market}</strong> : null}
         </p>
       )}
+
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {['example-chemical', 'sodium-hydroxide-pellets', 'isopropyl-alcohol-hplc'].map(
-          (slug) => (
-            <article
-              key={slug}
-              className="flex flex-col rounded-lg border border-organza/35 bg-white p-5"
-            >
-              <h2 className="text-lg font-bold text-velvet capitalize">
-                <Link
-                  to="/catalog/$slug"
-                  params={{ slug }}
-                  className="text-velvet no-underline hover:text-lapis hover:no-underline"
-                >
-                  {slug.replace(/-/g, ' ')}
-                </Link>
-              </h2>
-              <p className="mt-2 text-sm text-velvet/60">Placeholder card — Phase 2 data.</p>
-              <div className="mt-auto flex flex-wrap gap-2 pt-4">
-                <Link
-                  to="/catalog/$slug"
-                  params={{ slug }}
-                  className="btn btn-secondary min-h-10 px-3 text-xs no-underline hover:no-underline"
-                >
-                  View specs
-                </Link>
-                <Link
-                  to="/contact"
-                  search={{ product: slug }}
-                  className="btn btn-primary min-h-10 px-3 text-xs no-underline hover:no-underline"
-                >
-                  Request quote
-                </Link>
-              </div>
-            </article>
-          ),
-        )}
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)
+          : products.map((product) => <ProductCard key={product.id} product={product} />)}
       </div>
+
+      {!loading && products.length === 0 ? (
+        <p className="mt-8 rounded-lg border border-organza/30 bg-white px-4 py-8 text-center text-sm text-velvet/65">
+          No products match the current filters.
+        </p>
+      ) : null}
     </div>
   )
 }

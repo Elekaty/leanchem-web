@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { LogisticsFeed } from '../components/LogisticsFeed'
 import {
   CLIENT_LOGOS,
   INDUSTRIES,
-  LOGISTICS_UPDATES,
   SITE,
   TESTIMONIALS,
   TRUST_ITEMS,
@@ -231,41 +231,10 @@ function HomePage() {
             Live logistics
           </h2>
           <p className="mt-2 text-velvet/65">
-            Corridor and status-style updates for inbound planning.
+            Vertically scrolling feed of active regional corridors with status chips and timestamps.
           </p>
-          <div className="mt-8 flex flex-col gap-3">
-            {LOGISTICS_UPDATES.map((row) => {
-              const statusKey = row.status.toLowerCase().replace(/\s+/g, '-')
-              const statusClass =
-                statusKey === 'watch'
-                  ? 'bg-error/10 text-error'
-                  : 'bg-success/10 text-success'
-              return (
-                <article
-                  key={row.id}
-                  className="flex flex-col justify-between gap-4 rounded-lg border border-organza/35 bg-white px-5 py-4 md:flex-row md:items-center"
-                >
-                  <div>
-                    <p className="font-bold text-lapis">{row.corridor}</p>
-                    <p className="mt-1 text-sm text-velvet/70">{row.summary}</p>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-start gap-2 md:items-end">
-                    <span
-                      className={`rounded px-2 py-1 text-xs font-semibold ${statusClass}`}
-                    >
-                      {row.status}
-                    </span>
-                    <Link
-                      to="/news/$slug"
-                      params={{ slug: row.articleSlug }}
-                      className="text-sm font-semibold text-adamantine no-underline hover:underline"
-                    >
-                      Read update
-                    </Link>
-                  </div>
-                </article>
-              )
-            })}
+          <div className="mt-8">
+            <LogisticsFeed />
           </div>
         </div>
       </section>

@@ -12,12 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as AdminDocumentsRouteImport } from './routes/admin/documents'
 import { Route as CatalogIndexRouteImport } from './routes/catalog/index'
 import { Route as CatalogSlugRouteImport } from './routes/catalog/$slug'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
+import { Route as PortalCatalogRouteImport } from './routes/portal/catalog'
+import { Route as PortalOrdersRouteImport } from './routes/portal/orders'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -32,6 +35,11 @@ const AboutRoute = AboutRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
@@ -60,18 +68,31 @@ const NewsSlugRoute = NewsSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalIndexRoute = PortalIndexRouteImport.update({
-  id: '/portal/',
-  path: '/portal/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalCatalogRoute = PortalCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalOrdersRoute = PortalOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => PortalRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/portal': typeof PortalRouteWithChildren
   '/admin/documents': typeof AdminDocumentsRoute
   '/catalog/$slug': typeof CatalogSlugRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/portal/catalog': typeof PortalCatalogRoute
+  '/portal/orders': typeof PortalOrdersRoute
   '/catalog/': typeof CatalogIndexRoute
   '/news/': typeof NewsIndexRoute
   '/portal/': typeof PortalIndexRoute
@@ -83,6 +104,8 @@ export interface FileRoutesByTo {
   '/admin/documents': typeof AdminDocumentsRoute
   '/catalog/$slug': typeof CatalogSlugRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/portal/catalog': typeof PortalCatalogRoute
+  '/portal/orders': typeof PortalOrdersRoute
   '/catalog': typeof CatalogIndexRoute
   '/news': typeof NewsIndexRoute
   '/portal': typeof PortalIndexRoute
@@ -92,9 +115,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/portal': typeof PortalRouteWithChildren
   '/admin/documents': typeof AdminDocumentsRoute
   '/catalog/$slug': typeof CatalogSlugRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/portal/catalog': typeof PortalCatalogRoute
+  '/portal/orders': typeof PortalOrdersRoute
   '/catalog/': typeof CatalogIndexRoute
   '/news/': typeof NewsIndexRoute
   '/portal/': typeof PortalIndexRoute
@@ -105,9 +131,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/portal'
     | '/admin/documents'
     | '/catalog/$slug'
     | '/news/$slug'
+    | '/portal/catalog'
+    | '/portal/orders'
     | '/catalog/'
     | '/news/'
     | '/portal/'
@@ -119,6 +148,8 @@ export interface FileRouteTypes {
     | '/admin/documents'
     | '/catalog/$slug'
     | '/news/$slug'
+    | '/portal/catalog'
+    | '/portal/orders'
     | '/catalog'
     | '/news'
     | '/portal'
@@ -127,9 +158,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/portal'
     | '/admin/documents'
     | '/catalog/$slug'
     | '/news/$slug'
+    | '/portal/catalog'
+    | '/portal/orders'
     | '/catalog/'
     | '/news/'
     | '/portal/'
@@ -139,12 +173,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  PortalRoute: typeof PortalRouteWithChildren
   AdminDocumentsRoute: typeof AdminDocumentsRoute
   CatalogSlugRoute: typeof CatalogSlugRoute
   NewsSlugRoute: typeof NewsSlugRoute
   CatalogIndexRoute: typeof CatalogIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
-  PortalIndexRoute: typeof PortalIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -168,6 +202,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/documents': {
@@ -207,24 +248,53 @@ declare module '@tanstack/react-router' {
     }
     '/portal/': {
       id: '/portal/'
-      path: '/portal'
+      path: '/'
       fullPath: '/portal/'
       preLoaderRoute: typeof PortalIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/catalog': {
+      id: '/portal/catalog'
+      path: '/catalog'
+      fullPath: '/portal/catalog'
+      preLoaderRoute: typeof PortalCatalogRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/orders': {
+      id: '/portal/orders'
+      path: '/orders'
+      fullPath: '/portal/orders'
+      preLoaderRoute: typeof PortalOrdersRouteImport
+      parentRoute: typeof PortalRoute
     }
   }
 }
+
+interface PortalRouteChildren {
+  PortalCatalogRoute: typeof PortalCatalogRoute
+  PortalOrdersRoute: typeof PortalOrdersRoute
+  PortalIndexRoute: typeof PortalIndexRoute
+}
+
+const PortalRouteChildren: PortalRouteChildren = {
+  PortalCatalogRoute: PortalCatalogRoute,
+  PortalOrdersRoute: PortalOrdersRoute,
+  PortalIndexRoute: PortalIndexRoute,
+}
+
+const PortalRouteWithChildren =
+  PortalRoute._addFileChildren(PortalRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  PortalRoute: PortalRouteWithChildren,
   AdminDocumentsRoute: AdminDocumentsRoute,
   CatalogSlugRoute: CatalogSlugRoute,
   NewsSlugRoute: NewsSlugRoute,
   CatalogIndexRoute: CatalogIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
-  PortalIndexRoute: PortalIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
