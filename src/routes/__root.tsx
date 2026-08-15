@@ -8,6 +8,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { LiveRegionProvider } from '../components/LiveRegion'
+import { LeanChemLogo } from '../components/LeanChemLogo'
 import { RfqDrawer, RfqHeaderButton } from '../components/RfqDrawer'
 import { AuthProvider } from '../context/AuthContext'
 import { CatalogDataProvider } from '../context/CatalogDataContext'
@@ -31,6 +32,7 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', href: '/favicon.png', type: 'image/png' },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
       {
@@ -101,13 +103,13 @@ function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-organza/40 bg-white/95 shadow-[0_1px_3px_rgba(34,34,53,0.05)] backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:px-6">
-        <Link to="/" className="no-underline hover:no-underline" onClick={() => setOpen(false)}>
-          <span className="block text-[1.35rem] font-bold tracking-tight text-lapis">
-            {SITE.brand}
-          </span>
-          <span className="block text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-organza">
-            Industrial Procurement
-          </span>
+        <Link
+          to="/"
+          className="inline-flex items-center no-underline hover:no-underline"
+          onClick={() => setOpen(false)}
+          aria-label="LeanChem home"
+        >
+          <LeanChemLogo height={34} />
         </Link>
 
         <button
@@ -159,8 +161,8 @@ function SiteFooter() {
     <footer className="mt-auto bg-velvet text-white">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-4 md:px-6">
         <div>
-          <p className="text-lg font-bold">{SITE.brand}</p>
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">
+          <LeanChemLogo inverted height={40} className="opacity-95" />
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
             Enterprise B2B chemical procurement for Ethiopian industry — catalog, RFQ, and
             corridor-aware logistics.
           </p>

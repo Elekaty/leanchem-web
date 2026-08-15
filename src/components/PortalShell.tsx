@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useShell } from '../context/ShellContext'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { CartIcon, ChevronIcon, MenuIcon, SearchIcon } from './Icons'
+import { LeanChemLogo } from './LeanChemLogo'
 
 export const VERIFICATION_BANNER_ID = 'verification-banner'
 
@@ -41,9 +42,9 @@ export function PortalCommandBar() {
           </button>
         ) : null}
 
-        <div className="flex min-w-0 items-baseline gap-2">
-          <Link to="/" className="text-lg font-bold text-lapis no-underline hover:no-underline">
-            LeanChem
+        <div className="flex min-w-0 items-center gap-2">
+          <Link to="/" className="inline-flex no-underline hover:no-underline" aria-label="LeanChem home">
+            <LeanChemLogo height={30} />
           </Link>
           <span className="hidden items-center gap-1 text-xs font-semibold uppercase tracking-wide text-organza sm:inline-flex">
             Portal

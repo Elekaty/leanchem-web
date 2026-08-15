@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { CatalogTypeahead } from '../components/CatalogTypeahead'
+import { LeanChemLogo } from '../components/LeanChemLogo'
 import { LogisticsFeed } from '../components/LogisticsFeed'
 import {
   CLIENT_LOGOS,
@@ -53,8 +54,13 @@ function HomePage() {
         />
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-28 md:px-6 md:pb-20 md:pt-32">
           <h1>
-            <span className="mb-4 block text-[clamp(2.75rem,6.5vw,4.4rem)] font-bold leading-none tracking-[-0.03em] text-white">
-              {SITE.brand}
+            <span className="mb-5 block">
+              <LeanChemLogo
+                inverted
+                height={56}
+                className="max-w-[min(100%,420px)] drop-shadow-md md:h-14 md:w-auto"
+              />
+              <span className="sr-only">{SITE.brand}</span>
             </span>
             <span className="block max-w-[18ch] text-[clamp(1.35rem,3vw,2rem)] font-semibold leading-snug text-[#9fd0f5]">
               {SITE.taglineLine1}
