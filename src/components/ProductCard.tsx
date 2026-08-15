@@ -1,4 +1,6 @@
 import { Link } from '@tanstack/react-router'
+import { useRfq } from '../context/RfqContext'
+import { useLiveRegion } from './LiveRegion'
 import type { Product } from '../types/catalog'
 import { CategoryGlyph, HazardPictogramIcon } from './Icons'
 
@@ -7,6 +9,12 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { addProduct, hasProduct } = useRfq()
+  const { announce } = useLiveRegion()
+  const inRfq = hasProduct(product.id)
+  const packLabel = product.packagingOptions[0] ?? product.packaging.split('/')[0]?.trim()
+  const stockLabel = product.inStock ? 'In stock' : 'Made to order'
+
   return (
     <article className="flex flex-col overflow-hidden rounded-lg border border-organza/35 bg-white">
       <div className="relative flex h-[120px] items-center justify-between gap-3 bg-[linear-gradient(135deg,#EEF4FA_0%,#F8FAFC_100%)] px-4">
@@ -32,21 +40,36 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
-          <span className="spec-pill">{product.packaging.split('/')[0]?.trim()}</span>
-          <span className={`spec-pill ${product.inStock ? 'border-success/40 text-success' : ''}`}>
-            {product.inStock ? 'In stock' : 'Made to order'}
+          <span className="spec-pill" aria-label={`Packaging: ${packLabel}`}>
+            {packLabel}
           </span>
-          <span className="spec-pill">{product.purity}</span>
+          <span
+            className={`spec-pill ${product.inStock ? 'border-success/40 text-success' : ''}`}
+            role="status"
+            aria-label={`Stock status: ${stockLabel}`}
+          >
+            {stockLabel}
+          </span>
+          <span className="spec-pill" aria-label={`Purity grade: ${product.purity}`}>
+            {product.purity}
+          </span>
         </div>
 
         <div className="mt-auto flex flex-wrap gap-2 pt-4">
-          <Link
-            to="/contact"
-            search={{ product: product.slug }}
-            className="btn btn-primary min-h-10 flex-1 px-3 text-xs no-underline hover:no-underline"
+          <button
+            type="button"
+            className="btn btn-primary min-h-10 flex-1 px-3 text-xs"
+            onClick={() => {
+              addProduct(product)
+              announce(
+                inRfq
+                  ? `${product.name} already in RFQ — drawer opened.`
+                  : `${product.name} added to RFQ.`,
+              )
+            }}
           >
-            Request Quote
-          </Link>
+            {inRfq ? 'In RFQ' : 'Add to RFQ'}
+          </button>
           <Link
             to="/catalog/$slug"
             params={{ slug: product.slug }}

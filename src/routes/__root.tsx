@@ -8,7 +8,9 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { LiveRegionProvider } from '../components/LiveRegion'
+import { RfqDrawer, RfqHeaderButton } from '../components/RfqDrawer'
 import { AuthProvider } from '../context/AuthContext'
+import { RfqProvider, useRfq } from '../context/RfqContext'
 import { SITE } from '../data/marketing'
 import appCss from '../styles/app.css?url'
 
@@ -47,19 +49,22 @@ function RootComponent() {
     <RootDocument>
       <AuthProvider>
         <LiveRegionProvider>
-          {isPortal ? (
-            <Outlet />
-          ) : (
-            <>
-              <SiteHeader />
-              <main className="w-full flex-1 bg-canvas pb-24 md:pb-0">
-                <Outlet />
-              </main>
-              <SiteFooter />
-              <FloatingChat />
-              <StickyMobileCta />
-            </>
-          )}
+          <RfqProvider>
+            {isPortal ? (
+              <Outlet />
+            ) : (
+              <>
+                <SiteHeader />
+                <main className="w-full flex-1 bg-canvas pb-24 md:pb-0">
+                  <Outlet />
+                </main>
+                <SiteFooter />
+                <FloatingChat />
+                <StickyMobileCta />
+                <RfqDrawer />
+              </>
+            )}
+          </RfqProvider>
         </LiveRegionProvider>
       </AuthProvider>
     </RootDocument>
@@ -130,6 +135,9 @@ function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <div className="mt-1 md:mt-0 md:ml-1" onClick={() => setOpen(false)}>
+            <RfqHeaderButton />
+          </div>
           <Link
             to="/portal"
             className="mt-1 rounded border border-organza px-3 py-2 text-center text-sm font-semibold text-lapis no-underline hover:border-adamantine hover:no-underline md:mt-0 md:ml-2"
@@ -209,11 +217,26 @@ function SiteFooter() {
 }
 
 function StickyMobileCta() {
+  const { itemCount, openDrawer } = useRfq()
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-organza/30 bg-white/95 p-3 backdrop-blur md:hidden">
-      <Link to="/contact" className="btn btn-primary flex w-full no-underline hover:no-underline">
-        Request Quote
-      </Link>
+      <div className="flex gap-2">
+        <button type="button" className="btn btn-secondary relative flex-1" onClick={openDrawer}>
+          Review RFQ
+          {itemCount > 0 ? (
+            <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-lapis px-1.5 text-[0.65rem] font-bold text-white">
+              {itemCount}
+            </span>
+          ) : null}
+        </button>
+        <Link
+          to="/contact"
+          search={{ fromRfq: '1' }}
+          className="btn btn-primary flex flex-1 no-underline hover:no-underline"
+        >
+          Submit RFQ
+        </Link>
+      </div>
     </div>
   )
 }

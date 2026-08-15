@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { CatalogSort } from '../lib/catalogDiscovery'
-import { ChevronIcon } from './Icons'
+import { ChevronIcon, CloseIcon } from './Icons'
 
 export interface CatalogFiltersState {
   hsChapters: string[]
@@ -40,12 +40,19 @@ export function CatalogFilterBar({
   onChange,
   resultCount,
 }: CatalogFilterBarProps) {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const activeCount =
+    value.hsChapters.length +
+    value.purities.length +
+    value.packagingSizes.length +
+    (value.inStockOnly ? 1 : 0)
+
   const hsLabels = Object.fromEntries(
     facets.hsChapters.map((o) => [o.value, o.label ?? `HS ${o.value}`]),
   )
 
-  return (
-    <div className="rounded-lg border border-organza/30 bg-white p-3 shadow-[0_1px_2px_rgba(34,34,53,0.04)]">
+  const filtersBody = (
+    <>
       <div className="flex flex-wrap items-center gap-2">
         <MultiSelectDropdown
           label="HS Chapter"
@@ -79,7 +86,7 @@ export function CatalogFilterBar({
           In Stock Only
         </label>
 
-        <label className="ml-auto inline-flex h-10 items-center gap-2 text-sm font-semibold text-velvet">
+        <label className="inline-flex h-10 items-center gap-2 text-sm font-semibold text-velvet md:ml-auto">
           <span className="text-velvet/55">Sort By</span>
           <select
             className="h-10 rounded border border-organza/40 bg-white px-2 font-semibold text-lapis outline-none focus:border-adamantine"
@@ -100,17 +107,9 @@ export function CatalogFilterBar({
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-velvet/55">
         <p>
           <span className="font-semibold text-lapis">{resultCount}</span> products
-          {value.hsChapters.length ||
-          value.purities.length ||
-          value.packagingSizes.length ||
-          value.inStockOnly
-            ? ' · filters active'
-            : ''}
+          {activeCount ? ' · filters active' : ''}
         </p>
-        {value.hsChapters.length ||
-        value.purities.length ||
-        value.packagingSizes.length ||
-        value.inStockOnly ? (
+        {activeCount ? (
           <button
             type="button"
             className="font-semibold text-adamantine hover:underline"
@@ -171,7 +170,91 @@ export function CatalogFilterBar({
           ))}
         </div>
       )}
-    </div>
+    </>
+  )
+
+  return (
+    <>
+      {/* Mobile trigger */}
+      <div className="mb-3 flex items-center justify-between gap-2 md:hidden">
+        <button
+          type="button"
+          className="btn btn-secondary min-h-11 flex-1"
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen(true)}
+        >
+          Filters{activeCount ? ` (${activeCount})` : ''}
+        </button>
+        <label className="inline-flex h-11 items-center gap-1 text-sm font-semibold">
+          <span className="sr-only">Sort By</span>
+          <select
+            className="h-11 rounded border border-organza/40 bg-white px-2 font-semibold text-lapis"
+            value={value.sort}
+            onChange={(e) =>
+              onChange({ ...value, sort: e.target.value as CatalogSort })
+            }
+            aria-label="Sort products"
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {/* Desktop bar */}
+      <div className="hidden rounded-lg border border-organza/30 bg-white p-3 shadow-[0_1px_2px_rgba(34,34,53,0.04)] md:block">
+        {filtersBody}
+      </div>
+
+      {/* Mobile drawer */}
+      {mobileOpen ? (
+        <div className="fixed inset-0 z-[55] md:hidden" role="presentation">
+          <button
+            type="button"
+            className="absolute inset-0 bg-velvet/40"
+            aria-label="Close filters"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Catalog filters"
+            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-2xl bg-white p-4 shadow-2xl"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base font-bold text-velvet">Filters</h2>
+              <button
+                type="button"
+                className="inline-flex h-10 w-10 items-center justify-center rounded border border-organza/40"
+                aria-label="Close filters"
+                onClick={() => setMobileOpen(false)}
+              >
+                <CloseIcon />
+              </button>
+            </div>
+            {filtersBody}
+            <button
+              type="button"
+              className="btn btn-primary mt-4 w-full"
+              onClick={() => setMobileOpen(false)}
+            >
+              Show {resultCount} products
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Mobile chips summary when drawer closed */}
+      {activeCount > 0 ? (
+        <p className="mt-2 text-xs text-velvet/55 md:hidden">
+          <span className="font-semibold text-lapis">{resultCount}</span> products ·{' '}
+          {activeCount} filter{activeCount === 1 ? '' : 's'} active
+        </p>
+      ) : null}
+    </>
   )
 }
 

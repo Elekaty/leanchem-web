@@ -24,11 +24,17 @@ export interface Product {
   moq: string
   physicalState: string
   packaging: string
+  /** Split packaging choices for PDP / RFQ selectors. */
+  packagingOptions: string[]
   leadTime: string
   estimatedPrice: number | null
+  /** Primary hazard (card badge). */
   hazard: HazardPictogram
+  /** Full GHS set for PDP. */
+  hazards: HazardPictogram[]
   sdsUrl: string
   tdsUrl: string
+  coaUrl: string
   sdsUpdatedAt: string
   category: string
   slug: string
@@ -37,8 +43,20 @@ export interface Product {
   industryTags: string
   description: string
   applications: string
+  handlingNotes: string
+  seoTitle?: string
   seoDescription?: string
   properties: Array<{ key: string; value: string }>
+}
+
+export interface RfqLineItem {
+  productId: string
+  slug: string
+  name: string
+  casNumber: string
+  quantity: string
+  notes: string
+  packaging: string
 }
 
 export interface OrderTimelineStep {
