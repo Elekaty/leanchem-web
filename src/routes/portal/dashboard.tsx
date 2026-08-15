@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { CorridorLogisticsTracker } from '../../components/CorridorLogisticsTracker'
 import { PORTAL_METRICS, PORTAL_PURCHASE_ORDERS } from '../../data/portalDashboard'
 
 export const Route = createFileRoute('/portal/dashboard')({
@@ -35,6 +36,21 @@ function PortalDashboardPage() {
         ))}
       </section>
 
+      <section className="mt-8" aria-labelledby="my-shipments-heading">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 id="my-shipments-heading" className="text-sm font-bold text-velvet">
+            My corridor shipments
+          </h2>
+          <Link
+            to="/portal/tracker"
+            className="text-xs font-semibold text-lapis no-underline hover:underline"
+          >
+            Open Tracker →
+          </Link>
+        </div>
+        <CorridorLogisticsTracker />
+      </section>
+
       <section className="mt-8 rounded border border-gray-200 bg-white">
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5">
           <h2 className="text-sm font-bold text-velvet">Recent purchase orders</h2>
@@ -42,7 +58,10 @@ function PortalDashboardPage() {
         </div>
         <ul className="divide-y divide-gray-100">
           {recent.map((po) => (
-            <li key={po.poNumber} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5">
+            <li
+              key={po.poNumber}
+              className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5"
+            >
               <div>
                 <p className="text-sm font-bold text-velvet">{po.poNumber}</p>
                 <p className="text-xs text-gray-500">

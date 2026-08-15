@@ -2,24 +2,41 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react'
+import { DEMO_BUYER_ACCOUNT_ID } from '../data/corridorTracker'
+import {
+  authenticateCustomer,
+  ensureDemoCustomer,
+  registerCustomer,
+  type RegisterInput,
+} from '../lib/customerAuth'
 import type { UserSession } from '../types/catalog'
 
-const DEMO_SESSION: UserSession = {
-  tier: 3,
-  verificationStatus: 'verified',
-  displayName: 'A. Bekele',
-  roleLabel: 'Procurement',
-  siteLabel: 'Addis HQ',
-  isLoggedIn: true,
+const LOGGED_OUT: UserSession = {
+  tier: 1,
+  verificationStatus: 'unverified',
+  displayName: '',
+  roleLabel: 'Guest',
+  siteLabel: '',
+  isLoggedIn: false,
+  accountId: '',
+  email: '',
+  companyName: '',
+  phone: '',
 }
 
 interface AuthContextValue {
   session: UserSession
-  login: (email?: string) => void
+  /** Email + password sign-in against the local customer registry. */
+  login: (email: string, password: string) => Promise<{ ok: true } | { ok: false; error: string }>
+  /** Create a buyer account with basic profile and starter orders. */
+  register: (
+    input: RegisterInput,
+  ) => Promise<{ ok: true } | { ok: false; error: string }>
   logout: () => void
 }
 
@@ -27,45 +44,97 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 const STORAGE_KEY = 'leanchem-portal-session'
 
-function readSession(): UserSession {
-  if (typeof window === 'undefined') {
-    return { ...DEMO_SESSION }
+function sessionFromCustomer(customer: {
+  accountId: string
+  email: string
+  fullName: string
+  companyName: string
+  phone: string
+}): UserSession {
+  return {
+    tier: 3,
+    verificationStatus: 'verified',
+    displayName: customer.fullName,
+    roleLabel: 'Procurement',
+    siteLabel: customer.companyName,
+    isLoggedIn: true,
+    accountId: customer.accountId || DEMO_BUYER_ACCOUNT_ID,
+    email: customer.email,
+    companyName: customer.companyName,
+    phone: customer.phone,
   }
+}
+
+function normalizeSession(raw: Partial<UserSession> & { isLoggedIn?: boolean }): UserSession {
+  if (!raw.isLoggedIn) return { ...LOGGED_OUT }
+  return {
+    ...LOGGED_OUT,
+    ...raw,
+    isLoggedIn: true,
+    accountId: raw.accountId || DEMO_BUYER_ACCOUNT_ID,
+    email: raw.email ?? '',
+    companyName: raw.companyName ?? raw.siteLabel ?? '',
+    phone: raw.phone ?? '',
+    displayName: raw.displayName || 'Buyer',
+    roleLabel: raw.roleLabel || 'Procurement',
+    tier: (raw.tier as UserSession['tier']) || 3,
+    verificationStatus: raw.verificationStatus || 'verified',
+  }
+}
+
+function readSession(): UserSession {
+  if (typeof window === 'undefined') return { ...LOGGED_OUT }
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as UserSession
+    if (raw) return normalizeSession(JSON.parse(raw) as Partial<UserSession>)
   } catch {
     /* ignore */
   }
-  // Demo default: treat buyer as signed in for the self-service portal.
-  return { ...DEMO_SESSION }
+  return { ...LOGGED_OUT }
+}
+
+function persist(session: UserSession) {
+  if (session.isLoggedIn) {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+  } else {
+    window.localStorage.removeItem(STORAGE_KEY)
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<UserSession>(readSession)
 
-  const login = useCallback((email?: string) => {
-    const next: UserSession = {
-      ...DEMO_SESSION,
-      displayName: email?.split('@')[0] || DEMO_SESSION.displayName,
-      isLoggedIn: true,
-    }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  useEffect(() => {
+    void ensureDemoCustomer()
+  }, [])
+
+  const login = useCallback(async (email: string, password: string) => {
+    const result = await authenticateCustomer(email, password)
+    if (!result.ok) return { ok: false as const, error: result.error }
+    const next = sessionFromCustomer(result.customer)
+    persist(next)
     setSession(next)
+    return { ok: true as const }
+  }, [])
+
+  const register = useCallback(async (input: RegisterInput) => {
+    const result = await registerCustomer(input)
+    if (!result.ok) return { ok: false as const, error: result.error }
+    const next = sessionFromCustomer(result.customer)
+    persist(next)
+    setSession(next)
+    return { ok: true as const }
   }, [])
 
   const logout = useCallback(() => {
-    const next: UserSession = {
-      ...DEMO_SESSION,
-      isLoggedIn: false,
-      tier: 1,
-      verificationStatus: 'unverified',
-    }
-    window.localStorage.removeItem(STORAGE_KEY)
-    setSession(next)
+    persist(LOGGED_OUT)
+    setSession({ ...LOGGED_OUT })
   }, [])
 
-  const value = useMemo(() => ({ session, login, logout }), [session, login, logout])
+  const value = useMemo(
+    () => ({ session, login, logout, register }),
+    [session, login, logout, register],
+  )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

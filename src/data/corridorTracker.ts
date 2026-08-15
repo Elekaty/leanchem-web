@@ -1,4 +1,4 @@
-/** Ethiopian import corridor pipeline + mock PO logistics state. */
+/** Customer-scoped Ethiopian import corridor pipeline + mock buyer orders. */
 
 export const CORRIDOR_STEPS = [
   { id: 'origin-port', label: 'Origin Port' },
@@ -11,6 +11,8 @@ export const CORRIDOR_STEPS = [
 
 export type CorridorStepId = (typeof CORRIDOR_STEPS)[number]['id']
 
+export type CorridorOrderLifecycle = 'open' | 'closed'
+
 export interface CorridorLogEntry {
   id: string
   poNumber: string
@@ -20,99 +22,195 @@ export interface CorridorLogEntry {
   message: string
 }
 
+export interface CorridorChemicalLine {
+  name: string
+  casNumber: string
+  quantity: string
+}
+
 export interface CorridorPurchaseOrder {
   poNumber: string
+  /** Buyer account this PO belongs to — never shown across accounts. */
+  accountId: string
   productSummary: string
-  /** Index into CORRIDOR_STEPS for the currently active stage (0-based). */
+  /** Individual chemical lines on this PO (a buyer may have several concurrent). */
+  chemicals: CorridorChemicalLine[]
+  lifecycle: CorridorOrderLifecycle
+  /** Index into CORRIDOR_STEPS for the current stage (0-based). Closed POs use the last step. */
   activeStepIndex: number
   logs: CorridorLogEntry[]
 }
 
-/** Active PO mock — currently at Customs Clearance. */
-export const ACTIVE_CORRIDOR_PO: CorridorPurchaseOrder = {
-  poNumber: 'PO-2026-1142',
-  productSummary: 'Isopropyl Alcohol · Toluene · 18 MT',
-  activeStepIndex: 3, // Customs Clearance
-  logs: [
-    {
-      id: 'log-1',
-      poNumber: 'PO-2026-1142',
-      stepId: 'origin-port',
-      timestamp: '2026-07-12T08:15:00.000Z',
-      message: 'Containers gated out at Shanghai — 2 × 20ft DG-rated units sealed and documented.',
-    },
-    {
-      id: 'log-2',
-      poNumber: 'PO-2026-1142',
-      stepId: 'origin-port',
-      timestamp: '2026-07-12T14:40:00.000Z',
-      message: 'Bill of lading confirmed. Vessel MSC Djibouti Express ETD locked.',
-    },
-    {
-      id: 'log-3',
-      poNumber: 'PO-2026-1142',
-      stepId: 'ocean-transit',
-      timestamp: '2026-07-14T06:05:00.000Z',
-      message: 'Vessel departed. Ocean transit on schedule (ETA Djibouti +11 days).',
-    },
-    {
-      id: 'log-4',
-      poNumber: 'PO-2026-1142',
-      stepId: 'ocean-transit',
-      timestamp: '2026-07-20T11:22:00.000Z',
-      message: 'Mid-voyage position update — no weather diversion; ETA unchanged.',
-    },
-    {
-      id: 'log-5',
-      poNumber: 'PO-2026-1142',
-      stepId: 'djibouti-port',
-      timestamp: '2026-07-25T09:10:00.000Z',
-      message: 'Vessel berthed at Doraleh Multipurpose Port. Discharge window allocated.',
-    },
-    {
-      id: 'log-6',
-      poNumber: 'PO-2026-1142',
-      stepId: 'djibouti-port',
-      timestamp: '2026-07-26T15:45:00.000Z',
-      message: 'Containers discharged and staged for Ethiopian Customs transfer file.',
-    },
-    {
-      id: 'log-7',
-      poNumber: 'PO-2026-1142',
-      stepId: 'customs-clearance',
-      timestamp: '2026-07-28T07:30:00.000Z',
-      message: 'Customs declaration lodged. SDS pack and commercial invoice under review.',
-    },
-    {
-      id: 'log-8',
-      poNumber: 'PO-2026-1142',
-      stepId: 'customs-clearance',
-      timestamp: '2026-08-02T10:05:00.000Z',
-      message: 'Physical inspection slot confirmed. Awaiting release order for Modjo transfer.',
-    },
-    {
-      id: 'log-9',
-      poNumber: 'PO-2026-1142',
-      stepId: 'customs-clearance',
-      timestamp: '2026-08-05T13:18:00.000Z',
-      message: 'Live: examiner notes cleared for IPA line; toluene DG paperwork pending final stamp.',
-    },
-    // Noise from another PO — tracker must filter these out.
-    {
-      id: 'log-other-1',
-      poNumber: 'PO-2026-1098',
-      stepId: 'modjo-dry-port',
-      timestamp: '2026-07-19T08:00:00.000Z',
-      message: 'NaOH bags received at Modjo yard — not related to PO-2026-1142.',
-    },
-    {
-      id: 'log-other-2',
-      poNumber: 'PO-2026-0988',
-      stepId: 'final-delivery',
-      timestamp: '2026-06-15T12:00:00.000Z',
-      message: 'Prior IPA delivery completed at plant gate.',
-    },
-  ],
+/** Demo buyer account id — matches AuthContext demo session. */
+export const DEMO_BUYER_ACCOUNT_ID = 'demo-buyer'
+
+/**
+ * Orders belonging to the demo buyer only.
+ * Other accounts' shipments must never appear in this list.
+ */
+export const CUSTOMER_CORRIDOR_ORDERS: CorridorPurchaseOrder[] = [
+  {
+    poNumber: 'PO-2026-1142',
+    accountId: DEMO_BUYER_ACCOUNT_ID,
+    productSummary: 'Isopropyl Alcohol · Toluene · 18 MT',
+    chemicals: [
+      { name: 'Isopropyl Alcohol', casNumber: '67-63-0', quantity: '8 MT' },
+      { name: 'Toluene', casNumber: '108-88-3', quantity: '10 MT' },
+    ],
+    lifecycle: 'open',
+    activeStepIndex: 3, // Customs Clearance
+    logs: [
+      {
+        id: '1142-1',
+        poNumber: 'PO-2026-1142',
+        stepId: 'origin-port',
+        timestamp: '2026-07-12T08:15:00.000Z',
+        message: 'Your containers gated out at Shanghai — 2 × 20ft DG-rated units sealed.',
+      },
+      {
+        id: '1142-2',
+        poNumber: 'PO-2026-1142',
+        stepId: 'ocean-transit',
+        timestamp: '2026-07-14T06:05:00.000Z',
+        message: 'Vessel departed. Ocean transit on schedule (ETA Djibouti +11 days).',
+      },
+      {
+        id: '1142-3',
+        poNumber: 'PO-2026-1142',
+        stepId: 'djibouti-port',
+        timestamp: '2026-07-25T09:10:00.000Z',
+        message: 'Vessel berthed at Doraleh. Discharge window allocated for your cargo.',
+      },
+      {
+        id: '1142-4',
+        poNumber: 'PO-2026-1142',
+        stepId: 'customs-clearance',
+        timestamp: '2026-07-28T07:30:00.000Z',
+        message: 'Customs declaration lodged. SDS pack and commercial invoice under review.',
+      },
+      {
+        id: '1142-5',
+        poNumber: 'PO-2026-1142',
+        stepId: 'customs-clearance',
+        timestamp: '2026-08-05T13:18:00.000Z',
+        message:
+          'Live: IPA line cleared by examiner; toluene DG paperwork pending final stamp.',
+      },
+    ],
+  },
+  {
+    poNumber: 'PO-2026-1098',
+    accountId: DEMO_BUYER_ACCOUNT_ID,
+    productSummary: 'Sodium Hydroxide (Pellets) · 12 MT',
+    chemicals: [
+      { name: 'Sodium Hydroxide (Pellets)', casNumber: '1310-73-2', quantity: '12 MT' },
+    ],
+    lifecycle: 'open',
+    activeStepIndex: 4, // Modjo Dry Port
+    logs: [
+      {
+        id: '1098-1',
+        poNumber: 'PO-2026-1098',
+        stepId: 'origin-port',
+        timestamp: '2026-06-20T10:00:00.000Z',
+        message: 'Bags loaded and sealed at origin warehouse for your NaOH order.',
+      },
+      {
+        id: '1098-2',
+        poNumber: 'PO-2026-1098',
+        stepId: 'ocean-transit',
+        timestamp: '2026-06-22T07:30:00.000Z',
+        message: 'Ocean transit underway — ETA Djibouti confirmed.',
+      },
+      {
+        id: '1098-3',
+        poNumber: 'PO-2026-1098',
+        stepId: 'djibouti-port',
+        timestamp: '2026-07-02T11:15:00.000Z',
+        message: 'Discharged at Djibouti and handed to Ethiopian Customs file.',
+      },
+      {
+        id: '1098-4',
+        poNumber: 'PO-2026-1098',
+        stepId: 'customs-clearance',
+        timestamp: '2026-07-08T09:40:00.000Z',
+        message: 'Customs release issued. Inland transfer to Modjo booked.',
+      },
+      {
+        id: '1098-5',
+        poNumber: 'PO-2026-1098',
+        stepId: 'modjo-dry-port',
+        timestamp: '2026-07-18T08:00:00.000Z',
+        message: 'Your cargo arrived at Modjo Dry Port. Yard slot assigned — awaiting plant delivery booking.',
+      },
+    ],
+  },
+  {
+    poNumber: 'PO-2026-0988',
+    accountId: DEMO_BUYER_ACCOUNT_ID,
+    productSummary: 'Isopropyl Alcohol · 5 MT',
+    chemicals: [
+      { name: 'Isopropyl Alcohol', casNumber: '67-63-0', quantity: '5 MT' },
+    ],
+    lifecycle: 'closed',
+    activeStepIndex: 5, // Final Delivery (complete)
+    logs: [
+      {
+        id: '0988-1',
+        poNumber: 'PO-2026-0988',
+        stepId: 'origin-port',
+        timestamp: '2026-05-10T08:00:00.000Z',
+        message: 'Order gated out at origin.',
+      },
+      {
+        id: '0988-2',
+        poNumber: 'PO-2026-0988',
+        stepId: 'final-delivery',
+        timestamp: '2026-06-08T12:00:00.000Z',
+        message: 'Delivered to your plant gate. POD signed — order closed.',
+      },
+    ],
+  },
+  {
+    poNumber: 'PO-2026-0912',
+    accountId: DEMO_BUYER_ACCOUNT_ID,
+    productSummary: 'Calcium Chloride Anhydrous · 16 MT',
+    chemicals: [
+      { name: 'Calcium Chloride Anhydrous', casNumber: '10043-52-4', quantity: '16 MT' },
+    ],
+    lifecycle: 'closed',
+    activeStepIndex: 5,
+    logs: [
+      {
+        id: '0912-1',
+        poNumber: 'PO-2026-0912',
+        stepId: 'final-delivery',
+        timestamp: '2026-05-22T14:20:00.000Z',
+        message: 'Bulk tanker offloaded at your site. Order closed.',
+      },
+    ],
+  },
+]
+
+/** @deprecated Use CUSTOMER_CORRIDOR_ORDERS — kept for any legacy imports. */
+export const ACTIVE_CORRIDOR_PO = CUSTOMER_CORRIDOR_ORDERS[0]!
+
+export function ordersForAccount(accountId: string): CorridorPurchaseOrder[] {
+  if (!accountId) return []
+  const staticOrders = CUSTOMER_CORRIDOR_ORDERS.filter((po) => po.accountId === accountId)
+  let registered: CorridorPurchaseOrder[] = []
+  if (typeof window !== 'undefined') {
+    try {
+      const raw = window.localStorage.getItem('leanchem.customer.orders.v1')
+      if (raw) {
+        const map = JSON.parse(raw) as Record<string, CorridorPurchaseOrder[]>
+        registered = map[accountId] ?? []
+      }
+    } catch {
+      registered = []
+    }
+  }
+  return [...staticOrders, ...registered]
 }
 
 export function formatEatTimestamp(iso: string): string {
@@ -133,11 +231,13 @@ export function formatEatTimestamp(iso: string): string {
   }
 }
 
-export function logsForPurchaseOrder(
-  po: CorridorPurchaseOrder,
-  allLogs: CorridorLogEntry[] = po.logs,
-): CorridorLogEntry[] {
-  return allLogs
+/** Only return log lines for this PO (never mix other shipments). */
+export function logsForPurchaseOrder(po: CorridorPurchaseOrder): CorridorLogEntry[] {
+  return po.logs
     .filter((entry) => entry.poNumber === po.poNumber)
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+}
+
+export function stepLabelForIndex(index: number): string {
+  return CORRIDOR_STEPS[index]?.label ?? 'Unknown'
 }

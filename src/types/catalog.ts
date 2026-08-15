@@ -117,4 +117,9 @@ export interface UserSession {
   roleLabel: string
   siteLabel: string
   isLoggedIn: boolean
+  /** Buyer account — corridor tracker only shows this account's POs. */
+  accountId: string
+  email: string
+  companyName: string
+  phone: string
 }

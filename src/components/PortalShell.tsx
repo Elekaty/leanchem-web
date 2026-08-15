@@ -10,6 +10,7 @@ export const VERIFICATION_BANNER_ID = 'verification-banner'
 
 const PORTAL_NAV = [
   { to: '/portal/dashboard', label: 'Dashboard' },
+  { to: '/portal/tracker', label: 'Tracker' },
   { to: '/portal/orders', label: 'Order History' },
   { to: '/portal/compliance', label: 'Compliance Vault' },
 ] as const
@@ -90,9 +91,12 @@ export function PortalCommandBar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <span className="hidden text-sm font-semibold text-gray-600 sm:inline">
-            {session.displayName}
-          </span>
+          <div className="hidden text-right sm:block">
+            <p className="text-sm font-semibold text-gray-700">{session.displayName}</p>
+            {session.companyName ? (
+              <p className="text-[0.65rem] font-semibold text-gray-500">{session.companyName}</p>
+            ) : null}
+          </div>
           <button
             type="button"
             className="relative inline-flex h-10 items-center gap-1.5 rounded border border-gray-200 px-3 text-sm font-semibold text-lapis hover:border-adamantine"

@@ -14,6 +14,7 @@ import { RfqDrawer, RfqHeaderButton } from '../components/RfqDrawer'
 import { RfqFloatingCart } from '../components/RfqFloatingCart'
 import { AuthProvider } from '../context/AuthContext'
 import { CatalogDataProvider } from '../context/CatalogDataContext'
+import { CommunicationProvider } from '../context/CommunicationContext'
 import { RfqProvider, useRfq } from '../context/RfqContext'
 import { SITE } from '../data/marketing'
 import appCss from '../styles/app.css?url'
@@ -54,26 +55,28 @@ function RootComponent() {
     <RootDocument>
       <AuthProvider>
         <LiveRegionProvider>
-          <CatalogDataProvider>
-            <RfqProvider>
-              {isPortal ? (
-                <Outlet />
-              ) : (
-                <>
-                  <SiteHeader />
-                  <main className="w-full flex-1 bg-canvas pb-24 md:pb-0">
-                    <Outlet />
-                  </main>
-                  <SiteFooter />
-                  <FloatingChat />
-                  <StickyMobileCta />
-                  <RfqFloatingCart />
-                  <RfqDrawer />
-                  <RfqCheckoutModal />
-                </>
-              )}
-            </RfqProvider>
-          </CatalogDataProvider>
+          <CommunicationProvider>
+            <CatalogDataProvider>
+              <RfqProvider>
+                {isPortal ? (
+                  <Outlet />
+                ) : (
+                  <>
+                    <SiteHeader />
+                    <main className="w-full flex-1 bg-canvas pb-24 md:pb-0">
+                      <Outlet />
+                    </main>
+                    <SiteFooter />
+                    <FloatingChat />
+                    <StickyMobileCta />
+                    <RfqFloatingCart />
+                    <RfqDrawer />
+                    <RfqCheckoutModal />
+                  </>
+                )}
+              </RfqProvider>
+            </CatalogDataProvider>
+          </CommunicationProvider>
         </LiveRegionProvider>
       </AuthProvider>
     </RootDocument>

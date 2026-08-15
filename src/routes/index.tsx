@@ -208,14 +208,23 @@ function HomePage() {
             id="logistics-heading"
             className="text-[clamp(1.6rem,3vw,2.1rem)] font-bold text-velvet"
           >
-            Corridor logistics tracker
+            Track your shipments
           </h2>
           <p className="mt-2 max-w-[58ch] text-velvet/65">
-            Live Ethiopian import pipeline for an active purchase order — from origin port through
-            Modjo to final delivery, with EAT timestamps.
+            Sign in to see only your open and closed purchase orders — and which corridor stage each
+            one is in. Other customers&apos; cargo is never shown.
           </p>
           <div className="mt-8">
             <CorridorLogisticsTracker />
+            <p className="mt-4 text-center text-sm text-velvet/55">
+              Need invoices or your account manager?{' '}
+              <Link
+                to="/portal/tracker"
+                className="font-semibold text-lapis no-underline hover:underline"
+              >
+                Open Tracker
+              </Link>
+            </p>
           </div>
         </div>
       </section>

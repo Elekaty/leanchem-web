@@ -23,6 +23,7 @@ import { Route as PortalCatalogRouteImport } from './routes/portal/catalog'
 import { Route as PortalComplianceRouteImport } from './routes/portal/compliance'
 import { Route as PortalDashboardRouteImport } from './routes/portal/dashboard'
 import { Route as PortalOrdersRouteImport } from './routes/portal/orders'
+import { Route as PortalTrackerRouteImport } from './routes/portal/tracker'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -94,6 +95,11 @@ const PortalOrdersRoute = PortalOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => PortalRoute,
 } as any)
+const PortalTrackerRoute = PortalTrackerRouteImport.update({
+  id: '/tracker',
+  path: '/tracker',
+  getParentRoute: () => PortalRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/portal/compliance': typeof PortalComplianceRoute
   '/portal/dashboard': typeof PortalDashboardRoute
   '/portal/orders': typeof PortalOrdersRoute
+  '/portal/tracker': typeof PortalTrackerRoute
   '/catalog/': typeof CatalogIndexRoute
   '/news/': typeof NewsIndexRoute
   '/portal/': typeof PortalIndexRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/portal/compliance': typeof PortalComplianceRoute
   '/portal/dashboard': typeof PortalDashboardRoute
   '/portal/orders': typeof PortalOrdersRoute
+  '/portal/tracker': typeof PortalTrackerRoute
   '/catalog': typeof CatalogIndexRoute
   '/news': typeof NewsIndexRoute
   '/portal': typeof PortalIndexRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/portal/compliance': typeof PortalComplianceRoute
   '/portal/dashboard': typeof PortalDashboardRoute
   '/portal/orders': typeof PortalOrdersRoute
+  '/portal/tracker': typeof PortalTrackerRoute
   '/catalog/': typeof CatalogIndexRoute
   '/news/': typeof NewsIndexRoute
   '/portal/': typeof PortalIndexRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/portal/compliance'
     | '/portal/dashboard'
     | '/portal/orders'
+    | '/portal/tracker'
     | '/catalog/'
     | '/news/'
     | '/portal/'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/portal/compliance'
     | '/portal/dashboard'
     | '/portal/orders'
+    | '/portal/tracker'
     | '/catalog'
     | '/news'
     | '/portal'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/portal/compliance'
     | '/portal/dashboard'
     | '/portal/orders'
+    | '/portal/tracker'
     | '/catalog/'
     | '/news/'
     | '/portal/'
@@ -305,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalOrdersRouteImport
       parentRoute: typeof PortalRoute
     }
+    '/portal/tracker': {
+      id: '/portal/tracker'
+      path: '/tracker'
+      fullPath: '/portal/tracker'
+      preLoaderRoute: typeof PortalTrackerRouteImport
+      parentRoute: typeof PortalRoute
+    }
   }
 }
 
@@ -313,6 +332,7 @@ interface PortalRouteChildren {
   PortalComplianceRoute: typeof PortalComplianceRoute
   PortalDashboardRoute: typeof PortalDashboardRoute
   PortalOrdersRoute: typeof PortalOrdersRoute
+  PortalTrackerRoute: typeof PortalTrackerRoute
   PortalIndexRoute: typeof PortalIndexRoute
 }
 
@@ -321,6 +341,7 @@ const PortalRouteChildren: PortalRouteChildren = {
   PortalComplianceRoute: PortalComplianceRoute,
   PortalDashboardRoute: PortalDashboardRoute,
   PortalOrdersRoute: PortalOrdersRoute,
+  PortalTrackerRoute: PortalTrackerRoute,
   PortalIndexRoute: PortalIndexRoute,
 }
 
