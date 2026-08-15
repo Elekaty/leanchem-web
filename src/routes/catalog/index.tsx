@@ -52,31 +52,40 @@ function CatalogPage() {
   return (
     <div className="atmosphere atmosphere--catalog relative min-h-[70vh] pb-28 md:pb-12">
       <div
-        className="atmosphere-media opacity-90"
+        className="atmosphere-media"
         style={{ backgroundImage: `url('${VISUALS.catalog}')` }}
         aria-hidden="true"
       />
       <div className="atmosphere-veil" aria-hidden="true" />
 
-      <div className="relative z-10 border-b border-organza/25 bg-white/90 shadow-[0_1px_0_rgba(34,34,53,0.04)] backdrop-blur-sm">
-        <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
-          <nav aria-label="Breadcrumb" className="mb-3 text-sm text-organza">
-            <Link to="/" className="text-lapis no-underline hover:underline">
+      {/* Photographic catalog header */}
+      <div className="catalog-hero-band relative z-10">
+        <div
+          className="atmosphere-media"
+          style={{ backgroundImage: `url('${VISUALS.warehouse}')` }}
+          aria-hidden="true"
+        />
+        <div className="atmosphere-veil" aria-hidden="true" />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
+          <nav aria-label="Breadcrumb" className="mb-4 text-sm text-white/65">
+            <Link to="/" className="text-adamantine no-underline hover:underline">
               Home
             </Link>
-            <span className="mx-2">→</span>
-            <span className="font-semibold text-velvet">Catalog</span>
+            <span className="mx-2 text-white/40">→</span>
+            <span className="font-semibold text-white">Catalog</span>
           </nav>
 
           <header className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-velvet">Chemical Catalog</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-velvet/60 md:text-[0.95rem]">
+              <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm md:text-4xl">
+                Chemical Catalog
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/80 md:text-[0.95rem]">
                 Spec-grade industrials with SDS/TDS pathways — filter by CAS, market, or grade, then
                 build a multi-line RFQ.
               </p>
             </div>
-            <p className="rounded border border-organza/30 bg-white px-3 py-2 text-sm font-semibold text-velvet shadow-sm">
+            <p className="rounded border border-white/25 bg-black/25 px-3 py-2 text-sm font-semibold text-white backdrop-blur-sm">
               {products.length} of {catalog.length} grades
             </p>
           </header>
@@ -95,7 +104,7 @@ function CatalogPage() {
           </div>
 
           <div className="min-w-0">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded border border-organza/25 bg-white/85 px-3 py-2.5 shadow-sm backdrop-blur-[1px]">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded border border-organza/30 bg-white/90 px-3 py-2.5 shadow-[0_2px_10px_rgba(34,34,53,0.06)] backdrop-blur-sm">
               <p className="text-sm font-bold text-velvet">
                 {products.length === 0
                   ? 'No matching chemicals'
