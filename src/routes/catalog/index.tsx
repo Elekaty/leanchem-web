@@ -10,6 +10,7 @@ import {
   filterParametricCatalog,
   PARAMETRIC_CATALOG_MOCK,
 } from '../../data/parametricCatalogMock'
+import { VISUALS } from '../../data/visuals'
 
 export const Route = createFileRoute('/catalog/')({
   head: () => ({
@@ -49,8 +50,15 @@ function CatalogPage() {
     Boolean(filters.query.trim()) || filters.markets.length > 0 || filters.grades.length > 0
 
   return (
-    <div className="min-h-[70vh] bg-canvas pb-28 md:pb-12">
-      <div className="border-b border-organza/20 bg-white">
+    <div className="atmosphere atmosphere--catalog relative min-h-[70vh] pb-28 md:pb-12">
+      <div
+        className="atmosphere-media opacity-90"
+        style={{ backgroundImage: `url('${VISUALS.catalog}')` }}
+        aria-hidden="true"
+      />
+      <div className="atmosphere-veil" aria-hidden="true" />
+
+      <div className="relative z-10 border-b border-organza/25 bg-white/90 shadow-[0_1px_0_rgba(34,34,53,0.04)] backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
           <nav aria-label="Breadcrumb" className="mb-3 text-sm text-organza">
             <Link to="/" className="text-lapis no-underline hover:underline">
@@ -68,14 +76,14 @@ function CatalogPage() {
                 build a multi-line RFQ.
               </p>
             </div>
-            <p className="rounded border border-organza/25 bg-canvas px-3 py-2 text-sm font-semibold text-velvet">
+            <p className="rounded border border-organza/30 bg-white px-3 py-2 text-sm font-semibold text-velvet shadow-sm">
               {products.length} of {catalog.length} grades
             </p>
           </header>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
         <div className="grid gap-6 lg:grid-cols-[minmax(240px,1fr)_minmax(0,3fr)] lg:gap-8">
           <div>
             <ParametricCatalogSidebar
@@ -87,7 +95,7 @@ function CatalogPage() {
           </div>
 
           <div className="min-w-0">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-organza/20 pb-3">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded border border-organza/25 bg-white/85 px-3 py-2.5 shadow-sm backdrop-blur-[1px]">
               <p className="text-sm font-bold text-velvet">
                 {products.length === 0
                   ? 'No matching chemicals'
@@ -108,7 +116,7 @@ function CatalogPage() {
             </div>
 
             {products.length === 0 ? (
-              <div className="rounded border border-dashed border-organza/40 bg-white px-4 py-14 text-center shadow-[0_1px_2px_rgba(34,34,53,0.04)]">
+              <div className="rounded border border-dashed border-organza/40 bg-white/95 px-4 py-14 text-center shadow-[0_2px_12px_rgba(34,34,53,0.06)]">
                 <PackageSearch
                   className="mx-auto h-8 w-8 text-organza"
                   strokeWidth={1.5}

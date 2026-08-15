@@ -19,7 +19,7 @@ export function ParametricCatalogCard({ chemical }: ParametricCatalogCardProps) 
   const hazards = chemical.hazards.slice(0, 3)
 
   return (
-    <article className="catalog-card group flex flex-col overflow-hidden rounded border border-organza/30 bg-white">
+    <article className="catalog-card group flex flex-col overflow-hidden rounded border border-organza/35 bg-white">
       {/* Visual header — packaging / molecule glyph, not an empty grey box */}
       <div className="relative flex h-16 items-center justify-between gap-3 border-b border-organza/15 bg-[linear-gradient(135deg,#EEF4FA_0%,#F8FAFC_100%)] px-3.5">
         <div className="flex items-center gap-2.5">

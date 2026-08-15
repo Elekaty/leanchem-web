@@ -72,19 +72,77 @@
   }
 
   .catalog-card {
-    @apply shadow-[0_1px_2px_rgba(34,34,53,0.04)] transition duration-200 ease-out;
+    @apply border-organza/35 bg-white shadow-[0_2px_8px_rgba(34,34,53,0.06),0_1px_2px_rgba(34,34,53,0.04)] transition duration-200 ease-out;
   }
 
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .catalog-card:hover {
-      @apply border-organza/50;
-      box-shadow: 0 4px 14px rgba(34, 34, 53, 0.08);
-      transform: translateY(-1px);
+      @apply border-lapis/35;
+      box-shadow:
+        0 8px 24px rgba(30, 88, 151, 0.1),
+        0 2px 6px rgba(34, 34, 53, 0.06);
+      transform: translateY(-2px);
     }
   }
 
   .section-band {
     @apply border-y border-organza/20;
+  }
+
+  /** Full-bleed photo + cinematic overlay for storytelling sections. */
+  .atmosphere {
+    @apply relative isolate overflow-hidden;
+  }
+
+  .atmosphere-media {
+    @apply absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat;
+  }
+
+  .atmosphere-veil {
+    @apply absolute inset-0 -z-10;
+  }
+
+  .atmosphere--hero .atmosphere-veil {
+    background:
+      linear-gradient(
+        105deg,
+        rgba(34, 34, 53, 0.92) 0%,
+        rgba(34, 34, 53, 0.72) 42%,
+        rgba(30, 88, 151, 0.45) 100%
+      ),
+      linear-gradient(0deg, rgba(34, 34, 53, 0.82) 0%, rgba(34, 34, 53, 0.25) 48%, transparent 70%),
+      radial-gradient(ellipse at 70% 40%, transparent 0%, rgba(34, 34, 53, 0.35) 100%);
+  }
+
+  .atmosphere--light .atmosphere-veil {
+    background:
+      linear-gradient(180deg, rgba(248, 250, 252, 0.94) 0%, rgba(248, 250, 252, 0.88) 55%, rgba(238, 242, 247, 0.92) 100%),
+      linear-gradient(90deg, rgba(248, 250, 252, 0.85) 0%, rgba(248, 250, 252, 0.55) 100%);
+  }
+
+  .atmosphere--deep .atmosphere-veil {
+    background:
+      linear-gradient(
+        160deg,
+        rgba(34, 34, 53, 0.88) 0%,
+        rgba(30, 88, 151, 0.78) 55%,
+        rgba(34, 34, 53, 0.9) 100%
+      ),
+      linear-gradient(0deg, rgba(34, 34, 53, 0.55) 0%, transparent 40%);
+  }
+
+  .atmosphere--catalog {
+    background-color: #eef2f7;
+  }
+
+  .atmosphere--catalog .atmosphere-veil {
+    background:
+      linear-gradient(180deg, rgba(248, 250, 252, 0.93) 0%, rgba(238, 242, 247, 0.9) 100%),
+      linear-gradient(90deg, rgba(248, 250, 252, 0.75) 0%, rgba(248, 250, 252, 0.55) 100%);
+  }
+
+  .surface-panel {
+    @apply rounded border border-organza/30 bg-white/95 shadow-[0_2px_12px_rgba(34,34,53,0.06)] backdrop-blur-[2px];
   }
 
   .status-chip {
