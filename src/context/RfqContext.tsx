@@ -15,14 +15,20 @@ interface RfqContextValue {
   items: RfqLineItem[]
   itemCount: number
   drawerOpen: boolean
+  checkoutOpen: boolean
   openDrawer: () => void
   closeDrawer: () => void
   toggleDrawer: () => void
+  openCheckout: () => void
+  closeCheckout: () => void
   addProduct: (
     product: Product,
     opts?: { packaging?: string; quantity?: string; openDrawer?: boolean },
   ) => void
-  updateItem: (productId: string, patch: Partial<Pick<RfqLineItem, 'quantity' | 'notes' | 'packaging'>>) => void
+  updateItem: (
+    productId: string,
+    patch: Partial<Pick<RfqLineItem, 'quantity' | 'notes' | 'packaging'>>,
+  ) => void
   removeItem: (productId: string) => void
   clear: () => void
   hasProduct: (productId: string) => boolean
@@ -45,6 +51,7 @@ function loadItems(): RfqLineItem[] {
 export function RfqProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<RfqLineItem[]>([])
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
@@ -56,6 +63,17 @@ export function RfqProvider({ children }: { children: ReactNode }) {
     if (!hydrated) return
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
   }, [items, hydrated])
+
+  const closeDrawer = useCallback(() => setDrawerOpen(false), [])
+  const openDrawer = useCallback(() => {
+    setCheckoutOpen(false)
+    setDrawerOpen(true)
+  }, [])
+  const closeCheckout = useCallback(() => setCheckoutOpen(false), [])
+  const openCheckout = useCallback(() => {
+    setDrawerOpen(false)
+    setCheckoutOpen(true)
+  }, [])
 
   const addProduct = useCallback(
     (
@@ -88,7 +106,10 @@ export function RfqProvider({ children }: { children: ReactNode }) {
           },
         ]
       })
-      if (opts?.openDrawer !== false) setDrawerOpen(true)
+      if (opts?.openDrawer === true) {
+        setCheckoutOpen(false)
+        setDrawerOpen(true)
+      }
     },
     [],
   )
@@ -113,16 +134,31 @@ export function RfqProvider({ children }: { children: ReactNode }) {
       items,
       itemCount: items.length,
       drawerOpen,
-      openDrawer: () => setDrawerOpen(true),
-      closeDrawer: () => setDrawerOpen(false),
+      checkoutOpen,
+      openDrawer,
+      closeDrawer,
       toggleDrawer: () => setDrawerOpen((v) => !v),
+      openCheckout,
+      closeCheckout,
       addProduct,
       updateItem,
       removeItem,
       clear,
       hasProduct: (productId: string) => items.some((i) => i.productId === productId),
     }),
-    [items, drawerOpen, addProduct, updateItem, removeItem, clear],
+    [
+      items,
+      drawerOpen,
+      checkoutOpen,
+      openDrawer,
+      closeDrawer,
+      openCheckout,
+      closeCheckout,
+      addProduct,
+      updateItem,
+      removeItem,
+      clear,
+    ],
   )
 
   return <RfqContext.Provider value={value}>{children}</RfqContext.Provider>

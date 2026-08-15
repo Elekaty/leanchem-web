@@ -10,6 +10,7 @@ export function RfqDrawer() {
     itemCount,
     drawerOpen,
     closeDrawer,
+    openCheckout,
     updateItem,
     removeItem,
   } = useRfq()
@@ -152,17 +153,16 @@ export function RfqDrawer() {
         </div>
 
         <footer className="border-t border-organza/30 p-4">
-          <Link
-            to="/contact"
-            search={{ fromRfq: '1' }}
-            className={`btn btn-primary flex w-full no-underline hover:no-underline ${
+          <button
+            type="button"
+            className={`btn btn-primary w-full ${
               items.length === 0 ? 'pointer-events-none opacity-50' : ''
             }`}
-            onClick={closeDrawer}
-            aria-disabled={items.length === 0}
+            disabled={items.length === 0}
+            onClick={openCheckout}
           >
-            Submit RFQ
-          </Link>
+            Proceed to Quote
+          </button>
           <Link
             to="/catalog"
             className="btn btn-ghost mt-2 flex w-full no-underline hover:no-underline"

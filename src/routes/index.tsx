@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { CatalogTypeahead } from '../components/CatalogTypeahead'
+import { CorridorLogisticsTracker } from '../components/CorridorLogisticsTracker'
 import { LeanChemLogo } from '../components/LeanChemLogo'
-import { LogisticsFeed } from '../components/LogisticsFeed'
 import {
   CLIENT_LOGOS,
   INDUSTRIES,
@@ -10,19 +10,8 @@ import {
   TRUST_ITEMS,
   WHY_ITEMS,
 } from '../data/marketing'
-import { loadNewsFeed } from '../lib/newsClient'
-import type { NewsFeedPayload } from '../types/news'
-
-async function loadHomeNews(): Promise<NewsFeedPayload | null> {
-  try {
-    return await loadNewsFeed()
-  } catch {
-    return null
-  }
-}
 
 export const Route = createFileRoute('/')({
-  loader: async () => ({ news: await loadHomeNews() }),
   head: () => ({
     meta: [
       {
@@ -38,8 +27,6 @@ export const Route = createFileRoute('/')({
 })
 
 function HomePage() {
-  const { news } = Route.useLoaderData()
-
   return (
     <div>
       {/* Hero — full bleed */}
@@ -215,23 +202,20 @@ function HomePage() {
       </section>
 
       {/* Logistics */}
-      <section className="bg-organza/10 py-16" aria-labelledby="logistics-heading">
+      <section className="bg-organza/10 py-14 md:py-16" aria-labelledby="logistics-heading">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <h2
             id="logistics-heading"
             className="text-[clamp(1.6rem,3vw,2.1rem)] font-bold text-velvet"
           >
-            Live logistics
+            Corridor logistics tracker
           </h2>
-          <p className="mt-2 text-velvet/65">
-            Vertically scrolling feed of active regional corridors with status chips and timestamps.
+          <p className="mt-2 max-w-[58ch] text-velvet/65">
+            Live Ethiopian import pipeline for an active purchase order — from origin port through
+            Modjo to final delivery, with EAT timestamps.
           </p>
           <div className="mt-8">
-            <LogisticsFeed
-              rows={news?.logistics}
-              geminiEnabled={news?.geminiEnabled}
-              analyzedAt={news?.analyzedAt}
-            />
+            <CorridorLogisticsTracker />
           </div>
         </div>
       </section>

@@ -9,7 +9,9 @@ import {
 } from '@tanstack/react-router'
 import { LiveRegionProvider } from '../components/LiveRegion'
 import { LeanChemLogo } from '../components/LeanChemLogo'
+import { RfqCheckoutModal } from '../components/RfqCheckoutModal'
 import { RfqDrawer, RfqHeaderButton } from '../components/RfqDrawer'
+import { RfqFloatingCart } from '../components/RfqFloatingCart'
 import { AuthProvider } from '../context/AuthContext'
 import { CatalogDataProvider } from '../context/CatalogDataContext'
 import { RfqProvider, useRfq } from '../context/RfqContext'
@@ -65,7 +67,9 @@ function RootComponent() {
                   <SiteFooter />
                   <FloatingChat />
                   <StickyMobileCta />
+                  <RfqFloatingCart />
                   <RfqDrawer />
+                  <RfqCheckoutModal />
                 </>
               )}
             </RfqProvider>
@@ -260,7 +264,7 @@ function StickyMobileCta() {
 function FloatingChat() {
   const [open, setOpen] = useState(false)
   return (
-    <div className="fixed right-5 bottom-24 z-50 flex flex-col items-end gap-2 md:bottom-6">
+    <div className="fixed right-5 bottom-24 z-40 flex flex-col items-end gap-2 md:bottom-24">
       {open ? (
         <div
           className="flex w-52 flex-col gap-2 rounded-lg border border-organza/30 bg-white p-3 shadow-xl"

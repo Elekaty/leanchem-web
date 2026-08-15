@@ -9,8 +9,8 @@ import {
 import type { UserSession } from '../types/catalog'
 
 const DEMO_SESSION: UserSession = {
-  tier: 2,
-  verificationStatus: 'pending',
+  tier: 3,
+  verificationStatus: 'verified',
   displayName: 'A. Bekele',
   roleLabel: 'Procurement',
   siteLabel: 'Addis HQ',
@@ -29,7 +29,7 @@ const STORAGE_KEY = 'leanchem-portal-session'
 
 function readSession(): UserSession {
   if (typeof window === 'undefined') {
-    return { ...DEMO_SESSION, isLoggedIn: false, verificationStatus: 'unverified', tier: 1 }
+    return { ...DEMO_SESSION }
   }
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
@@ -37,7 +37,8 @@ function readSession(): UserSession {
   } catch {
     /* ignore */
   }
-  return { ...DEMO_SESSION, isLoggedIn: false, verificationStatus: 'unverified', tier: 1 }
+  // Demo default: treat buyer as signed in for the self-service portal.
+  return { ...DEMO_SESSION }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

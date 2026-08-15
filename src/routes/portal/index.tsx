@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../../context/AuthContext'
 
 export const Route = createFileRoute('/portal/')({
@@ -10,7 +10,7 @@ export const Route = createFileRoute('/portal/')({
 })
 
 function PortalGatePage() {
-  const { session, login, logout } = useAuth()
+  const { session, login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('buyer@example.com')
   const [password, setPassword] = useState('demo')
@@ -18,38 +18,12 @@ function PortalGatePage() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
     login(email)
-    void navigate({ to: '/portal/catalog' })
+    void navigate({ to: '/portal/dashboard' })
   }
 
+  // Assume logged-in buyers land on the self-service dashboard.
   if (session.isLoggedIn) {
-    return (
-      <div className="mx-auto flex min-h-dvh max-w-xl flex-col justify-center px-4 py-8 md:px-6">
-        <h1 className="text-3xl font-bold tracking-tight text-velvet">Client Portal</h1>
-        <p className="mt-2 text-velvet/65">
-          Signed in as <strong>{session.displayName}</strong> ({session.roleLabel}).
-        </p>
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Link
-            to="/portal/catalog"
-            className="btn btn-primary no-underline hover:no-underline"
-          >
-            Open procurement catalog
-          </Link>
-          <Link
-            to="/portal/orders"
-            className="btn btn-secondary no-underline hover:no-underline"
-          >
-            View orders
-          </Link>
-          <button type="button" className="btn btn-ghost" onClick={logout}>
-            Sign out
-          </button>
-        </div>
-        <Link to="/" className="mt-8 text-sm font-semibold text-adamantine no-underline hover:underline">
-          ← Back to public site
-        </Link>
-      </div>
-    )
+    return <Navigate to="/portal/dashboard" />
   }
 
   return (
@@ -63,10 +37,10 @@ function PortalGatePage() {
       </nav>
       <h1 className="text-3xl font-bold tracking-tight text-velvet">Client Portal</h1>
       <p className="mt-2 text-velvet/65">
-        Sign in for high-density catalog, quick-view TDS drawers, and post-purchase action hubs.
+        Sign in for dashboard metrics, order history, compliance documents, and RFQ reorder.
       </p>
       <form
-        className="mt-8 space-y-4 rounded-lg border border-organza/30 bg-white p-6"
+        className="mt-8 space-y-4 rounded border border-gray-200 bg-white p-6"
         onSubmit={onSubmit}
       >
         <label className="block text-sm font-semibold">
@@ -77,7 +51,7 @@ function PortalGatePage() {
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+            className="mt-1 w-full rounded border border-gray-200 bg-gray-50 px-3 py-2.5 font-normal"
           />
         </label>
         <label className="block text-sm font-semibold">
@@ -88,12 +62,13 @@ function PortalGatePage() {
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded border border-organza/40 bg-canvas px-3 py-2.5 font-normal"
+            className="mt-1 w-full rounded border border-gray-200 bg-gray-50 px-3 py-2.5 font-normal"
           />
         </label>
         <button type="submit" className="btn btn-primary w-full">
           Sign in
         </button>
+        <p className="text-center text-xs text-gray-500">Demo: any email / password works.</p>
       </form>
     </div>
   )

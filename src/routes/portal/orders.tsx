@@ -1,81 +1,116 @@
-import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { ActionHubCard } from '../../components/ActionHubCard'
 import { useLiveRegion } from '../../components/LiveRegion'
-import { TimelineNode } from '../../components/TimelineNode'
-import { MOCK_ORDERS } from '../../data/mockOrders'
+import { useRfq } from '../../context/RfqContext'
+import {
+  PORTAL_PURCHASE_ORDERS,
+  portalLineToProduct,
+  type PortalOrderStatus,
+  type PortalPurchaseOrder,
+} from '../../data/portalDashboard'
 
 export const Route = createFileRoute('/portal/orders')({
   head: () => ({
-    meta: [{ title: 'Orders & Action Hub | LeanChem Portal' }],
+    meta: [{ title: 'Order History | LeanChem Portal' }],
   }),
   component: PortalOrdersPage,
 })
 
+const STATUS_CLASS: Record<PortalOrderStatus, string> = {
+  Draft: 'bg-gray-100 text-gray-700',
+  Quoted: 'bg-blue-50 text-lapis',
+  Processing: 'bg-amber-50 text-amber-900',
+  Shipped: 'bg-emerald-50 text-emerald-800',
+}
+
 function PortalOrdersPage() {
+  const { addProduct, openDrawer } = useRfq()
   const { announce } = useLiveRegion()
-  const [expandedId, setExpandedId] = useState<string | null>(MOCK_ORDERS[0]?.id ?? null)
+
+  const reorder = (po: PortalPurchaseOrder) => {
+    po.items.forEach((line, index) => {
+      addProduct(portalLineToProduct(line), {
+        packaging: line.packaging,
+        quantity: line.quantity,
+        openDrawer: index === po.items.length - 1,
+      })
+    })
+    if (po.items.length === 0) openDrawer()
+    announce(`Reordered ${po.poNumber} — ${po.items.length} item(s) added to RFQ cart.`)
+  }
 
   return (
     <div>
       <header className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-velvet md:text-3xl">
-          Orders & action hub
+          Order History
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-velvet/65">
-          Track fulfillment steppers and complete required document uploads without leaving the
-          portal.
+          Purchase orders for your company. Reorder pushes line items into the RFQ cart.
         </p>
       </header>
 
-      <div className="space-y-4">
-        {MOCK_ORDERS.map((order) => {
-          const expanded = expandedId === order.id
-          return (
-            <article
-              key={order.id}
-              className="rounded-lg border border-organza/35 bg-white p-5 shadow-[0_1px_2px_rgba(34,34,53,0.04)]"
-            >
-              <button
-                type="button"
-                className="flex w-full items-start justify-between gap-3 text-left"
-                onClick={() => setExpandedId(expanded ? null : order.id)}
-                aria-expanded={expanded}
-              >
-                <div>
-                  <p className="text-xs font-semibold text-organza">{order.id}</p>
-                  <h2 className="mt-1 text-lg font-bold text-velvet">{order.productName}</h2>
-                  <p className="mt-1 text-sm font-semibold text-lapis">CAS {order.casNumber}</p>
-                </div>
-                <span className="text-sm font-semibold text-adamantine">
-                  {expanded ? 'Collapse' : 'Expand'}
-                </span>
-              </button>
-
-              {expanded ? (
-                <ol className="mt-6 list-none p-0">
-                  {order.steps.map((step, index) => (
-                    <TimelineNode
-                      key={step.id}
-                      status={step.status}
-                      label={step.label}
-                      timestamp={step.timestamp}
-                      isLast={index === order.steps.length - 1}
+      <div className="overflow-hidden rounded border border-gray-200 bg-white">
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-collapse text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-xs font-bold tracking-wide text-gray-600 uppercase">
+                  PO Number
+                </th>
+                <th className="px-4 py-3 text-xs font-bold tracking-wide text-gray-600 uppercase">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-xs font-bold tracking-wide text-gray-600 uppercase">
+                  Items
+                </th>
+                <th className="px-4 py-3 text-xs font-bold tracking-wide text-gray-600 uppercase">
+                  Total Volume
+                </th>
+                <th className="px-4 py-3 text-xs font-bold tracking-wide text-gray-600 uppercase">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-xs font-bold tracking-wide text-gray-600 uppercase">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {PORTAL_PURCHASE_ORDERS.map((po) => (
+                <tr key={po.poNumber} className="hover:bg-gray-50/80">
+                  <td className="px-4 py-3 font-bold whitespace-nowrap text-velvet">
+                    {po.poNumber}
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap text-gray-600">{po.date}</td>
+                  <td className="px-4 py-3 text-gray-700">
+                    <span className="font-semibold text-velvet">{po.items.length}</span>
+                    <span className="mt-0.5 block max-w-xs truncate text-xs text-gray-500">
+                      {po.items.map((i) => i.name).join(', ')}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 font-semibold whitespace-nowrap text-velvet">
+                    {po.totalVolume}
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span
+                      className={`inline-flex rounded px-2 py-1 text-xs font-bold ${STATUS_CLASS[po.status]}`}
                     >
-                      {step.taskType ? (
-                        <ActionHubCard
-                          taskType={step.taskType}
-                          orderId={order.id}
-                          onAnnounce={announce}
-                        />
-                      ) : null}
-                    </TimelineNode>
-                  ))}
-                </ol>
-              ) : null}
-            </article>
-          )
-        })}
+                      {po.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="btn btn-secondary h-9 min-h-9 px-3 text-xs"
+                      onClick={() => reorder(po)}
+                    >
+                      Reorder
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

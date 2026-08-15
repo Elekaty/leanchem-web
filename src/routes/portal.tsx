@@ -1,4 +1,7 @@
 import { Outlet, createFileRoute, Navigate, useRouterState } from '@tanstack/react-router'
+import { RfqCheckoutModal } from '../components/RfqCheckoutModal'
+import { RfqDrawer } from '../components/RfqDrawer'
+import { RfqFloatingCart } from '../components/RfqFloatingCart'
 import {
   PortalCommandBar,
   PortalLeftRail,
@@ -29,7 +32,7 @@ function PortalLayoutRoute() {
   return (
     <ShellProvider>
       <div
-        className="flex min-h-dvh flex-col bg-canvas"
+        className="flex min-h-dvh flex-col bg-gray-50"
         style={{
           ['--shell-top' as string]: hasBanner ? '6.25rem' : '3.5rem',
         }}
@@ -40,10 +43,13 @@ function PortalLayoutRoute() {
         </div>
         <div className="relative flex min-h-0 flex-1">
           <PortalLeftRail showFacets={showFacets} />
-          <main className="min-w-0 flex-1 overflow-auto bg-canvas p-4 md:p-6">
+          <main className="min-w-0 flex-1 overflow-auto bg-gray-50 p-4 md:p-6">
             <Outlet />
           </main>
         </div>
+        <RfqFloatingCart />
+        <RfqDrawer />
+        <RfqCheckoutModal />
       </div>
     </ShellProvider>
   )
