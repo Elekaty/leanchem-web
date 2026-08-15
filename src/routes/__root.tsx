@@ -189,10 +189,16 @@ function SiteFooter() {
             {SITE.emails.commercial}
           </a>
           <a
-            href={`mailto:${SITE.emails.compliance}`}
+            href={`tel:${SITE.phones.primary.replace(/\s/g, '')}`}
             className="text-adamantine no-underline hover:underline"
           >
-            {SITE.emails.compliance}
+            {SITE.phones.primary}
+          </a>
+          <a
+            href={`tel:${SITE.phones.secondary.replace(/\s/g, '')}`}
+            className="text-adamantine no-underline hover:underline"
+          >
+            {SITE.phones.secondary}
           </a>
           <p className="mt-1 text-white/55">{SITE.location}</p>
         </div>

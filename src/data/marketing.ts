@@ -4,18 +4,22 @@ export const SITE = {
   taglineLine2: 'Values You Deserve',
   valueProp:
     'Enterprise chemical procurement for Ethiopian industry — verified sourcing, technical support, and corridor-aware logistics.',
-  location: 'Addis Ababa · Serving Ethiopia',
+  location: 'Dimple Mall & Apartments, Office 217 · Bulgaria, Addis Ababa',
   stats: [
     { value: '500+', label: 'SKUs sourced' },
     { value: '40+', label: 'Tier-1 suppliers' },
     { value: '10+', label: 'Years in market' },
   ],
   emails: {
-    commercial: 'commercial@leanchem.et',
-    compliance: 'compliance@leanchem.et',
+    commercial: 'sales@leanchems.com',
+    compliance: 'sales@leanchems.com',
+  },
+  phones: {
+    primary: '+251 963 730 000',
+    secondary: '+251 962 199 536',
   },
   chat: {
-    whatsapp: 'https://wa.me/251900000000',
+    whatsapp: 'https://wa.me/251963730000',
     telegram: 'https://t.me/leanchem',
   },
 } as const
