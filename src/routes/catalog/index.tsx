@@ -6,12 +6,13 @@ import {
 } from '../../components/CatalogFilterBar'
 import { CatalogTypeahead } from '../../components/CatalogTypeahead'
 import { ProductCard, ProductCardSkeleton } from '../../components/ProductCard'
+import { useCatalogData } from '../../context/CatalogDataContext'
 import { INDUSTRIES } from '../../data/marketing'
+import type { CatalogSort } from '../../lib/catalogDiscovery'
 import {
-  discoverProducts,
-  getCatalogFacets,
-  type CatalogSort,
-} from '../../lib/catalogDiscovery'
+  discoverProductsFrom,
+  getCatalogFacetsFrom,
+} from '../../lib/catalogQuery'
 
 type CatalogSearch = {
   q?: string
@@ -66,13 +67,13 @@ export const Route = createFileRoute('/catalog/')({
 function CatalogPage() {
   const search = Route.useSearch()
   const navigate = useNavigate()
+  const { products: allProducts, loading: catalogLoading, source } = useCatalogData()
   const { q, market } = search
   const marketLabel = INDUSTRIES.find((i) => i.slug === market)?.title
-  const [loading, setLoading] = useState(true)
   const [queryDraft, setQueryDraft] = useState(q ?? '')
 
   const facets = useMemo(() => {
-    const raw = getCatalogFacets()
+    const raw = getCatalogFacetsFrom(allProducts)
     return {
       hsChapters: raw.hsChapters.map((o) => ({
         ...o,
@@ -81,7 +82,7 @@ function CatalogPage() {
       purities: raw.purities,
       packagingSizes: raw.packagingSizes,
     }
-  }, [])
+  }, [allProducts])
 
   const hsChapters = csv(search.hs)
   const purities = csv(search.purity)
@@ -101,15 +102,9 @@ function CatalogPage() {
     setQueryDraft(q ?? '')
   }, [q])
 
-  useEffect(() => {
-    setLoading(true)
-    const t = window.setTimeout(() => setLoading(false), 320)
-    return () => window.clearTimeout(t)
-  }, [q, market, search.hs, search.purity, search.pack, search.stock, search.sort])
-
   const products = useMemo(
     () =>
-      discoverProducts({
+      discoverProductsFrom(allProducts, {
         q,
         market,
         hsChapters,
@@ -118,7 +113,7 @@ function CatalogPage() {
         inStockOnly,
         sort,
       }),
-    [q, market, search.hs, search.purity, search.pack, search.stock, search.sort],
+    [allProducts, q, market, search.hs, search.purity, search.pack, search.stock, search.sort],
   )
 
   const pushFilters = (next: CatalogFiltersState) => {
@@ -147,6 +142,8 @@ function CatalogPage() {
     })
   }
 
+  const loading = catalogLoading
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
       <nav aria-label="Breadcrumb" className="mb-4 text-sm text-organza">
@@ -167,8 +164,16 @@ function CatalogPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-velvet">Chemical Catalog</h1>
           <p className="mt-2 max-w-2xl text-velvet/65">
-            Typeahead discovery with HS, purity, packaging, and stock filters for procurement
-            buyers.
+            Live grades from Chemical Master Data — search, filter, open specs, and add to RFQ.
+            {source === 'supabase' ? (
+              <span className="mt-1 block text-xs font-semibold text-success">
+                Connected · {allProducts.length} products
+              </span>
+            ) : (
+              <span className="mt-1 block text-xs font-semibold text-velvet/45">
+                Showing demo catalog (Supabase unavailable)
+              </span>
+            )}
           </p>
         </div>
         <CatalogTypeahead

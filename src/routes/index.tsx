@@ -9,8 +9,19 @@ import {
   TRUST_ITEMS,
   WHY_ITEMS,
 } from '../data/marketing'
+import { loadNewsFeed } from '../lib/newsClient'
+import type { NewsFeedPayload } from '../types/news'
+
+async function loadHomeNews(): Promise<NewsFeedPayload | null> {
+  try {
+    return await loadNewsFeed()
+  } catch {
+    return null
+  }
+}
 
 export const Route = createFileRoute('/')({
+  loader: async () => ({ news: await loadHomeNews() }),
   head: () => ({
     meta: [
       {
@@ -26,6 +37,8 @@ export const Route = createFileRoute('/')({
 })
 
 function HomePage() {
+  const { news } = Route.useLoaderData()
+
   return (
     <div>
       {/* Hero — full bleed */}
@@ -209,7 +222,11 @@ function HomePage() {
             Vertically scrolling feed of active regional corridors with status chips and timestamps.
           </p>
           <div className="mt-8">
-            <LogisticsFeed />
+            <LogisticsFeed
+              rows={news?.logistics}
+              geminiEnabled={news?.geminiEnabled}
+              analyzedAt={news?.analyzedAt}
+            />
           </div>
         </div>
       </section>

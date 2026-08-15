@@ -10,6 +10,7 @@ import {
 import { LiveRegionProvider } from '../components/LiveRegion'
 import { RfqDrawer, RfqHeaderButton } from '../components/RfqDrawer'
 import { AuthProvider } from '../context/AuthContext'
+import { CatalogDataProvider } from '../context/CatalogDataContext'
 import { RfqProvider, useRfq } from '../context/RfqContext'
 import { SITE } from '../data/marketing'
 import appCss from '../styles/app.css?url'
@@ -49,22 +50,24 @@ function RootComponent() {
     <RootDocument>
       <AuthProvider>
         <LiveRegionProvider>
-          <RfqProvider>
-            {isPortal ? (
-              <Outlet />
-            ) : (
-              <>
-                <SiteHeader />
-                <main className="w-full flex-1 bg-canvas pb-24 md:pb-0">
-                  <Outlet />
-                </main>
-                <SiteFooter />
-                <FloatingChat />
-                <StickyMobileCta />
-                <RfqDrawer />
-              </>
-            )}
-          </RfqProvider>
+          <CatalogDataProvider>
+            <RfqProvider>
+              {isPortal ? (
+                <Outlet />
+              ) : (
+                <>
+                  <SiteHeader />
+                  <main className="w-full flex-1 bg-canvas pb-24 md:pb-0">
+                    <Outlet />
+                  </main>
+                  <SiteFooter />
+                  <FloatingChat />
+                  <StickyMobileCta />
+                  <RfqDrawer />
+                </>
+              )}
+            </RfqProvider>
+          </CatalogDataProvider>
         </LiveRegionProvider>
       </AuthProvider>
     </RootDocument>

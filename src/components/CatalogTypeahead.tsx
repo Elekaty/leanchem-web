@@ -1,11 +1,12 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { SearchIcon } from './Icons'
+import { useCatalogData } from '../context/CatalogDataContext'
 import {
   highlightMatch,
-  searchProductsTypeahead,
   type RankedHit,
 } from '../lib/catalogDiscovery'
+import { searchProductsTypeaheadFrom } from '../lib/catalogQuery'
 
 const FIELD_LABEL: Record<RankedHit['field'], string> = {
   name: 'Name',
@@ -36,6 +37,7 @@ export function CatalogTypeahead({
   const inputId = id ?? autoId
   const listboxId = `${inputId}-listbox`
   const navigate = useNavigate()
+  const { products } = useCatalogData()
   const rootRef = useRef<HTMLDivElement>(null)
   const [internal, setInternal] = useState(value ?? '')
   const [open, setOpen] = useState(false)
@@ -59,12 +61,12 @@ export function CatalogTypeahead({
     }
     setFetching(true)
     const t = window.setTimeout(() => {
-      setHits(searchProductsTypeahead(q))
+      setHits(searchProductsTypeaheadFrom(products, q))
       setFetching(false)
       setActiveIndex(-1)
     }, 180)
     return () => window.clearTimeout(t)
-  }, [query])
+  }, [query, products])
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {

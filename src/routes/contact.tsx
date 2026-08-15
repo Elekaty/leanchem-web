@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useLiveRegion } from '../components/LiveRegion'
 import { generateRfqReference, useRfq } from '../context/RfqContext'
-import { getProductBySlug, MOCK_PRODUCTS } from '../data/mockProducts'
+import { useCatalogData } from '../context/CatalogDataContext'
+import { getProductBySlugAsync } from '../lib/chemicalCatalog'
 import type { RfqLineItem } from '../types/catalog'
 
 type ContactSearch = {
@@ -38,6 +39,7 @@ function ContactPage() {
   const { product, market, intent } = Route.useSearch()
   const { announce } = useLiveRegion()
   const { items, addProduct, updateItem, removeItem, clear } = useRfq()
+  const { products: catalogProducts } = useCatalogData()
   const title = intent === 'sample' ? 'Request a sample' : 'Submit multi-product RFQ'
 
   const [lines, setLines] = useState<RfqLineItem[]>([])
@@ -50,10 +52,16 @@ function ContactPage() {
 
   useEffect(() => {
     if (!product) return
-    const p = getProductBySlug(product)
-    if (!p) return
-    if (!items.some((i) => i.productId === p.id)) {
-      addProduct(p, { openDrawer: false })
+    let cancelled = false
+    ;(async () => {
+      const p = await getProductBySlugAsync(product)
+      if (cancelled || !p) return
+      if (!items.some((i) => i.productId === p.id)) {
+        addProduct(p, { openDrawer: false })
+      }
+    })()
+    return () => {
+      cancelled = true
     }
     // Intentionally only when deep-link product changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,7 +82,7 @@ function ContactPage() {
   }
 
   const addFromCatalog = (slug: string) => {
-    const p = MOCK_PRODUCTS.find((x) => x.slug === slug)
+    const p = catalogProducts.find((x) => x.slug === slug)
     if (p) addProduct(p, { openDrawer: false })
   }
 
@@ -272,11 +280,12 @@ function ContactPage() {
                   <option value="" disabled>
                     Select a grade to add…
                   </option>
-                  {MOCK_PRODUCTS.filter(
-                    (p) => !lines.some((l) => l.productId === p.id),
-                  ).map((p) => (
+                  {catalogProducts
+                    .filter((p) => !lines.some((l) => l.productId === p.id))
+                    .slice(0, 80)
+                    .map((p) => (
                     <option key={p.id} value={p.slug}>
-                      {p.name} (CAS {p.casNumber})
+                      {p.name} ({p.casNumber})
                     </option>
                   ))}
                 </select>
